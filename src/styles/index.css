@@ -1,0 +1,136 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    overflow-x: hidden;
+    background: #fff8f3;
+    font-family: "Poppins", sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  a,
+  button {
+    touch-action: manipulation;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 3px solid #8e75b6;
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .section-space {
+    @apply py-20 sm:py-28;
+  }
+
+  .button-primary {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-ink px-6 py-3 text-center text-sm font-semibold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:bg-plum hover:shadow-lift;
+  }
+
+  .button-secondary {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-ink/20 bg-white/75 px-6 py-3 text-center text-sm font-semibold text-ink backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-plum hover:text-plum;
+  }
+
+  .button-card {
+    @apply inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md border border-ink/15 bg-lavender-light px-5 py-3 text-center text-sm font-semibold text-ink transition-colors duration-200 hover:border-ink hover:bg-ink hover:text-white;
+  }
+
+  .skip-link {
+    @apply fixed left-4 top-4 z-[100] -translate-y-24 rounded-md bg-ink px-4 py-3 text-sm font-semibold text-white transition-transform focus:translate-y-0;
+  }
+
+  .price-range {
+    @apply pointer-events-none absolute left-0 top-1/2 h-10 w-full -translate-y-1/2 appearance-none bg-transparent;
+  }
+
+  .price-range::-webkit-slider-runnable-track {
+    @apply h-1 appearance-none bg-transparent;
+  }
+
+  .price-range::-webkit-slider-thumb {
+    @apply pointer-events-auto h-5 w-5 appearance-none rounded-full border-[3px] border-[#FFF4FA] shadow-md;
+    background: linear-gradient(180deg, #d48ed0 0%, #9a67bf 100%);
+    box-shadow:
+      0 0 0 4px rgba(255, 248, 243, 0.92),
+      0 10px 18px rgba(120, 72, 156, 0.22);
+    margin-top: -8px;
+  }
+
+  .price-range::-moz-range-track {
+    @apply h-1 bg-transparent;
+  }
+
+  .price-range::-moz-range-thumb {
+    @apply pointer-events-auto h-5 w-5 rounded-full border-[3px] border-[#FFF4FA] shadow-md;
+    background: linear-gradient(180deg, #d48ed0 0%, #9a67bf 100%);
+    box-shadow:
+      0 0 0 4px rgba(255, 248, 243, 0.92),
+      0 10px 18px rgba(120, 72, 156, 0.22);
+  }
+
+  .price-range-min {
+    z-index: 3;
+  }
+
+  .price-range-max {
+    z-index: 4;
+  }
+}
+
+@media (max-width: 639px) {
+  #inicio {
+    min-height: 760px;
+  }
+
+  #inicio > img {
+    object-position: 67% center;
+  }
+
+  #inicio > div:nth-of-type(1) {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 248, 243, 0.12) 0%,
+      rgba(255, 248, 243, 0.88) 42%,
+      rgba(255, 248, 243, 0.99) 100%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
