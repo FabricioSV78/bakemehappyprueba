@@ -10,7 +10,7 @@ export default function ProductCard({ product }) {
         <img
           src={product.image}
           alt={`${product.name} de Bake Me Happy`}
-          className="h-full w-full scale-[1.42] object-cover"
+          className="h-full w-full object-cover"
           style={{ objectPosition: product.imagePosition }}
           loading="lazy"
           width="560"

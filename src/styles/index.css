@@ -100,37 +100,3 @@
     z-index: 4;
   }
 }
-
-@media (max-width: 639px) {
-  #inicio {
-    min-height: 760px;
-  }
-
-  #inicio > img {
-    object-position: 67% center;
-  }
-
-  #inicio > div:nth-of-type(1) {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 248, 243, 0.12) 0%,
-      rgba(255, 248, 243, 0.88) 42%,
-      rgba(255, 248, 243, 0.99) 100%
-    );
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
-}

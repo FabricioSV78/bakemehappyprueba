@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 const featuredCakes = [
   {
@@ -33,25 +33,62 @@ const featuredCakes = [
 ];
 
 const AUTOPLAY_MS = 4200;
-const clonedCakes = [...featuredCakes, ...featuredCakes.slice(0, 3)];
 
 export default function FeaturedGallery() {
   const [slideIndex, setSlideIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [hasTransition, setHasTransition] = useState(true);
+  const [visibleCards, setVisibleCards] = useState(() => {
+    if (typeof window === "undefined") {
+      return 1;
+    }
+
+    if (window.innerWidth >= 1024) {
+      return 3;
+    }
+
+    if (window.innerWidth >= 640) {
+      return 2;
+    }
+
+    return 1;
+  });
+  const clonedCakes = [
+    ...featuredCakes,
+    ...featuredCakes.slice(0, visibleCards),
+  ];
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    function syncVisibleCards() {
+      if (window.innerWidth >= 1024) {
+        setVisibleCards(3);
+        return;
+      }
 
-    if (isPaused || prefersReducedMotion) {
+      if (window.innerWidth >= 640) {
+        setVisibleCards(2);
+        return;
+      }
+
+      setVisibleCards(1);
+    }
+
+    syncVisibleCards();
+    window.addEventListener("resize", syncVisibleCards);
+
+    return () => window.removeEventListener("resize", syncVisibleCards);
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) {
       return undefined;
     }
 
     const intervalId = window.setInterval(() => {
       setHasTransition(true);
-      setSlideIndex((currentIndex) => currentIndex + 1);
+      setSlideIndex((currentIndex) =>
+        currentIndex >= featuredCakes.length ? currentIndex : currentIndex + 1,
+      );
     }, AUTOPLAY_MS);
 
     return () => window.clearInterval(intervalId);
@@ -64,14 +101,20 @@ export default function FeaturedGallery() {
 
   function handlePrevious() {
     setHasTransition(true);
-    setSlideIndex((currentIndex) =>
-      currentIndex === 0 ? featuredCakes.length - 1 : currentIndex - 1,
-    );
+    setSlideIndex((currentIndex) => {
+      if (currentIndex >= featuredCakes.length) {
+        return featuredCakes.length - 1;
+      }
+
+      return currentIndex === 0 ? featuredCakes.length - 1 : currentIndex - 1;
+    });
   }
 
   function handleNext() {
     setHasTransition(true);
-    setSlideIndex((currentIndex) => currentIndex + 1);
+    setSlideIndex((currentIndex) =>
+      currentIndex >= featuredCakes.length ? 1 : currentIndex + 1,
+    );
   }
 
   function handleTransitionEnd() {
@@ -92,7 +135,7 @@ export default function FeaturedGallery() {
       aria-labelledby="featured-cakes-title"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="mb-8 sm:mb-10">
+        <div className="mb-8 flex flex-col gap-5 sm:mb-10 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-plum">
               Creaciones destacadas
@@ -104,6 +147,14 @@ export default function FeaturedGallery() {
               Tortas hechas para celebrar
             </h2>
           </div>
+
+          <a
+            href="#/catalogo"
+            className="button-secondary w-full sm:w-auto lg:shrink-0"
+          >
+            Ver catálogo completo
+            <ArrowRight size={18} aria-hidden="true" />
+          </a>
         </div>
 
         <div
@@ -129,7 +180,7 @@ export default function FeaturedGallery() {
                   hasTransition
                     ? "transition-transform duration-[400ms] ease-out"
                     : ""
-                } motion-reduce:transition-none`}
+                }`}
                 style={{
                   "--slide-index": slideIndex,
                   transform:
@@ -159,7 +210,7 @@ export default function FeaturedGallery() {
                               ? `${cake.name}, torta elaborada por Bake Me Happy`
                               : ""
                           }
-                          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.025] motion-reduce:transition-none"
+                          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.025]"
                           style={{ objectPosition: cake.imagePosition }}
                           loading="lazy"
                           decoding="async"

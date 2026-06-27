@@ -1,32 +1,64 @@
+import { useEffect, useState } from "react";
 import { ArrowRight, MessageCircle, Sparkles } from "lucide-react";
 import { getWhatsAppUrl } from "../data/site";
 
+const HERO_SLIDES = [
+  {
+    src: "/images/bake-me-happy-hero.jpg",
+    position:
+      "object-[73%_32%] sm:object-[70%_34%] lg:object-[68%_44%]",
+  },
+  {
+    src: "/images/FONDO.jpg",
+    position:
+      "object-[78%_50%] sm:object-[75%_50%] lg:object-[68%_50%]",
+  },
+  {
+    src: "/images/fondo1.jpg",
+    position:
+      "object-[76%_50%] sm:object-[74%_50%] lg:object-[68%_50%]",
+  },
+];
+
+const SLIDE_INTERVAL_MS = 2000;
+
 export default function Hero() {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
+    }, SLIDE_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
   return (
     <section
       id="inicio"
-      className="relative flex min-h-[720px] items-end overflow-hidden bg-[#f9f1f3] pt-20 sm:min-h-[760px]"
+      className="relative isolate flex min-h-svh overflow-hidden bg-[#f9f1f3]"
     >
-      <div className="absolute inset-0">
-        <img
-          src="/images/bake-me-happy-hero.jpg"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full scale-[1.08] object-cover object-[72%_34%] opacity-30 blur-[2px] sm:scale-[1.02] sm:object-[72%_30%] lg:object-[70%_28%]"
-        />
-        <img
-          src="/images/bake-me-happy-hero.jpg"
-          alt="Torta artesanal lavanda decorada con mariposas, flores y cupcakes"
-          className="absolute inset-0 h-full w-full object-contain object-[82%_86%] sm:object-[82%_84%] lg:object-[86%_88%] xl:object-[84%_86%]"
-          fetchPriority="high"
-        />
+      <div className="absolute inset-0 -z-20" aria-hidden="true">
+        {HERO_SLIDES.map((slide, index) => (
+          <img
+            key={slide.src}
+            src={slide.src}
+            alt=""
+            className={`absolute inset-0 h-full w-full object-cover ${slide.position} transition-opacity duration-1000 ease-in-out ${
+              index === activeSlide ? "opacity-100" : "opacity-0"
+            }`}
+            fetchPriority={index === 0 ? "high" : "auto"}
+            loading="eager"
+            decoding="async"
+          />
+        ))}
       </div>
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,248,243,0.99)_0%,rgba(255,248,243,0.95)_34%,rgba(255,248,243,0.70)_56%,rgba(255,248,243,0.26)_78%,rgba(255,248,243,0.08)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_26%,rgba(255,255,255,0.88),transparent_28%),radial-gradient(circle_at_84%_18%,rgba(255,255,255,0.34),transparent_24%),radial-gradient(circle_at_86%_78%,rgba(246,183,203,0.22),transparent_22%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,248,243,0.14)_0%,rgba(255,248,243,0.1)_58%,rgba(255,248,243,0.42)_100%)] sm:hidden" />
 
-      <div className="relative mx-auto flex w-full max-w-7xl items-end px-5 pb-12 pt-20 sm:px-8 sm:pb-16 lg:min-h-[680px]">
-        <div className="w-full min-w-0 max-w-2xl lg:pb-8">
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,248,243,0.05)_0%,rgba(255,248,243,0.18)_30%,rgba(255,248,243,0.94)_61%,rgba(255,248,243,0.99)_100%)] sm:bg-[linear-gradient(90deg,rgba(255,248,243,0.99)_0%,rgba(255,248,243,0.96)_35%,rgba(255,248,243,0.68)_57%,rgba(255,248,243,0.12)_82%,rgba(255,248,243,0.03)_100%)]" />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(18,42,94,0.06)_0%,transparent_24%,transparent_76%,rgba(255,248,243,0.28)_100%)]" />
+
+      <div className="mx-auto flex min-h-svh w-full max-w-7xl items-end px-5 pb-10 pt-28 sm:items-center sm:px-8 sm:pb-16 sm:pt-28 lg:pb-12">
+        <div className="w-full min-w-0 max-w-2xl sm:max-w-xl lg:max-w-2xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-plum/20 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-plum backdrop-blur">
             <Sparkles size={15} aria-hidden="true" />
             Tu pastelería virtual en Trujillo
@@ -62,6 +94,22 @@ export default function Hero() {
             <span>Delivery coordinado</span>
           </div>
         </div>
+      </div>
+
+      <div
+        className="pointer-events-none absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 sm:bottom-6"
+        aria-hidden="true"
+      >
+        {HERO_SLIDES.map((slide, index) => (
+          <span
+            key={slide.src}
+            className={`h-1.5 rounded-full transition-all duration-500 ${
+              index === activeSlide
+                ? "w-7 bg-ink"
+                : "w-1.5 bg-white/90 shadow-sm"
+            }`}
+          />
+        ))}
       </div>
     </section>
   );

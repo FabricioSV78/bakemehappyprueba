@@ -17,10 +17,13 @@ const portionRanges = [
     label: "Individual y mini",
     test: (product) => /1 a 2|6 a 7|mini|individual/i.test(product.servings),
   },
-  { label: "15 - 20 porciones", test: (product) => /15|20/i.test(product.servings) },
   {
-    label: "25+ porciones",
-    test: (product) => /25|30|40|45|60|65/i.test(product.servings),
+    label: "22 cm / 15 - 20 porciones",
+    test: (product) => /22 cm|15|20/i.test(product.servings),
+  },
+  {
+    label: "28 cm / 25+ porciones",
+    test: (product) => /28 cm|25|30|40|45|60|65/i.test(product.servings),
   },
 ];
 
@@ -346,8 +349,8 @@ export default function Catalog() {
               Tortas y postres artesanales
             </h2>
             <p className="mt-4 max-w-[36ch] break-words text-base leading-7 text-ink/70 sm:max-w-2xl">
-              Diseños temáticos, mini cakes y postres clásicos preparados a
-              pedido con una estética dulce, cuidada y personalizable.
+              Tortas clásicas, tortas personalizadas y mini tortas preparadas
+              a pedido con una estética dulce, cuidada y personalizable.
             </p>
           </div>
 
@@ -418,7 +421,7 @@ export default function Catalog() {
 
               <div className="mt-5 grid gap-5 border-t border-blush/35 pt-5">
                 <FilterSelect
-                  label="Porciones"
+                  label="Tamaño o porciones"
                   value={portionRange}
                   options={portionRanges.map((range) => range.label)}
                   onChange={setPortionRange}
