@@ -328,6 +328,100 @@ function getRelatedSectionCopy() {
   };
 }
 
+function getProductGallery(product) {
+  const gallery = product?.images?.length
+    ? product.images
+    : [
+        {
+          src: product?.image,
+          alt: `${product?.name} de Bake Me Happy`,
+          position: product?.imagePosition,
+        },
+        {
+          src: "/images/webp/FONDO.webp",
+          alt: `Vista alternativa de ${product?.name}`,
+          position: "center",
+        },
+        {
+          src: "/images/webp/fondo1.webp",
+          alt: `Presentación alternativa de ${product?.name}`,
+          position: "center",
+        },
+      ];
+
+  return gallery
+    .map((image) =>
+      typeof image === "string"
+        ? { src: image, alt: `${product?.name} de Bake Me Happy`, position: "center" }
+        : image,
+    )
+    .filter((image) => image?.src)
+    .filter(
+      (image, index, collection) =>
+        collection.findIndex((candidate) => candidate.src === image.src) === index,
+    )
+    .slice(0, 3);
+}
+
+function ProductGallery({ product, activeIndex, onSelect }) {
+  const gallery = getProductGallery(product);
+  const activeImage = gallery[activeIndex] ?? gallery[0];
+
+  return (
+    <div className="w-full max-w-full min-w-0 overflow-hidden bg-[#fffaf7] p-3 sm:p-4">
+      <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-[6.5rem_minmax(0,1fr)]">
+        <div
+          className="order-2 grid w-full min-w-0 grid-cols-3 gap-2 sm:order-1 sm:h-full sm:grid-cols-1 sm:grid-rows-3 sm:gap-3"
+          aria-label={`Vistas de ${product.name}`}
+        >
+          {gallery.map((image, index) => {
+            const isSelected = activeIndex === index;
+
+            return (
+              <button
+                key={image.src}
+                type="button"
+                onClick={() => onSelect(index)}
+                aria-label={`Ver imagen ${index + 1} de ${product.name}`}
+                aria-pressed={isSelected}
+                className={`relative aspect-[5/4] min-h-11 min-w-0 w-full overflow-hidden rounded-md border bg-white p-1.5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum focus-visible:ring-offset-2 sm:h-full sm:aspect-auto ${
+                  isSelected
+                    ? "border-plum shadow-sm"
+                    : "border-blush/55 hover:border-plum/55"
+                }`}
+              >
+                <img
+                  src={image.src}
+                  alt=""
+                  className="h-full w-full rounded-[0.35rem] object-cover"
+                  style={{ objectPosition: image.position ?? product.imagePosition ?? "center" }}
+                  loading="lazy"
+                  width="176"
+                  height="140"
+                />
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="relative order-1 aspect-[5/4] w-full min-w-0 overflow-hidden rounded-md bg-white sm:order-2">
+          <img
+            key={activeImage.src}
+            src={activeImage.src}
+            alt={activeImage.alt}
+            className="h-full w-full object-cover"
+            style={{
+              objectPosition: activeImage.position ?? product.imagePosition ?? "center",
+            }}
+            width="900"
+            height="720"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ProductPage({ currentPath }) {
   const productId = getProductId(currentPath);
   const product = products.find((item) => item.id === productId);
@@ -368,6 +462,7 @@ export default function ProductPage({ currentPath }) {
   const [date, setDate] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedRelatedIds, setSelectedRelatedIds] = useState([]);
+  const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
 
   useEffect(() => {
     setSelectedSize(sizeOptions[0]?.label ?? "");
@@ -381,6 +476,7 @@ export default function ProductPage({ currentPath }) {
     setDate("");
     setQuantity(1);
     setSelectedRelatedIds([]);
+    setActiveGalleryIndex(0);
   }, [fillingOptions, flavorOptions, productId, sizeOptions]);
 
   const selectedRelatedProducts = useMemo(
@@ -464,8 +560,8 @@ export default function ProductPage({ currentPath }) {
     .join("\n");
 
   return (
-    <section className="bg-cream pb-20 pt-28 sm:pb-28">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+    <section className="overflow-x-hidden bg-cream pb-20 pt-28 sm:pb-28">
+      <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
         <a
           href="#/catalogo"
           className="inline-flex min-h-11 items-center gap-2 rounded-full border border-lavender/45 bg-white px-4 text-sm font-semibold text-ink"
@@ -474,22 +570,14 @@ export default function ProductPage({ currentPath }) {
           Volver al catálogo
         </a>
 
-        <div className="mt-6 grid gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
-          <aside className="space-y-5">
-            <section className="overflow-hidden rounded-lg border border-blush/50 bg-white shadow-soft">
-              <div className="relative aspect-[4/3] overflow-hidden bg-blush/20">
-                <img
-                  src={product.image}
-                  alt={`${product.name} de Bake Me Happy`}
-                  className="h-full w-full scale-[1.62] object-cover"
-                  style={{ objectPosition: product.imagePosition }}
-                  width="900"
-                  height="675"
-                />
-                <span className="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-1.5 text-xs font-semibold text-plum shadow-sm">
-                  {product.category}
-                </span>
-              </div>
+        <div className="mt-6 grid w-full min-w-0 grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+          <aside className="w-full min-w-0 space-y-5">
+            <section className="w-full min-w-0 overflow-hidden rounded-lg border border-blush/50 bg-white shadow-soft">
+              <ProductGallery
+                product={product}
+                activeIndex={activeGalleryIndex}
+                onSelect={setActiveGalleryIndex}
+              />
 
               <div className="p-5 sm:p-6">
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] text-plum">
@@ -553,7 +641,7 @@ export default function ProductPage({ currentPath }) {
             )}
           </aside>
 
-          <div className="space-y-5">
+          <div className="min-w-0 space-y-5">
             <div className="rounded-lg border border-lavender/40 bg-lavender-light/65 p-5">
               <div className="flex gap-3">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-plum shadow-sm">

@@ -63,10 +63,9 @@ export default function Footer() {
 
         <div className="flex flex-col gap-2 pt-7 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            Copyright {new Date().getFullYear()} Bake Me Happy. Todos los
-            derechos reservados.
+            Copyright {new Date().getFullYear()} Bake Me Happy. 
           </p>
-          <p>Desarrollado por Fabricio Seminario</p>
+          <p>Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

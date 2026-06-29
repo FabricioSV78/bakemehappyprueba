@@ -4,17 +4,17 @@ import { getWhatsAppUrl } from "../data/site";
 
 const HERO_SLIDES = [
   {
-    src: "/images/bake-me-happy-hero.jpg",
+    src: "/images/webp/bake-me-happy-hero.webp",
     position:
       "object-[73%_32%] sm:object-[70%_34%] lg:object-[68%_44%]",
   },
   {
-    src: "/images/FONDO.jpg",
+    src: "/images/webp/FONDO.webp",
     position:
       "object-[78%_50%] sm:object-[75%_50%] lg:object-[68%_50%]",
   },
   {
-    src: "/images/fondo1.jpg",
+    src: "/images/webp/fondo1.webp",
     position:
       "object-[76%_50%] sm:object-[74%_50%] lg:object-[68%_50%]",
   },

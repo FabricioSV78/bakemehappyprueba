@@ -122,7 +122,7 @@ export default function About() {
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-lavender-light">
                   <img
-                    src="/images/bake-me-happy-hero.jpg"
+                    src="/images/webp/bake-me-happy-hero.webp"
                     alt={`${title} en Bake Me Happy`}
                     className="h-full w-full scale-[1.85] object-cover"
                     style={{ objectPosition: imagePosition }}

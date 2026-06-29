@@ -1,4 +1,21 @@
-const productImage = "/images/bake-me-happy-hero.jpg";
+const productImage = "/images/webp/bake-me-happy-hero.webp";
+const chocomanjarImages = [
+  {
+    src: "/images/webp/torta chocomanjar/T-Chocomanjar1.webp",
+    alt: "Torta de Chocomanjar de Bake Me Happy",
+    position: "center",
+  },
+  {
+    src: "/images/webp/torta chocomanjar/T-Chocomanjar2.webp",
+    alt: "Vista alternativa de la Torta de Chocomanjar",
+    position: "center",
+  },
+  {
+    src: "/images/webp/torta chocomanjar/T-Chocomanjar3.webp",
+    alt: "Detalle de la Torta de Chocomanjar",
+    position: "center",
+  },
+];
 
 // Las imagenes iniciales usan distintos recortes de la foto principal.
 // Reemplaza cada image por la foto real del producto cuando este disponible.
@@ -131,8 +148,9 @@ export const products = [
       "Bizcocho de chocolate relleno con manjar de olla y decorado con fudge de olla.",
     category: "Tortas clásicas",
     tags: ["Clásica", "Chocolate", "Hecha con amor"],
-    image: productImage,
-    imagePosition: "70% 52%",
+    image: chocomanjarImages[0].src,
+    images: chocomanjarImages,
+    imagePosition: chocomanjarImages[0].position,
     servings: "22 cm y 28 cm",
     details:
       "Delicioso bizcocho de chocolate relleno con manjar de olla y decorada con fudge de olla. Una opción clásica para quienes buscan sabor intenso y acabado artesanal.",
