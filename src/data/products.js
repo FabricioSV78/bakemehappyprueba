@@ -272,7 +272,7 @@ export const products = [
       "Formato regalo",
       "Modelos coordinados según disponibilidad",
     ],
-    price: "Consultar por WhatsApp",
+    price: "S/ 30 c/u",
   },
   {
     id: 14,
@@ -315,7 +315,7 @@ export const products = [
       "Decorada con buttercream",
       "Modelos coordinados según disponibilidad",
     ],
-    price: "Consultar por WhatsApp",
+    price: "S/ 30 c/u",
   },
 ];
 
@@ -327,7 +327,7 @@ export const categories = [
 
 export const cakeFlavors = [
   {
-    label: "Queque de vainilla con chispas de chocolate",
+    label: "Vainilla con chispas de chocolate",
     helper: "Sabor base",
     surcharge: 0,
   },
@@ -347,7 +347,7 @@ export const cakeFlavors = [
     surcharge: 20,
   },
   {
-    label: "Queque marmoleado de chocolate y vainilla",
+    label: "Marmoleado de chocolate y vainilla",
     helper: "Sabor especial",
     surcharge: 20,
   },

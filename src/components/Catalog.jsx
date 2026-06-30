@@ -338,8 +338,8 @@ export default function Catalog() {
   };
 
   return (
-    <section id="catalogo" className="scroll-mt-20 bg-cream pb-20 pt-28 sm:pb-28">
-      <div className="border-y border-blush/45 bg-[linear-gradient(135deg,#FFF8F3_0%,#FFEAF1_48%,#F1F2FF_100%)]">
+    <section id="catalogo" className="scroll-mt-20 bg-cream pb-20 pt-20 sm:pb-28">
+      <div className="border-b border-blush/45 bg-[linear-gradient(135deg,#FFF8F3_0%,#FFEAF1_48%,#F1F2FF_100%)]">
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="max-w-3xl">
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-plum">

@@ -15,7 +15,7 @@ export default function Header({ currentPath = "/" }) {
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/60 bg-cream/90 backdrop-blur-lg">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-blush/45 bg-[linear-gradient(180deg,rgba(255,250,246,0.98)_0%,rgba(255,255,255,0.94)_100%)] shadow-[0_12px_32px_rgba(30,50,100,0.08)] backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
         <a
           href="#/"
@@ -75,7 +75,7 @@ export default function Header({ currentPath = "/" }) {
 
       <div
         id="mobile-navigation"
-        className={`overflow-hidden border-t border-lavender/40 bg-cream transition-all duration-300 lg:hidden ${
+        className={`overflow-hidden border-t border-blush/35 bg-[linear-gradient(180deg,rgba(255,250,246,0.98)_0%,rgba(255,255,255,0.95)_100%)] shadow-[0_18px_36px_rgba(30,50,100,0.08)] transition-all duration-300 lg:hidden ${
           isOpen ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
