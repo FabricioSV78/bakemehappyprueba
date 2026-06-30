@@ -100,3 +100,46 @@
     z-index: 4;
   }
 }
+
+@keyframes featured-orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes featured-orbit-counter-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.featured-orbit-track,
+.featured-orbit-counter {
+  animation-duration: 30s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  will-change: transform;
+}
+
+.featured-orbit-track {
+  animation-name: featured-orbit-spin;
+}
+
+.featured-orbit-counter {
+  animation-name: featured-orbit-counter-spin;
+}
+
+.featured-orbit:hover .featured-orbit-track,
+.featured-orbit:hover .featured-orbit-counter,
+.featured-orbit:focus-within .featured-orbit-track,
+.featured-orbit:focus-within .featured-orbit-counter {
+  animation-play-state: paused;
+}
