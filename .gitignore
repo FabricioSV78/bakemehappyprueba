@@ -1,0 +1,6 @@
+node_modules/
+dist/
+artifacts/
+vite.stdout.log
+vite.stderr.log
+repomix-output.*

@@ -22,8 +22,8 @@ export default function Testimonials() {
             <figure
               key={testimonial.id}
               className={`relative min-h-[280px] rounded-lg border p-7 ${
-                index === 1
-                  ? "border-lavender bg-lavender/45"
+                index % 2 === 1
+                  ? "border-lavender/45 bg-[#FCFAFF]"
                   : "border-blush/70 bg-white"
               }`}
             >

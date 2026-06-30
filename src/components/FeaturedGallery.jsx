@@ -1,36 +1,18 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { products } from "../data/products";
 
-const featuredCakes = [
-  {
-    id: "butterfly",
-    name: "Butterfly Lavender",
-    detail: "Buttercream · Diseño floral",
-    image: "/images/webp/bake-me-happy-hero.webp",
-    imagePosition: "72% center",
-  },
-  {
-    id: "confetti",
-    name: "Confetti Pastel",
-    detail: "Buttercream · Cumpleaños",
-    image: "/images/webp/FONDO.webp",
-    imagePosition: "76% center",
-  },
-  {
-    id: "celebration",
-    name: "Pink Celebration",
-    detail: "Diseño personalizado",
-    image: "/images/webp/fondo1.webp",
-    imagePosition: "76% center",
-  },
-  {
-    id: "mini-lavender",
-    name: "Mini Lavender",
-    detail: "Formato personal · Buttercream",
-    image: "/images/webp/bake-me-happy-hero.webp",
-    imagePosition: "90% 84%",
-  },
-];
+const featuredProductIds = [1, 7, 14, 15];
+const featuredCakes = featuredProductIds
+  .map((productId) => products.find((product) => product.id === productId))
+  .filter(Boolean)
+  .map((product) => ({
+    id: String(product.id),
+    name: product.name,
+    detail: product.servings,
+    image: product.image,
+    imagePosition: product.imagePosition ?? "center",
+  }));
 
 const AUTOPLAY_MS = 4200;
 
@@ -201,8 +183,8 @@ export default function FeaturedGallery() {
                       index >= featuredCakes.length ? "true" : undefined
                     }
                   >
-                    <div className="group overflow-hidden rounded-lg border border-blush/45 bg-white p-2 shadow-soft">
-                      <div className="aspect-square overflow-hidden rounded-md bg-lavender-light">
+                    <div className="group overflow-hidden rounded-lg border border-blush/45 bg-white p-2 shadow-sm transition-shadow duration-300 hover:shadow-soft">
+                      <div className="aspect-[5/4] overflow-hidden rounded-md bg-blush/20">
                         <img
                           src={cake.image}
                           alt={
@@ -210,20 +192,20 @@ export default function FeaturedGallery() {
                               ? `${cake.name}, torta elaborada por Bake Me Happy`
                               : ""
                           }
-                          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.025]"
+                          className="h-full w-full object-cover"
                           style={{ objectPosition: cake.imagePosition }}
                           loading="lazy"
                           decoding="async"
-                          width="720"
-                          height="720"
+                          width="560"
+                          height="448"
                         />
                       </div>
 
                       <div className="px-2 pb-3 pt-4 text-center">
-                        <h3 className="font-display text-xl leading-tight text-ink sm:text-2xl">
+                        <h3 className="font-display text-xl leading-tight text-ink sm:text-[1.7rem]">
                           {cake.name}
                         </h3>
-                        <p className="mt-1.5 text-sm text-ink/65">
+                        <p className="mt-1.5 text-sm font-medium text-plum/80">
                           {cake.detail}
                         </p>
                       </div>
