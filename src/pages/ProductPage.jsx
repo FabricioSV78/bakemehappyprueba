@@ -16,6 +16,8 @@ import { cakeFlavors, fillingFlavors, products, sizeGuide } from "../data/produc
 import SizeGuideModal from "../components/SizeGuideModal";
 
 const EMPTY_OPTIONS = [];
+const DETAIL_CONTAINER_CLASS =
+  "mx-auto w-full max-w-[1660px] px-5 sm:px-8 2xl:px-12";
 
 function getProductId(path) {
   return Number(path.replace("/producto/", ""));
@@ -36,7 +38,8 @@ function getOptionSurcharge(options, selectedValue) {
 function getCurrencyAmount(value) {
   if (!value || !value.toLowerCase().includes("s/")) return null;
 
-  const amount = Number(value.replace(/[^\d.]/g, ""));
+  const [, rawAmount] = value.match(/s\/\s*([\d.,]+)/i) ?? [];
+  const amount = Number(rawAmount?.replace(",", "."));
   return Number.isFinite(amount) ? amount : null;
 }
 
@@ -46,6 +49,41 @@ function formatSoles(amount) {
 
 function formatQuantityLabel(quantity) {
   return `${quantity} ${quantity === 1 ? "unidad" : "unidades"}`;
+}
+
+function getStartingPriceLabel(product) {
+  const numericPrices = (product?.prices ?? [])
+    .map((price) => getCurrencyAmount(price))
+    .filter((price) => price !== null);
+  const variablePrice = (product?.prices?.length ?? 0) > 1;
+
+  if (numericPrices.length) {
+    const minimumPrice = Math.min(...numericPrices);
+    return variablePrice
+      ? `Desde ${formatSoles(minimumPrice)}`
+      : formatSoles(minimumPrice);
+  }
+
+  const numericPrice = getCurrencyAmount(product?.price);
+  if (numericPrice !== null) {
+    return product.price.toLowerCase().includes("desde")
+      ? `Desde ${formatSoles(numericPrice)}`
+      : formatSoles(numericPrice);
+  }
+
+  return product?.price ?? "Consultar";
+}
+
+function getPreparationTime(product) {
+  const preparationByCategory = {
+    "Tortas clasicas": "2 a 3 dias habiles",
+    "Tortas tematicas": "5 a 7 dias habiles",
+    "Bocaditos tematicos": "4 a 5 dias habiles",
+    Complementos: "24 a 48 horas",
+    "Mini tortas": "2 a 3 dias habiles",
+  };
+
+  return preparationByCategory[product?.category] ?? "segun coordinacion";
 }
 
 function getPriceOptions(product) {
@@ -90,14 +128,14 @@ function getSizeOptions(product) {
   return prices.map((size) => ({
     label: size.label,
     value: size.value,
-    helper: "Precio referencial",
+    helper: "Precio base",
   }));
 }
 
 function TextField({ label, value, onChange, placeholder, type = "text" }) {
   return (
-    <label className="block">
-      <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink/48">
+    <label className="grid gap-2 md:grid-cols-[8.5rem_minmax(0,1fr)] md:items-center">
+      <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55">
         {label}
       </span>
       <input
@@ -105,7 +143,7 @@ function TextField({ label, value, onChange, placeholder, type = "text" }) {
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="mt-2 min-h-11 w-full rounded-md border border-lavender/45 bg-white px-4 text-sm font-medium text-ink outline-none placeholder:text-ink/35 focus:border-plum"
+        className="min-h-12 w-full rounded-lg border border-blush/55 bg-white px-4 text-base font-medium text-ink outline-none placeholder:text-ink/35 focus:border-plum/60 focus:ring-4 focus:ring-blush/30"
       />
     </label>
   );
@@ -113,8 +151,8 @@ function TextField({ label, value, onChange, placeholder, type = "text" }) {
 
 function TextAreaField({ label, value, onChange, placeholder, rows = 4 }) {
   return (
-    <label className="block">
-      <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink/48">
+    <label className="grid gap-2 md:grid-cols-[8.5rem_minmax(0,1fr)] md:items-start">
+      <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55 md:pt-3">
         {label}
       </span>
       <textarea
@@ -122,7 +160,7 @@ function TextAreaField({ label, value, onChange, placeholder, rows = 4 }) {
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         rows={rows}
-        className="mt-2 w-full rounded-md border border-lavender/45 bg-white px-4 py-3 text-sm font-medium leading-6 text-ink outline-none placeholder:text-ink/35 focus:border-plum"
+        className="w-full rounded-lg border border-blush/55 bg-white px-4 py-3 text-base font-medium leading-7 text-ink outline-none placeholder:text-ink/35 focus:border-plum/60 focus:ring-4 focus:ring-blush/30"
       />
     </label>
   );
@@ -134,10 +172,10 @@ function DeliveryOptions({ delivery, onChange }) {
       {["Recojo coordinado", "Delivery previa coordinación"].map((option) => (
         <label
           key={option}
-          className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border p-3 ${
+          className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors duration-200 ${
             delivery === option
-              ? "border-plum bg-lavender-light"
-              : "border-lavender/35 bg-cream/45"
+              ? "border-plum/45 bg-blush/15 shadow-sm"
+              : "border-blush/50 bg-white hover:border-plum/25"
           }`}
         >
           <input
@@ -161,21 +199,30 @@ function SelectField({ label, value, onChange, options, name }) {
   );
   const selectedSurcharge =
     typeof selectedOption === "object" ? selectedOption.surcharge ?? 0 : 0;
-  const selectedDetail =
+  const selectedDetailValue =
     typeof selectedOption === "object"
       ? selectedOption.value ?? selectedOption.helper
       : null;
+  const selectedHelper =
+    selectedSurcharge > 0
+      ? `Adicional ${formatSoles(selectedSurcharge)}`
+      : selectedDetailValue && /s\/|consultar/i.test(selectedDetailValue)
+        ? selectedDetailValue
+        : selectedDetailValue
+          ? `Incluido - ${selectedDetailValue}`
+          : "Incluido";
+  const selectedDetail = null;
 
   return (
-    <label className="block">
-      <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink/48">
+    <label className="grid gap-2 md:grid-cols-[8.5rem_minmax(0,1fr)] md:items-start">
+      <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55 md:pt-3">
         {label}
       </span>
       <select
         name={name}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 min-h-11 w-full rounded-md border border-lavender/45 bg-white px-4 text-sm font-semibold text-ink outline-none focus:border-plum"
+        className="min-h-12 w-full rounded-lg border border-blush/55 bg-white px-4 text-base font-semibold text-ink outline-none focus:border-plum/60 focus:ring-4 focus:ring-blush/30"
       >
         {options.map((option) => {
           const optionValue = getOptionValue(option);
@@ -190,10 +237,8 @@ function SelectField({ label, value, onChange, options, name }) {
           );
         })}
       </select>
-      <p className="mt-2 text-xs leading-5 text-ink/55">
-        {selectedSurcharge > 0
-          ? `Adicional ${formatSoles(selectedSurcharge)}`
-          : "Incluido"}
+      <p className="text-sm leading-5 text-ink/55 md:col-start-2">
+        {selectedHelper}
         {selectedDetail ? ` · ${selectedDetail}` : ""}
       </p>
     </label>
@@ -260,10 +305,10 @@ function ProductGallery({ product, activeIndex, onSelect }) {
   const activeImage = gallery[activeIndex] ?? gallery[0];
 
   return (
-    <div className="w-full max-w-full min-w-0 overflow-hidden bg-[#fffaf7] p-3 sm:p-4">
-      <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-[6.5rem_minmax(0,1fr)]">
+    <div className="w-full max-w-full min-w-0 overflow-hidden rounded-[2rem] bg-white/55 p-2 shadow-[0_20px_60px_rgba(77,35,67,0.08)] ring-1 ring-blush/35 sm:p-3 lg:p-4">
+      <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-[5.75rem_minmax(0,1fr)] lg:grid-cols-[6.5rem_minmax(0,1fr)] 2xl:grid-cols-[7rem_minmax(0,1fr)]">
         <div
-          className="order-2 grid w-full min-w-0 grid-cols-3 gap-2 sm:order-1 sm:h-full sm:grid-cols-1 sm:grid-rows-3 sm:gap-3"
+          className="order-2 grid w-full min-w-0 grid-cols-3 gap-2 sm:order-1 sm:grid-cols-1 sm:gap-3"
           aria-label={`Vistas de ${product.name}`}
         >
           {gallery.map((image, index) => {
@@ -276,16 +321,16 @@ function ProductGallery({ product, activeIndex, onSelect }) {
                 onClick={() => onSelect(index)}
                 aria-label={`Ver imagen ${index + 1} de ${product.name}`}
                 aria-pressed={isSelected}
-                className={`relative aspect-[5/4] min-h-11 min-w-0 w-full overflow-hidden rounded-md border bg-white p-1.5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum focus-visible:ring-offset-2 sm:h-full sm:aspect-auto ${
+                className={`relative aspect-square min-h-11 min-w-0 w-full overflow-hidden rounded-[1.4rem] bg-white/70 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum focus-visible:ring-offset-2 ${
                   isSelected
-                    ? "border-plum shadow-sm"
-                    : "border-blush/55 hover:border-plum/55"
+                    ? "shadow-[0_0_0_2px_rgba(145,112,188,0.45)]"
+                    : "opacity-75 hover:opacity-100 hover:shadow-[0_0_0_1px_rgba(145,112,188,0.22)]"
                 }`}
               >
                 <img
                   src={image.src}
                   alt=""
-                  className="h-full w-full rounded-[0.35rem] object-cover"
+                  className="h-full w-full rounded-[1.4rem] object-cover"
                   style={{ objectPosition: image.position ?? product.imagePosition ?? "center" }}
                   loading="lazy"
                   width="176"
@@ -296,12 +341,12 @@ function ProductGallery({ product, activeIndex, onSelect }) {
           })}
         </div>
 
-        <div className="relative order-1 aspect-[5/4] w-full min-w-0 overflow-hidden rounded-md bg-white sm:order-2">
+        <div className="relative order-1 aspect-square w-full max-w-[620px] justify-self-center overflow-hidden rounded-[2.5rem] bg-[radial-gradient(circle_at_50%_45%,#fff_0%,#fff8f4_62%,#f8edf4_100%)] sm:order-2 xl:max-w-[660px]">
           <img
             key={activeImage.src}
             src={activeImage.src}
             alt={activeImage.alt}
-            className="h-full w-full object-cover"
+            className="h-full w-full rounded-[2.5rem] object-cover"
             style={{
               objectPosition: activeImage.position ?? product.imagePosition ?? "center",
             }}
@@ -412,6 +457,7 @@ export default function ProductPage({ currentPath }) {
   const [message, setMessage] = useState("");
   const [delivery, setDelivery] = useState("Recojo coordinado");
   const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
   const [activeConfigStep, setActiveConfigStep] = useState(0);
@@ -426,6 +472,7 @@ export default function ProductPage({ currentPath }) {
     setMessage("");
     setDelivery("Recojo coordinado");
     setDate("");
+    setTime("");
     setQuantity(1);
     setActiveGalleryIndex(0);
     setActiveConfigStep(0);
@@ -466,8 +513,16 @@ export default function ProductPage({ currentPath }) {
       : basePrice !== null
         ? basePrice + totalSurcharge
         : null;
+  const finalPriceLabel =
+    estimatedTotal !== null
+      ? formatSoles(estimatedTotal)
+      : referenceValue;
+  const finalPriceTitle =
+    quantityProduct || personalizedCake ? "Precio final estimado" : "Precio final";
   const referenceLabel =
     referenceAmount !== null ? "Base referencial" : "Porciones referenciales";
+  const startingPriceLabel = getStartingPriceLabel(product);
+  const preparationTime = getPreparationTime(product);
   const configSteps = quantityProduct
     ? [
         {
@@ -572,12 +627,12 @@ export default function ProductPage({ currentPath }) {
       ? `Adicional por sabor y relleno: ${formatSoles(totalSurcharge)}.`
       : null,
     personalizedCake && theme ? `Temática: ${theme}.` : null,
-    personalizedCake && colorPalette ? `Colores: ${colorPalette}.` : null,
     biteProduct && theme ? `Tematica: ${theme}.` : null,
     biteProduct && colorPalette ? `Colores: ${colorPalette}.` : null,
     additionalInfo ? `Información adicional: ${additionalInfo}.` : null,
     message ? `Mensaje en la torta: ${message}.` : null,
     date ? `Fecha deseada: ${date}.` : null,
+    time ? `Hora deseada: ${time}.` : null,
     `Entrega: ${delivery}.`,
   ]
     .filter(Boolean)
@@ -585,7 +640,7 @@ export default function ProductPage({ currentPath }) {
 
   return (
     <section className="overflow-x-hidden bg-cream pb-20 pt-32 sm:pb-28 lg:pt-40">
-      <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
+      <div className={DETAIL_CONTAINER_CLASS}>
         <a
           href="#/tienda"
           className="relative z-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-lavender/45 bg-white px-4 text-sm font-semibold text-ink shadow-sm transition-colors hover:border-plum hover:text-plum"
@@ -594,28 +649,15 @@ export default function ProductPage({ currentPath }) {
           Volver a la tienda
         </a>
 
-        <div className="mt-6 grid w-full min-w-0 grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-          <aside className="w-full min-w-0 space-y-5">
-            <section
-              data-product-card="true"
-              className="w-full min-w-0 overflow-hidden rounded-lg border border-blush/50 bg-white shadow-soft"
-            >
-              <ProductGallery
-                product={product}
-                activeIndex={activeGalleryIndex}
-                onSelect={setActiveGalleryIndex}
-              />
+        <div className="mt-6 grid w-full min-w-0 grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-2 lg:items-start">
+          <aside className="w-full min-w-0 self-start">
+            <ProductGallery
+              product={product}
+              activeIndex={activeGalleryIndex}
+              onSelect={setActiveGalleryIndex}
+            />
 
-              <div className="p-5 sm:p-6">
-                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-plum">
-                  Configura tu pedido
-                </span>
-                <h1 className="mt-2 font-display text-4xl leading-tight text-ink">
-                  {product.name}
-                </h1>
-                <p className="mt-4 text-sm leading-6 text-ink/68">{product.details}</p>
-
-                {miniCake && (
+              {false && miniCake && (
                   <div className="mt-4 rounded-md border border-blush/50 bg-cream/65 px-4 py-3 text-sm leading-6 text-ink/68">
                     <p>
                       <span className="font-semibold text-ink">Receta fija:</span>{" "}
@@ -628,27 +670,82 @@ export default function ProductPage({ currentPath }) {
                     </p>
                   </div>
                 )}
-
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {product.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full bg-lavender-light px-3 py-1 text-xs font-medium text-plum"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </section>
-
           </aside>
 
           <section
             data-config-card="true"
-            className="min-w-0 overflow-hidden rounded-lg border border-blush/45 bg-white shadow-soft lg:self-start"
+            className="min-w-0 self-start overflow-hidden rounded-lg border border-blush/45 bg-white shadow-soft"
           >
-            <div className="border-b border-lavender/30 bg-lavender-light/70 p-3 sm:p-4">
+            <div className="border-b border-blush/40 bg-[linear-gradient(135deg,#FFF8F4_0%,#F7EEFF_100%)] p-5 sm:p-6">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <span className="text-xs font-semibold uppercase tracking-[0.16em] text-plum">
+                    {product.category}
+                  </span>
+                  <h1 className="mt-2 font-display text-4xl leading-tight text-ink sm:text-5xl">
+                    {product.name}
+                  </h1>
+                  <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/75 px-3 py-1.5 text-sm font-semibold text-ink/70 shadow-sm">
+                    <CalendarDays size={16} aria-hidden="true" />
+                    Listo en {preparationTime}
+                  </p>
+                </div>
+
+                <div className="shrink-0 rounded-lg border border-blush/45 bg-white/85 px-5 py-4 shadow-sm sm:min-w-44 sm:text-right">
+                  <p className="text-2xl font-semibold text-plum sm:text-3xl">
+                    {startingPriceLabel}
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-5 text-base leading-7 text-ink/68">{product.details}</p>
+
+              {(product.prices?.length ?? 0) > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {product.prices.map((priceOption) => (
+                    <span
+                      key={priceOption}
+                      className="rounded-full bg-white/70 px-3.5 py-1.5 text-sm font-semibold text-ink/70 shadow-sm ring-1 ring-blush/45"
+                    >
+                      {priceOption}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {(product.includes?.length ?? 0) > 0 && (
+                <div className="mt-5 grid gap-3">
+                  {product.includes.map((feature) => (
+                    <div
+                      key={feature}
+                      className="flex gap-3 rounded-md border border-white/70 bg-white/65 px-4 py-3 text-sm font-medium leading-6 text-ink/70"
+                    >
+                      <span className="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-blush text-plum">
+                        <Check size={13} aria-hidden="true" />
+                      </span>
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {miniCake && (
+                <div className="mt-5 rounded-md border border-blush/50 bg-white/70 px-4 py-3 text-sm leading-6 text-ink/68">
+                  <p>
+                    <span className="font-semibold text-ink">Receta fija:</span>{" "}
+                    {product.flavors?.[0]} relleno de {product.fillings?.[0]} y
+                    decorada con buttercream.
+                  </p>
+                  <p className="mt-1">
+                    <span className="font-semibold text-ink">Importante:</span>{" "}
+                    modelos disponibles segun coordinacion.
+                  </p>
+                </div>
+              )}
+
+            </div>
+
+            <div className="hidden">
               <div className="flex gap-3">
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-plum shadow-sm">
                   <Heart size={18} aria-hidden="true" />
@@ -693,7 +790,378 @@ export default function ProductPage({ currentPath }) {
               </p>
             </div>
 
-            <div className="space-y-3 p-4">
+            <div className="space-y-4 bg-[#fffdfc] p-4 sm:p-5">
+              <section className="rounded-lg border border-blush/45 bg-white p-4 shadow-sm">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h2 className="font-display text-3xl leading-tight text-ink sm:text-4xl">
+                      Configura tu pedido
+                    </h2>
+                    <p className="mt-2 text-base leading-7 text-ink/62">
+                      Completa los detalles y enviaremos tu seleccion por WhatsApp
+                      para confirmar disponibilidad, precio final y entrega.
+                    </p>
+                  </div>
+
+                  {personalizedCake && (
+                    <button
+                      type="button"
+                      className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-blush/55 bg-white px-4 text-sm font-semibold text-ink shadow-sm transition-colors duration-200 hover:border-plum/45 hover:text-plum"
+                      onClick={() => setIsSizeGuideOpen(true)}
+                    >
+                      <Ruler size={17} aria-hidden="true" />
+                      Ver guia
+                    </button>
+                  )}
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-blush/45 bg-white p-4 shadow-sm">
+                <h3 className="text-lg font-semibold text-ink">
+                  Presentacion y base
+                </h3>
+                <div className="mt-4 space-y-4">
+                  {quantityProduct ? (
+                    <>
+                      <div className="rounded-lg border border-blush/45 bg-blush/10 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <p className="text-base font-semibold text-ink">
+                              {selectedSize || product.servings}
+                            </p>
+                            <p className="mt-1 text-sm leading-6 text-ink/58">
+                              {selectedPrice?.value ?? product.price ?? "Consultar"}
+                            </p>
+                            {product.dimensions && (
+                              <p className="mt-1 text-sm leading-6 text-ink/52">
+                                {product.dimensions}
+                              </p>
+                            )}
+                          </div>
+                          {miniCake && (
+                            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-plum">
+                              Buttercream
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {!miniCake && (
+                        <SelectField
+                          label={complementProduct ? "Complemento o presentacion" : "Presentacion"}
+                          name="size"
+                          options={sizeOptions}
+                          value={selectedSize}
+                          onChange={setSelectedSize}
+                        />
+                      )}
+
+                      <TextField
+                        label="Cantidad"
+                        value={quantity}
+                        onChange={(nextValue) =>
+                          setQuantity(
+                            Math.max(1, Number.parseInt(nextValue, 10) || 1),
+                          )
+                        }
+                        type="number"
+                        placeholder="1"
+                      />
+
+                      {(hasFlavorSelection || hasFillingSelection) && !miniCake && (
+                        <div
+                          className={`grid gap-4 ${
+                            hasFlavorSelection && hasFillingSelection
+                              ? "sm:grid-cols-2"
+                              : "sm:grid-cols-1"
+                          }`}
+                        >
+                          {hasFlavorSelection && (
+                            <SelectField
+                              label="Sabor"
+                              name="flavor"
+                              options={flavorOptions}
+                              value={selectedFlavor}
+                              onChange={setSelectedFlavor}
+                            />
+                          )}
+                          {hasFillingSelection && (
+                            <SelectField
+                              label="Relleno"
+                              name="filling"
+                              options={fillingOptions}
+                              value={selectedFilling}
+                              onChange={setSelectedFilling}
+                            />
+                          )}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <SelectField
+                      label="Tamano o porciones"
+                      name="size"
+                      options={sizeOptions}
+                      value={selectedSize}
+                      onChange={setSelectedSize}
+                    />
+                  )}
+
+                  {personalizedCake && (
+                    <div className="grid gap-4 border-t border-blush/35 pt-4 sm:grid-cols-2">
+                      <SelectField
+                        label="Sabor de queque"
+                        name="flavor"
+                        options={flavorOptions}
+                        value={selectedFlavor}
+                        onChange={setSelectedFlavor}
+                      />
+                      <SelectField
+                        label="Relleno"
+                        name="filling"
+                        options={fillingOptions}
+                        value={selectedFilling}
+                        onChange={setSelectedFilling}
+                      />
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-blush/45 bg-white p-4 shadow-sm">
+                <h3 className="text-lg font-semibold text-ink">
+                  Detalles del pedido
+                </h3>
+                <div className="mt-4">
+                  {classicCake ? (
+                    <div className="space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <TextField
+                          label="Fecha deseada"
+                          value={date}
+                          onChange={setDate}
+                          type="date"
+                        />
+                        <TextField
+                          label="Hora deseada"
+                          value={time}
+                          onChange={setTime}
+                          type="time"
+                        />
+                      </div>
+                      <TextField
+                        label="Mensaje en la torta"
+                        value={message}
+                        onChange={setMessage}
+                        placeholder="Ej. Feliz cumpleanos, Camila"
+                      />
+                      <TextAreaField
+                        label="Informacion adicional"
+                        value={additionalInfo}
+                        onChange={setAdditionalInfo}
+                        rows={3}
+                        placeholder="Ej. sin nueces, mas fudge, escribir dedicatoria en tapa, referencias para la presentacion, etc."
+                      />
+                    </div>
+                  ) : quantityProduct ? (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="sm:col-span-2 grid gap-4 sm:grid-cols-2">
+                        <TextField
+                          label="Fecha deseada"
+                          value={date}
+                          onChange={setDate}
+                          type="date"
+                        />
+                        <TextField
+                          label="Hora deseada"
+                          value={time}
+                          onChange={setTime}
+                          type="time"
+                        />
+                      </div>
+                      <TextField
+                        label={complementProduct ? "Detalle o texto" : "Mensaje o referencia"}
+                        value={message}
+                        onChange={setMessage}
+                        placeholder={
+                          complementProduct
+                            ? "Ej. incluir con torta principal"
+                            : "Ej. mariposas rosas o feliz cumple"
+                        }
+                      />
+                      {!complementProduct && (
+                        <>
+                          <TextField
+                            label="Tematica"
+                            value={theme}
+                            onChange={setTheme}
+                            placeholder="Ej. mariposas, safari, princesa"
+                          />
+                          <TextField
+                            label="Colores"
+                            value={colorPalette}
+                            onChange={setColorPalette}
+                            placeholder="Ej. rosa pastel y lavanda"
+                          />
+                        </>
+                      )}
+                      <div className="sm:col-span-2">
+                        <TextAreaField
+                          label="Informacion adicional"
+                          value={additionalInfo}
+                          onChange={setAdditionalInfo}
+                          rows={3}
+                          placeholder={
+                            complementProduct
+                              ? "Ej. combinar con otro pedido, color disponible o alguna indicacion puntual."
+                              : "Ej. referencia del diseno, empaque para regalo o alguna indicacion puntual."
+                          }
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <TextField
+                        label="Mensaje"
+                        value={message}
+                        onChange={setMessage}
+                        placeholder="Ej. Feliz cumple, Valeria"
+                      />
+                      <TextField
+                        label="Fecha deseada"
+                        value={date}
+                        onChange={setDate}
+                        type="date"
+                      />
+                      <TextField
+                        label="Hora deseada"
+                        value={time}
+                        onChange={setTime}
+                        type="time"
+                      />
+                      <div className="sm:col-span-2">
+                        <TextAreaField
+                          label="Informacion adicional"
+                          value={additionalInfo}
+                          onChange={setAdditionalInfo}
+                          rows={3}
+                          placeholder="Ej. topper especial, referencia del acabado, cambios en decoracion, indicaciones para la entrega, etc."
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-blush/45 bg-white p-4 shadow-sm">
+                <h3 className="text-lg font-semibold text-ink">
+                  Entrega y precio final
+                </h3>
+                <div className="mt-4 space-y-4">
+                  <DeliveryOptions delivery={delivery} onChange={setDelivery} />
+
+                  <div className="rounded-[1.25rem] border border-blush/45 bg-blush/10 px-5 py-4">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-plum/75">
+                          {finalPriceTitle}
+                        </p>
+                        <p className="mt-2 font-display text-3xl leading-none text-ink sm:text-4xl">
+                          {finalPriceLabel}
+                        </p>
+                      </div>
+                      <div className="space-y-1 text-sm leading-6 text-ink/62 sm:text-right">
+                        <p>{delivery}</p>
+                        {date && <p>Fecha: {date}</p>}
+                        {time && <p>Hora: {time}</p>}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="hidden rounded-lg border border-plum/20 bg-ink p-4 text-white shadow-soft">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-blush">
+                      <CalendarDays size={16} aria-hidden="true" />
+                      Resumen para cotizar
+                    </div>
+                    <p className="mt-3 text-base leading-7 text-white/74">
+                      {classicCake
+                        ? `${product.name} · ${selectedSize}`
+                        : quantityProduct
+                          ? `${product.name} · ${
+                              miniCake ? formatQuantityLabel(quantity) : `${quantity}`
+                            } · ${selectedSize}`
+                          : `${product.name} · ${selectedSize} · ${selectedFlavor} · ${selectedFilling}`}
+                    </p>
+                    <div className="mt-3 grid gap-x-5 gap-y-1 text-sm leading-6 sm:grid-cols-2">
+                      {classicCake && (
+                        <SummaryItem
+                          label="Precio"
+                          value={referenceValue}
+                          strong
+                        />
+                      )}
+                      {quantityProduct && (
+                        <SummaryItem
+                          label="Precio"
+                          value={referenceValue}
+                        />
+                      )}
+                      {quantityProduct && (
+                        <SummaryItem
+                          label="Cantidad"
+                          value={miniCake ? formatQuantityLabel(quantity) : `${quantity}`}
+                        />
+                      )}
+                      {quantityProduct && estimatedTotal !== null && (
+                        <SummaryItem
+                          label="Total referencial"
+                          value={formatSoles(estimatedTotal)}
+                          strong
+                        />
+                      )}
+                      {personalizedCake && (
+                        <SummaryItem
+                          label={referenceLabel}
+                          value={referenceValue}
+                        />
+                      )}
+                      {personalizedCake && (
+                        <SummaryItem
+                          label="Adicionales"
+                          value={formatSoles(totalSurcharge)}
+                        />
+                      )}
+                      {personalizedCake && estimatedTotal !== null && (
+                        <SummaryItem
+                          label="Total referencial"
+                          value={formatSoles(estimatedTotal)}
+                          strong
+                        />
+                      )}
+                      {date && (
+                        <SummaryItem
+                          label="Fecha deseada"
+                          value={date}
+                        />
+                      )}
+                      <SummaryItem label="Entrega" value={delivery} />
+                    </div>
+                  </div>
+
+                  <a
+                    href={getWhatsAppUrl(whatsappMessage)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-ink px-6 py-3 text-base font-semibold text-white shadow-soft transition-colors duration-200 hover:bg-plum sm:w-auto"
+                  >
+                    <MessageCircle size={19} aria-hidden="true" />
+                    Comprar
+                  </a>
+                </div>
+              </section>
+            </div>
+
+            <div className="hidden">
               {activeConfigStep === 0 && (
                 <>
                   {quantityProduct ? (
@@ -948,14 +1416,14 @@ export default function ProductPage({ currentPath }) {
                     <div className="mt-3 grid gap-x-5 gap-y-1 text-sm leading-6 sm:grid-cols-2">
                       {classicCake && (
                         <SummaryItem
-                          label="Precio referencial"
+                          label="Precio"
                           value={referenceValue}
                           strong
                         />
                       )}
                       {quantityProduct && (
                         <SummaryItem
-                          label="Precio referencial"
+                          label="Precio"
                           value={referenceValue}
                         />
                       )}
@@ -1004,7 +1472,7 @@ export default function ProductPage({ currentPath }) {
               )}
             </div>
 
-            <div className="border-t border-blush/30 bg-white px-4 py-3">
+            <div className="hidden">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"

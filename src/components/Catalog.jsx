@@ -11,7 +11,7 @@ import { categories, occasionOptions, products } from "../data/products";
 import ProductCard from "./ProductCard";
 import SizeGuideModal from "./SizeGuideModal";
 
-const PRODUCTS_PER_PAGE = 9;
+const PRODUCTS_PER_PAGE = 12;
 const ALL_CATEGORIES = ["Todos", ...categories];
 const catalogProducts = products.filter((product) =>
   categories.includes(product.category),
@@ -21,6 +21,7 @@ const DEFAULT_PRICE_MIN = 5;
 const DEFAULT_PRICE_MAX = 250;
 const DEFAULT_OCCASION = "Todas";
 const ALL_OCCASIONS = [DEFAULT_OCCASION, ...occasionOptions];
+const storeContainerClass = "mx-auto w-full max-w-[1660px] px-5 sm:px-8 2xl:px-12";
 
 const filterSectionLabelClass =
   "text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-ink/60";
@@ -312,7 +313,7 @@ export default function Catalog() {
       className="scroll-mt-20 bg-cream pb-20 pt-20 sm:pb-28 lg:pt-28"
     >
       <div className="border-b border-blush/45 bg-[linear-gradient(135deg,#FFF8F3_0%,#FFEAF1_48%,#F1F2FF_100%)]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <div className={`${storeContainerClass} grid gap-8 py-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end`}>
           <div className="max-w-3xl">
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-plum">
               Tienda Bake Me Happy
@@ -338,8 +339,8 @@ export default function Catalog() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="mt-8 grid gap-7 lg:grid-cols-[310px_minmax(0,1fr)] lg:items-start">
+      <div className={storeContainerClass}>
+        <div className="mt-8 grid gap-7 lg:grid-cols-[310px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
           <aside className="rounded-[1.75rem] border border-blush/45 bg-white/88 p-6 shadow-sm lg:sticky lg:top-24">
             <div className="flex items-center gap-3.5">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-blush/45 text-plum">
@@ -423,7 +424,7 @@ export default function Catalog() {
             </div>
 
             {visibleProducts.length > 0 ? (
-              <div className="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-6 sm:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">
                 {visibleProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

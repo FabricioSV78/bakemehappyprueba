@@ -1,18 +1,55 @@
 import { Eye } from "lucide-react";
 
+function getCurrencyAmount(value) {
+  if (!value || !value.toLowerCase().includes("s/")) return null;
+
+  const [, rawAmount] = value.match(/s\/\s*([\d.,]+)/i) ?? [];
+  const amount = Number(rawAmount?.replace(",", "."));
+  return Number.isFinite(amount) ? amount : null;
+}
+
+function formatSoles(amount) {
+  return `S/ ${new Intl.NumberFormat("es-PE").format(amount)}`;
+}
+
+function getProductPriceLabel(product) {
+  const numericPrices = (product.prices ?? [])
+    .map((price) => getCurrencyAmount(price))
+    .filter((price) => price !== null);
+  const variablePrice = (product.prices?.length ?? 0) > 1;
+
+  if (numericPrices.length) {
+    const minimumPrice = Math.min(...numericPrices);
+    return variablePrice
+      ? `Desde ${formatSoles(minimumPrice)}`
+      : formatSoles(minimumPrice);
+  }
+
+  if (product.price) {
+    const price = getCurrencyAmount(product.price);
+    if (price !== null && product.price.toLowerCase().includes("desde")) {
+      return `Desde ${formatSoles(price)}`;
+    }
+
+    return product.price;
+  }
+
+  return "Consultar";
+}
+
 export default function ProductCard({ product }) {
-  const mainPrice = product.price ?? product.prices?.[0] ?? "Consultar";
+  const mainPrice = getProductPriceLabel(product);
   const showTwoTierTag =
     product.category === "Tortas tematicas" &&
     product.tags?.some((tag) => tag.toLowerCase() === "2 pisos");
 
   return (
-    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-blush/45 bg-white shadow-sm">
-      <div className="relative aspect-[5/4] overflow-hidden bg-blush/20">
+    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-blush/45 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-plum/25 hover:shadow-soft">
+      <div className="relative aspect-[6/5] overflow-hidden bg-blush/20">
         <img
           src={product.image}
           alt={`${product.name} de Bake Me Happy`}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           style={{ objectPosition: product.imagePosition }}
           loading="lazy"
           width="560"
@@ -32,15 +69,14 @@ export default function ProductCard({ product }) {
         </a>
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9FC_100%)] p-3">
-        <h3 className="min-w-0 font-display text-base leading-tight text-ink">
+      <div className="flex min-w-0 flex-col items-center bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9FC_100%)] px-4 py-3.5 text-center">
+        <h3 className="min-w-0 font-display text-lg leading-tight text-ink">
           {product.name}
         </h3>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-blush/35 pt-2.5">
-          <span className="rounded-full bg-lavender-light px-2.5 py-1 text-[10px] font-semibold text-plum">
-            {product.servings}
+        <div className="mt-3 flex w-full justify-center border-t border-blush/35 pt-2.5">
+          <span className="inline-flex min-h-8 items-center rounded-full bg-lavender-light px-3.5 text-sm font-semibold text-plum">
+            {mainPrice}
           </span>
-          <span className="text-sm font-semibold text-plum">{mainPrice}</span>
         </div>
       </div>
     </article>
