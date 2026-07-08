@@ -15,6 +15,8 @@ import { getWhatsAppUrl } from "../data/site";
 import { cakeFlavors, fillingFlavors, products, sizeGuide } from "../data/products";
 import SizeGuideModal from "../components/SizeGuideModal";
 
+const EMPTY_OPTIONS = [];
+
 function getProductId(path) {
   return Number(path.replace("/producto/", ""));
 }
@@ -199,15 +201,23 @@ function SelectField({ label, value, onChange, options, name }) {
 }
 
 function isPersonalizedCake(product) {
-  return product?.category === "Tortas personalizadas";
+  return product?.category === "Tortas tematicas";
 }
 
 function isClassicCake(product) {
-  return product?.category === "Tortas clásicas";
+  return product?.category === "Tortas clasicas";
 }
 
 function isMiniCake(product) {
   return product?.category === "Mini tortas";
+}
+
+function isThemedBite(product) {
+  return product?.category === "Bocaditos tematicos";
+}
+
+function isComplement(product) {
+  return product?.category === "Complementos";
 }
 
 function getProductGallery(product) {
@@ -220,12 +230,12 @@ function getProductGallery(product) {
           position: product?.imagePosition,
         },
         {
-          src: "/images/webp/FONDO.webp",
+          src: "/images/webp/hero 2.webp",
           alt: `Vista alternativa de ${product?.name}`,
           position: "center",
         },
         {
-          src: "/images/webp/fondo1.webp",
+          src: "/images/webp/hero 3.webp",
           alt: `Presentación alternativa de ${product?.name}`,
           position: "center",
         },
@@ -357,6 +367,14 @@ function ConfiguratorStepNav({ steps, activeStep, onStepChange }) {
   );
 }
 
+function SummaryItem({ label, value, strong = false }) {
+  return (
+    <span className={`min-w-0 ${strong ? "font-semibold text-white" : "text-white/68"}`}>
+      {label}: {value}
+    </span>
+  );
+}
+
 export default function ProductPage({ currentPath }) {
   const productId = getProductId(currentPath);
   const product = products.find((item) => item.id === productId);
@@ -364,18 +382,22 @@ export default function ProductPage({ currentPath }) {
   const classicCake = isClassicCake(product);
   const personalizedCake = isPersonalizedCake(product);
   const miniCake = isMiniCake(product);
+  const biteProduct = isThemedBite(product);
+  const complementProduct = isComplement(product);
+  const quantityProduct = miniCake || biteProduct || complementProduct;
 
   const sizeOptions = useMemo(() => getSizeOptions(product), [product]);
-  const flavorOptions = personalizedCake
-    ? cakeFlavors
-    : product?.flavors?.length
-      ? product.flavors
-      : cakeFlavors;
-  const fillingOptions = personalizedCake
-    ? fillingFlavors
-    : product?.fillings?.length
-      ? product.fillings
-      : fillingFlavors;
+  const flavorOptions = useMemo(() => {
+    if (personalizedCake) return cakeFlavors;
+    return product?.flavors?.length ? product.flavors : EMPTY_OPTIONS;
+  }, [personalizedCake, product]);
+  const fillingOptions = useMemo(() => {
+    if (personalizedCake) return fillingFlavors;
+    return product?.fillings?.length ? product.fillings : EMPTY_OPTIONS;
+  }, [personalizedCake, product]);
+  const hasFlavorSelection = !classicCake && !complementProduct && flavorOptions.length > 0;
+  const hasFillingSelection =
+    !classicCake && !complementProduct && fillingOptions.length > 0;
 
   const [selectedSize, setSelectedSize] = useState(sizeOptions[0]?.label ?? "");
   const [selectedFlavor, setSelectedFlavor] = useState(
@@ -415,10 +437,10 @@ export default function ProductPage({ currentPath }) {
         <div className="mx-auto max-w-3xl rounded-lg bg-white p-8 text-center shadow-soft">
           <h1 className="font-display text-4xl text-ink">Producto no encontrado</h1>
           <p className="mt-3 text-sm leading-6 text-ink/65">
-            Este producto no está disponible en el catálogo actual.
+            Este producto no está disponible en la tienda actual.
           </p>
-          <a href="#/catalogo" className="button-primary mt-6">
-            Volver al catálogo
+          <a href="#/tienda" className="button-primary mt-6">
+            Volver a la tienda
           </a>
         </div>
       </section>
@@ -426,6 +448,8 @@ export default function ProductPage({ currentPath }) {
   }
 
   const selectedPrice = sizeOptions.find((size) => size.label === selectedSize);
+  const referenceValue = selectedPrice?.value ?? product.price ?? "Consultar";
+  const referenceAmount = getCurrencyAmount(referenceValue);
   const flavorSurcharge = personalizedCake
     ? getOptionSurcharge(flavorOptions, selectedFlavor)
     : 0;
@@ -434,31 +458,40 @@ export default function ProductPage({ currentPath }) {
     : 0;
   const totalSurcharge = flavorSurcharge + fillingSurcharge;
   const basePrice = getCurrencyAmount(selectedPrice?.value);
-  const miniTotal = miniCake && basePrice !== null ? basePrice * quantity : null;
+  const quantityTotal =
+    quantityProduct && basePrice !== null ? basePrice * quantity : null;
   const estimatedTotal =
-    miniCake
-      ? miniTotal
+    quantityProduct
+      ? quantityTotal
       : basePrice !== null
         ? basePrice + totalSurcharge
         : null;
-  const configSteps = miniCake
+  const referenceLabel =
+    referenceAmount !== null ? "Base referencial" : "Porciones referenciales";
+  const configSteps = quantityProduct
     ? [
         {
-          label: "Formato",
-          title: "Formato y cantidad",
-          description: "Confirma el formato mini y cuántas unidades deseas.",
+          label: complementProduct ? "Complemento" : "Presentacion",
+          title: complementProduct
+            ? "Complemento y cantidad"
+            : "Presentacion y cantidad",
+          description: complementProduct
+            ? "Confirma el complemento y cuantas unidades o sets deseas."
+            : "Selecciona la presentacion y la cantidad que necesitas para tu pedido.",
           icon: CakeSlice,
         },
         {
-          label: "Datos",
-          title: "Mensaje y fecha",
-          description: "Agrega dedicatoria, fecha e indicaciones puntuales.",
+          label: "Detalles",
+          title: complementProduct ? "Detalle final" : "Personalizacion",
+          description: complementProduct
+            ? "Agrega fecha e indicaciones para combinarlo con tu pedido."
+            : "Cuentanos la tematica, colores o referencias para personalizarlo.",
           icon: Palette,
         },
         {
           label: "Entrega",
           title: "Entrega y resumen",
-          description: "Elige cómo recibirlo y envía tu selección por WhatsApp.",
+          description: "Elige como recibirlo y envia tu seleccion por WhatsApp.",
           icon: Truck,
         },
       ]
@@ -518,19 +551,21 @@ export default function ProductPage({ currentPath }) {
 
   const whatsappMessage = [
     `Hola, vengo de la página web de Bake Me Happy. Quisiera cotizar: ${product.name}.`,
-    miniCake
-      ? `Formato: ${product.servings}${selectedPrice?.value ? ` (${selectedPrice.value})` : ""}.`
+    quantityProduct
+      ? `Presentacion: ${selectedSize}${selectedPrice?.value ? ` (${selectedPrice.value})` : ""}.`
       : `Tamaño: ${selectedSize}${selectedPrice?.value ? ` (${selectedPrice.value})` : ""}.`,
     miniCake && product.dimensions ? `Medida referencial: ${product.dimensions}.` : null,
-    miniCake ? `Cantidad: ${formatQuantityLabel(quantity)}.` : null,
-    miniCake && product.flavors?.[0] ? `Queque: ${product.flavors[0]}.` : null,
-    miniCake && product.fillings?.[0] ? `Relleno: ${product.fillings[0]}.` : null,
+    quantityProduct
+      ? `Cantidad: ${miniCake ? formatQuantityLabel(quantity) : quantity}.`
+      : null,
+    quantityProduct && selectedFlavor ? `Sabor: ${selectedFlavor}.` : null,
+    quantityProduct && selectedFilling ? `Relleno: ${selectedFilling}.` : null,
     miniCake ? "Acabado: Buttercream." : null,
     miniCake ? "Diseño: modelos disponibles según coordinación." : null,
-    classicCake || miniCake
+    classicCake || quantityProduct
       ? null
       : `Sabor de queque: ${selectedFlavor}${flavorSurcharge ? ` (+ ${formatSoles(flavorSurcharge)})` : " (incluido)"}.`,
-    classicCake || miniCake
+    classicCake || quantityProduct
       ? null
       : `Relleno: ${selectedFilling}${fillingSurcharge ? ` (+ ${formatSoles(fillingSurcharge)})` : " (incluido)"}.`,
     personalizedCake && totalSurcharge
@@ -538,23 +573,25 @@ export default function ProductPage({ currentPath }) {
       : null,
     personalizedCake && theme ? `Temática: ${theme}.` : null,
     personalizedCake && colorPalette ? `Colores: ${colorPalette}.` : null,
+    biteProduct && theme ? `Tematica: ${theme}.` : null,
+    biteProduct && colorPalette ? `Colores: ${colorPalette}.` : null,
     additionalInfo ? `Información adicional: ${additionalInfo}.` : null,
     message ? `Mensaje en la torta: ${message}.` : null,
-    personalizedCake && date ? `Fecha deseada: ${date}.` : null,
+    date ? `Fecha deseada: ${date}.` : null,
     `Entrega: ${delivery}.`,
   ]
     .filter(Boolean)
     .join("\n");
 
   return (
-    <section className="overflow-x-hidden bg-cream pb-20 pt-28 sm:pb-28">
+    <section className="overflow-x-hidden bg-cream pb-20 pt-32 sm:pb-28 lg:pt-40">
       <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
         <a
-          href="#/catalogo"
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-lavender/45 bg-white px-4 text-sm font-semibold text-ink"
+          href="#/tienda"
+          className="relative z-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-lavender/45 bg-white px-4 text-sm font-semibold text-ink shadow-sm transition-colors hover:border-plum hover:text-plum"
         >
           <ArrowLeft size={17} aria-hidden="true" />
-          Volver al catálogo
+          Volver a la tienda
         </a>
 
         <div className="mt-6 grid w-full min-w-0 grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
@@ -659,16 +696,16 @@ export default function ProductPage({ currentPath }) {
             <div className="space-y-3 p-4">
               {activeConfigStep === 0 && (
                 <>
-                  {miniCake ? (
+                  {quantityProduct ? (
                     <section className="space-y-3">
                       <div className="rounded-lg border border-lavender/35 bg-lavender-light/55 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
                             <p className="text-sm font-semibold text-ink">
-                              {product.servings}
+                              {selectedSize || product.servings}
                             </p>
                             <p className="mt-1 text-xs leading-5 text-ink/58">
-                              {selectedPrice?.value ?? product.price}
+                              {selectedPrice?.value ?? product.price ?? "Consultar"}
                             </p>
                             {product.dimensions && (
                               <p className="mt-1 text-xs leading-5 text-ink/52">
@@ -676,11 +713,23 @@ export default function ProductPage({ currentPath }) {
                               </p>
                             )}
                           </div>
-                          <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-plum">
-                            Buttercream
-                          </span>
+                          {miniCake && (
+                            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-plum">
+                              Buttercream
+                            </span>
+                          )}
                         </div>
                       </div>
+
+                      {!miniCake && (
+                        <SelectField
+                          label={complementProduct ? "Complemento o presentacion" : "Presentacion"}
+                          name="size"
+                          options={sizeOptions}
+                          value={selectedSize}
+                          onChange={setSelectedSize}
+                        />
+                      )}
 
                       <TextField
                         label="Cantidad"
@@ -693,6 +742,37 @@ export default function ProductPage({ currentPath }) {
                         type="number"
                         placeholder="1"
                       />
+
+                      {(hasFlavorSelection || hasFillingSelection) && !miniCake && (
+                        <section className="border-t border-blush/25 pt-3">
+                          <div
+                            className={`grid gap-3 ${
+                              hasFlavorSelection && hasFillingSelection
+                                ? "sm:grid-cols-2"
+                                : "sm:grid-cols-1"
+                            }`}
+                          >
+                            {hasFlavorSelection && (
+                              <SelectField
+                                label="Sabor"
+                                name="flavor"
+                                options={flavorOptions}
+                                value={selectedFlavor}
+                                onChange={setSelectedFlavor}
+                              />
+                            )}
+                            {hasFillingSelection && (
+                              <SelectField
+                                label="Relleno"
+                                name="filling"
+                                options={fillingOptions}
+                                value={selectedFilling}
+                                onChange={setSelectedFilling}
+                              />
+                            )}
+                          </div>
+                        </section>
+                      )}
                     </section>
                   ) : (
                     <SelectField
@@ -704,7 +784,7 @@ export default function ProductPage({ currentPath }) {
                     />
                   )}
 
-                  {!classicCake && !miniCake && (
+                  {personalizedCake && (
                     <section className="border-t border-blush/25 pt-3">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <SelectField
@@ -730,13 +810,12 @@ export default function ProductPage({ currentPath }) {
               {activeConfigStep === 1 && (
                 <>
                   {classicCake ? (
-                    <div className="grid gap-3">
-                      <TextAreaField
-                        label="Información adicional"
-                        value={additionalInfo}
-                        onChange={setAdditionalInfo}
-                        rows={2}
-                        placeholder="Ej. sin nueces, más fudge, escribir dedicatoria en tapa, referencias para la presentación, etc."
+                    <div className="space-y-3">
+                      <TextField
+                        label="Fecha deseada"
+                        value={date}
+                        onChange={setDate}
+                        type="date"
                       />
                       <TextField
                         label="Mensaje en la torta"
@@ -744,8 +823,15 @@ export default function ProductPage({ currentPath }) {
                         onChange={setMessage}
                         placeholder="Ej. Feliz cumpleaños, Camila"
                       />
+                      <TextAreaField
+                        label="Información adicional"
+                        value={additionalInfo}
+                        onChange={setAdditionalInfo}
+                        rows={3}
+                        placeholder="Ej. sin nueces, más fudge, escribir dedicatoria en tapa, referencias para la presentación, etc."
+                      />
                     </div>
-                  ) : miniCake ? (
+                  ) : quantityProduct ? (
                     <div className="grid gap-3 sm:grid-cols-2">
                       <TextField
                         label="Fecha deseada"
@@ -754,18 +840,42 @@ export default function ProductPage({ currentPath }) {
                         type="date"
                       />
                       <TextField
-                        label="Mensaje en la mini torta"
+                        label={complementProduct ? "Detalle o texto" : "Mensaje o referencia"}
                         value={message}
                         onChange={setMessage}
-                        placeholder="Ej. Feliz día"
+                        placeholder={
+                          complementProduct
+                            ? "Ej. incluir con torta principal"
+                            : "Ej. mariposas rosas o feliz cumple"
+                        }
                       />
+                      {!complementProduct && (
+                        <>
+                          <TextField
+                            label="Tematica"
+                            value={theme}
+                            onChange={setTheme}
+                            placeholder="Ej. mariposas, safari, princesa"
+                          />
+                          <TextField
+                            label="Colores"
+                            value={colorPalette}
+                            onChange={setColorPalette}
+                            placeholder="Ej. rosa pastel y lavanda"
+                          />
+                        </>
+                      )}
                       <div className="sm:col-span-2">
                         <TextAreaField
                           label="Información adicional"
                           value={additionalInfo}
                           onChange={setAdditionalInfo}
                           rows={2}
-                          placeholder="Ej. color disponible, pedido para regalo, horario de entrega o alguna indicación puntual."
+                          placeholder={
+                            complementProduct
+                              ? "Ej. combinar con otro pedido, color disponible o alguna indicacion puntual."
+                              : "Ej. referencia del diseno, empaque para regalo o alguna indicacion puntual."
+                          }
                         />
                       </div>
                     </div>
@@ -828,33 +938,67 @@ export default function ProductPage({ currentPath }) {
                     </div>
                     <p className="mt-3 text-sm leading-6 text-white/72">
                       {classicCake
-                        ? `${product.name} · ${selectedSize} · ${delivery}`
-                        : miniCake
-                          ? `${product.name} · ${formatQuantityLabel(quantity)} · ${product.servings}`
+                        ? `${product.name} · ${selectedSize}`
+                        : quantityProduct
+                          ? `${product.name} · ${
+                              miniCake ? formatQuantityLabel(quantity) : `${quantity}`
+                            } · ${selectedSize}`
                           : `${product.name} · ${selectedSize} · ${selectedFlavor} · ${selectedFilling}`}
                     </p>
-                    {miniCake && estimatedTotal !== null && (
-                      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                        <span className="text-white/68">
-                          Precio unitario: {selectedPrice?.value ?? product.price}
-                        </span>
-                        <span className="font-semibold text-white">
-                          Total referencial: {formatSoles(estimatedTotal)}
-                        </span>
-                      </div>
-                    )}
-                    {personalizedCake && (
-                      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                        <span className="text-white/68">
-                          Adicionales: {formatSoles(totalSurcharge)}
-                        </span>
-                        {estimatedTotal !== null && (
-                          <span className="font-semibold text-white">
-                            Total referencial: {formatSoles(estimatedTotal)}
-                          </span>
-                        )}
-                      </div>
-                    )}
+                    <div className="mt-3 grid gap-x-5 gap-y-1 text-sm leading-6 sm:grid-cols-2">
+                      {classicCake && (
+                        <SummaryItem
+                          label="Precio referencial"
+                          value={referenceValue}
+                          strong
+                        />
+                      )}
+                      {quantityProduct && (
+                        <SummaryItem
+                          label="Precio referencial"
+                          value={referenceValue}
+                        />
+                      )}
+                      {quantityProduct && (
+                        <SummaryItem
+                          label="Cantidad"
+                          value={miniCake ? formatQuantityLabel(quantity) : `${quantity}`}
+                        />
+                      )}
+                      {quantityProduct && estimatedTotal !== null && (
+                        <SummaryItem
+                          label="Total referencial"
+                          value={formatSoles(estimatedTotal)}
+                          strong
+                        />
+                      )}
+                      {personalizedCake && (
+                        <SummaryItem
+                          label={referenceLabel}
+                          value={referenceValue}
+                        />
+                      )}
+                      {personalizedCake && (
+                        <SummaryItem
+                          label="Adicionales"
+                          value={formatSoles(totalSurcharge)}
+                        />
+                      )}
+                      {personalizedCake && estimatedTotal !== null && (
+                        <SummaryItem
+                          label="Total referencial"
+                          value={formatSoles(estimatedTotal)}
+                          strong
+                        />
+                      )}
+                      {date && (
+                        <SummaryItem
+                          label="Fecha deseada"
+                          value={date}
+                        />
+                      )}
+                      <SummaryItem label="Entrega" value={delivery} />
+                    </div>
                   </div>
                 </>
               )}
@@ -888,7 +1032,7 @@ export default function ProductPage({ currentPath }) {
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-ink px-6 py-3 text-sm font-semibold text-white shadow-soft transition-colors duration-200 hover:bg-plum"
                   >
                     <MessageCircle size={18} aria-hidden="true" />
-                    Enviar selección
+                    Comprar
                   </a>
                 ) : (
                   <button

@@ -14,7 +14,7 @@ const steps = [
     icon: ShoppingBag,
     title: "Elige tu favorito",
     kicker: "Paso 01",
-    text: "Entra al catálogo y selecciona la torta o postre que quieres para tu celebración.",
+    text: "Entra a la tienda y selecciona la torta o postre que quieres para tu celebración.",
     accent: "bg-[#F3B4C8]",
     textColor: "text-[#C94F7C]",
   },
@@ -64,7 +64,7 @@ export default function HowToOrder() {
   return (
     <section
       id="pedido"
-      className="scroll-mt-20 overflow-hidden bg-[linear-gradient(180deg,#FFF8F3_0%,#FFF0F5_48%,#F2F3FF_100%)] pb-20 pt-32 text-ink sm:pb-28 sm:pt-36"
+      className="scroll-mt-32 overflow-hidden bg-[linear-gradient(180deg,#FFF8F3_0%,#FFF0F5_48%,#F2F3FF_100%)] pb-20 pt-32 text-ink sm:pb-28 sm:pt-36 lg:scroll-mt-40 lg:pt-44"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="flex justify-center">
@@ -76,9 +76,9 @@ export default function HowToOrder() {
         </div>
 
         <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-3 text-center sm:flex-row sm:justify-center">
-          <a href="#/catalogo" className="button-primary">
+          <a href="#/tienda" className="button-primary">
             <ShoppingBag size={19} aria-hidden="true" />
-            Ir al catálogo
+            Ir a la tienda
           </a>
         </div>
 

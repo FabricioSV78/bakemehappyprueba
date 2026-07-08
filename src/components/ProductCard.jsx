@@ -2,7 +2,9 @@ import { Eye } from "lucide-react";
 
 export default function ProductCard({ product }) {
   const mainPrice = product.price ?? product.prices?.[0] ?? "Consultar";
-  const mainTag = product.tags?.[0] ?? product.category;
+  const showTwoTierTag =
+    product.category === "Tortas tematicas" &&
+    product.tags?.some((tag) => tag.toLowerCase() === "2 pisos");
 
   return (
     <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-blush/45 bg-white shadow-sm">
@@ -16,9 +18,11 @@ export default function ProductCard({ product }) {
           width="560"
           height="448"
         />
-        <span className="absolute left-2.5 top-2.5 max-w-[72%] truncate rounded-full bg-white/92 px-2.5 py-1 text-[10px] font-semibold text-plum shadow-sm">
-          {mainTag}
-        </span>
+        {showTwoTierTag && (
+          <span className="absolute left-2.5 top-2.5 max-w-[72%] truncate rounded-full bg-white/92 px-2.5 py-1 text-[10px] font-semibold text-plum shadow-sm">
+            2 pisos
+          </span>
+        )}
         <a
           href={`#/producto/${product.id}`}
           className="absolute bottom-2.5 right-2.5 grid h-11 w-11 place-items-center rounded-full bg-white text-plum shadow-soft ring-4 ring-blush/45"

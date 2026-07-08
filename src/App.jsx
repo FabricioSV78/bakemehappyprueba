@@ -11,6 +11,7 @@ import ProductPage from "./pages/ProductPage";
 const ROUTES = {
   "/": HomePage,
   "/quienes-somos": AboutPage,
+  "/tienda": CatalogPage,
   "/catalogo": CatalogPage,
   "/pedido": OrderPage,
 };

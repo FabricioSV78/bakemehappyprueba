@@ -1,65 +1,35 @@
 import { useEffect, useMemo, useState } from "react";
-import { Ruler, Search, SlidersHorizontal, X } from "lucide-react";
-import { categories, products } from "../data/products";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Ruler,
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
+import { categories, occasionOptions, products } from "../data/products";
 import ProductCard from "./ProductCard";
 import SizeGuideModal from "./SizeGuideModal";
 
-const INITIAL_VISIBLE_PRODUCTS = 12;
-const VISIBLE_INCREMENT = 8;
+const PRODUCTS_PER_PAGE = 9;
 const ALL_CATEGORIES = ["Todos", ...categories];
+const catalogProducts = products.filter((product) =>
+  categories.includes(product.category),
+);
 const PRICE_STEP = 5;
 const DEFAULT_PRICE_MIN = 5;
 const DEFAULT_PRICE_MAX = 250;
-
-const portionRanges = [
-  { label: "Todas las porciones", test: () => true },
-  {
-    label: "Individual y mini",
-    test: (product) => /1 a 2|6 a 7|mini|individual/i.test(product.servings),
-  },
-  {
-    label: "22 cm / 15 - 20 porciones",
-    test: (product) => /22 cm|15|20/i.test(product.servings),
-  },
-  {
-    label: "28 cm / 25+ porciones",
-    test: (product) => /28 cm|25|30|40|45|60|65/i.test(product.servings),
-  },
-];
-
-const flavorOptions = [
-  "Todos los sabores",
-  "Vainilla",
-  "Chocolate",
-  "Red velvet",
-  "Zanahoria",
-];
-
-const occasionOptions = [
-  "Todas las ocasiones",
-  "Cumpleaños",
-  "Regalo",
-  "Mesa dulce",
-  "Eventos",
-  "Mamá",
-  "Buttercream",
-];
-
-const sortOptions = [
-  "Recomendados",
-  "Menor precio",
-  "Mayor precio",
-  "Más porciones",
-];
+const DEFAULT_OCCASION = "Todas";
+const ALL_OCCASIONS = [DEFAULT_OCCASION, ...occasionOptions];
 
 const filterSectionLabelClass =
-  "text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-ink/60";
+  "text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-ink/60";
 
 function FilterSection({ label, children, className = "" }) {
   return (
-    <section className={`border-t border-blush/35 pt-5 ${className}`}>
+    <section className={`border-t border-blush/35 pt-6 ${className}`}>
       <h4 className={filterSectionLabelClass}>{label}</h4>
-      <div className="mt-3">{children}</div>
+      <div className="mt-4">{children}</div>
     </section>
   );
 }
@@ -83,7 +53,7 @@ function getProductPrice(product) {
 }
 
 function getCatalogPriceBounds() {
-  const prices = products
+  const prices = catalogProducts
     .map((product) => getProductPrice(product))
     .filter((price) => price !== null);
   const minPrice = Math.min(...prices, DEFAULT_PRICE_MIN);
@@ -96,11 +66,6 @@ function getCatalogPriceBounds() {
     ),
     max: Math.ceil(maxPrice / PRICE_STEP) * PRICE_STEP,
   };
-}
-
-function getProductPortionScore(product) {
-  const matches = product.servings.match(/\d+/g);
-  return matches ? Math.max(...matches.map(Number)) : 0;
 }
 
 function formatPrice(value) {
@@ -117,65 +82,10 @@ function matchesPrice(product, priceRange, priceBounds) {
   return price >= priceRange.min && price <= priceRange.max;
 }
 
-function matchesPortion(product, portionLabel) {
-  const range = portionRanges.find((item) => item.label === portionLabel);
-  return range ? range.test(product) : true;
-}
-
-function matchesFlavor(product, flavorLabel) {
-  if (flavorLabel === flavorOptions[0]) return true;
-
-  return normalizeText((product.flavors ?? []).join(" ")).includes(
-    normalizeText(flavorLabel),
-  );
-}
-
 function matchesOccasion(product, occasionLabel) {
-  if (occasionLabel === occasionOptions[0]) return true;
-  return (product.tags ?? []).some(
-    (tag) => normalizeText(tag) === normalizeText(occasionLabel),
-  );
-}
-
-function sortProducts(productList, sortBy) {
-  return [...productList].sort((first, second) => {
-    const firstPrice = getProductPrice(first);
-    const secondPrice = getProductPrice(second);
-
-    if (sortBy === "Menor precio") {
-      return (firstPrice ?? Infinity) - (secondPrice ?? Infinity);
-    }
-
-    if (sortBy === "Mayor precio") {
-      return (secondPrice ?? -1) - (firstPrice ?? -1);
-    }
-
-    if (sortBy === "Más porciones") {
-      return getProductPortionScore(second) - getProductPortionScore(first);
-    }
-
-    return 0;
-  });
-}
-
-function FilterSelect({ label, value, options, onChange }) {
-  return (
-    <label className="block">
-      <span className={filterSectionLabelClass}>
-        {label}
-      </span>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="mt-3 min-h-11 w-full rounded-full border border-blush/60 bg-white px-4 text-sm font-semibold text-ink outline-none transition-colors focus:border-plum"
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    </label>
+  if (occasionLabel === DEFAULT_OCCASION) return true;
+  return (product.occasions ?? []).some(
+    (occasion) => normalizeText(occasion) === normalizeText(occasionLabel),
   );
 }
 
@@ -196,8 +106,8 @@ function PriceRangeFilter({ value, bounds, onChange }) {
 
   return (
     <FilterSection label="Precio">
-      <fieldset className="rounded-2xl border border-blush/55 bg-white/80 p-4 sm:p-5">
-        <div className="relative h-8">
+      <fieldset className="rounded-[1.6rem] border border-blush/55 bg-white/85 p-5">
+        <div className="relative h-9 px-1">
           <div className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-[#BFE5DF]" />
           <div
             className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-plum/45"
@@ -225,11 +135,11 @@ function PriceRangeFilter({ value, bounds, onChange }) {
           />
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-4">
-          <output className="min-w-20 rounded-xl bg-cream px-4 py-2 text-center text-sm font-semibold tabular-nums text-ink shadow-sm">
+        <div className="mt-4 flex items-center justify-between gap-4">
+          <output className="min-w-24 rounded-2xl bg-cream px-4 py-2.5 text-center text-sm font-semibold tabular-nums text-ink shadow-sm">
             {formatPrice(value.min)}
           </output>
-          <output className="min-w-20 rounded-xl bg-cream px-4 py-2 text-center text-sm font-semibold tabular-nums text-ink shadow-sm">
+          <output className="min-w-24 rounded-2xl bg-cream px-4 py-2.5 text-center text-sm font-semibold tabular-nums text-ink shadow-sm">
             {formatPrice(value.max)}
           </output>
         </div>
@@ -240,15 +150,15 @@ function PriceRangeFilter({ value, bounds, onChange }) {
 
 function CategoryTabs({ value, onChange }) {
   return (
-    <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+    <div className="grid gap-2.5 sm:grid-cols-3 lg:grid-cols-1">
       {ALL_CATEGORIES.map((category) => (
         <button
           key={category}
           type="button"
-          className={`flex min-h-11 w-full items-center justify-between rounded-full px-4 text-left text-sm font-semibold ${
+          className={`flex min-h-[3.25rem] w-full items-center justify-between rounded-full px-5 text-left text-sm font-semibold transition-colors ${
             value === category
               ? "bg-plum text-white shadow-sm"
-              : "border border-blush/60 bg-white text-ink/68"
+              : "border border-blush/60 bg-white text-ink/68 hover:border-plum/45 hover:text-plum"
           }`}
           onClick={() => onChange(category)}
           aria-pressed={value === category}
@@ -260,97 +170,160 @@ function CategoryTabs({ value, onChange }) {
   );
 }
 
+function OccasionSelect({ value, onChange }) {
+  return (
+    <FilterSection label="Ocasión">
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="min-h-[3.25rem] w-full appearance-none rounded-full border border-blush/60 bg-white px-5 pr-12 text-sm font-semibold text-ink outline-none transition-colors focus:border-plum"
+        >
+          {ALL_OCCASIONS.map((occasion) => (
+            <option key={occasion} value={occasion}>
+              {occasion === DEFAULT_OCCASION ? "Todas las ocasiones" : occasion}
+            </option>
+          ))}
+        </select>
+        <span
+          className="pointer-events-none absolute right-5 top-1/2 h-2.5 w-2.5 -translate-y-[60%] rotate-45 border-b-2 border-r-2 border-plum/70"
+          aria-hidden="true"
+        />
+      </div>
+    </FilterSection>
+  );
+}
+
+function Pagination({ currentPage, totalPages, onPageChange }) {
+  if (totalPages <= 1) return null;
+
+  return (
+    <nav
+      aria-label="Paginacion de la tienda"
+      className="mt-10 flex flex-wrap items-center justify-center gap-2"
+    >
+      <button
+        type="button"
+        className="grid h-11 w-11 place-items-center rounded-full border border-blush/60 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        aria-label="Pagina anterior"
+      >
+        <ChevronLeft size={18} aria-hidden="true" />
+      </button>
+
+      {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+        <button
+          key={page}
+          type="button"
+          className={`h-11 min-w-11 rounded-full px-4 text-sm font-semibold shadow-sm ${
+            currentPage === page
+              ? "bg-plum text-white"
+              : "border border-blush/60 bg-white text-ink/70"
+          }`}
+          onClick={() => onPageChange(page)}
+          aria-current={currentPage === page ? "page" : undefined}
+        >
+          {page}
+        </button>
+      ))}
+
+      <button
+        type="button"
+        className="grid h-11 w-11 place-items-center rounded-full border border-blush/60 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        aria-label="Pagina siguiente"
+      >
+        <ChevronRight size={18} aria-hidden="true" />
+      </button>
+    </nav>
+  );
+}
+
 export default function Catalog() {
   const priceBounds = useMemo(() => getCatalogPriceBounds(), []);
   const [activeCategory, setActiveCategory] = useState(ALL_CATEGORIES[0]);
   const [priceRange, setPriceRange] = useState(priceBounds);
-  const [portionRange, setPortionRange] = useState(portionRanges[0].label);
-  const [flavor, setFlavor] = useState(flavorOptions[0]);
-  const [occasion, setOccasion] = useState(occasionOptions[0]);
-  const [sortBy, setSortBy] = useState(sortOptions[0]);
+  const [occasion, setOccasion] = useState(DEFAULT_OCCASION);
   const [searchTerm, setSearchTerm] = useState("");
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_PRODUCTS);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(shouldOpenSizeGuideFromHash);
 
   const filteredProducts = useMemo(() => {
     const query = normalizeText(searchTerm.trim());
 
-    const productMatches = products.filter((product) => {
+    const productMatches = catalogProducts.filter((product) => {
       const matchesCategory =
         activeCategory === "Todos" || product.category === activeCategory;
-      const searchableText = normalizeText(
-        [
-          product.name,
-          product.category,
-          product.servings,
-          (product.tags ?? []).join(" "),
-          (product.flavors ?? []).join(" "),
-        ].join(" "),
-      );
-      const matchesQuery = !query || searchableText.includes(query);
+      const matchesQuery =
+        !query || normalizeText(product.name).includes(query);
 
       return (
         matchesCategory &&
         matchesQuery &&
         matchesPrice(product, priceRange, priceBounds) &&
-        matchesPortion(product, portionRange) &&
-        matchesFlavor(product, flavor) &&
         matchesOccasion(product, occasion)
       );
     });
 
-    return sortProducts(productMatches, sortBy);
-  }, [
-    activeCategory,
-    flavor,
-    occasion,
-    portionRange,
-    priceBounds,
-    priceRange,
-    searchTerm,
-    sortBy,
-  ]);
+    return productMatches;
+  }, [activeCategory, occasion, priceBounds, priceRange, searchTerm]);
 
-  const visibleProducts = filteredProducts.slice(0, visibleCount);
-  const hasMoreProducts = visibleCount < filteredProducts.length;
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE),
+  );
+  const pageStart = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const visibleProducts = filteredProducts.slice(
+    pageStart,
+    pageStart + PRODUCTS_PER_PAGE,
+  );
+  const firstVisibleProduct = filteredProducts.length ? pageStart + 1 : 0;
+  const lastVisibleProduct = Math.min(
+    pageStart + visibleProducts.length,
+    filteredProducts.length,
+  );
   const hasActiveFilters =
     activeCategory !== "Todos" ||
     priceRange.min !== priceBounds.min ||
     priceRange.max !== priceBounds.max ||
-    portionRange !== portionRanges[0].label ||
-    flavor !== flavorOptions[0] ||
-    occasion !== occasionOptions[0] ||
-    sortBy !== sortOptions[0] ||
+    occasion !== DEFAULT_OCCASION ||
     searchTerm.trim();
 
   useEffect(() => {
-    setVisibleCount(INITIAL_VISIBLE_PRODUCTS);
-  }, [activeCategory, flavor, occasion, portionRange, priceRange, searchTerm, sortBy]);
+    setCurrentPage(1);
+  }, [activeCategory, occasion, priceRange, searchTerm]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
 
   const clearFilters = () => {
     setActiveCategory("Todos");
     setPriceRange(priceBounds);
-    setPortionRange(portionRanges[0].label);
-    setFlavor(flavorOptions[0]);
-    setOccasion(occasionOptions[0]);
-    setSortBy(sortOptions[0]);
+    setOccasion(DEFAULT_OCCASION);
     setSearchTerm("");
   };
 
   return (
-    <section id="catalogo" className="scroll-mt-20 bg-cream pb-20 pt-20 sm:pb-28">
+    <section
+      id="tienda"
+      className="scroll-mt-20 bg-cream pb-20 pt-20 sm:pb-28 lg:pt-28"
+    >
       <div className="border-b border-blush/45 bg-[linear-gradient(135deg,#FFF8F3_0%,#FFEAF1_48%,#F1F2FF_100%)]">
         <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="max-w-3xl">
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-plum">
-              Catálogo Bake Me Happy
+              Tienda Bake Me Happy
             </span>
             <h2 className="mt-3 max-w-[14ch] break-words font-display text-4xl leading-tight text-ink sm:max-w-full sm:text-5xl">
               Tortas y postres artesanales
             </h2>
             <p className="mt-4 max-w-[36ch] break-words text-base leading-7 text-ink/70 sm:max-w-2xl">
-              Tortas clásicas, tortas personalizadas y mini tortas preparadas
-              a pedido con una estética dulce, cuidada y personalizable.
+              Tortas clasicas, tortas tematicas, bocaditos tematicos y
+              complementos pensados para armar celebraciones mas bonitas y
+              personalizadas.
             </p>
           </div>
 
@@ -367,23 +340,23 @@ export default function Catalog() {
 
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="mt-8 grid gap-7 lg:grid-cols-[310px_minmax(0,1fr)] lg:items-start">
-          <aside className="rounded-lg border border-blush/45 bg-white/88 p-5 shadow-sm lg:sticky lg:top-24">
-            <div className="flex items-center gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-blush/45 text-plum">
+          <aside className="rounded-[1.75rem] border border-blush/45 bg-white/88 p-6 shadow-sm lg:sticky lg:top-24">
+            <div className="flex items-center gap-3.5">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-blush/45 text-plum">
                 <SlidersHorizontal size={18} aria-hidden="true" />
               </span>
               <div>
                 <h3 className="font-semibold text-ink">Filtros</h3>
-                <p className="text-sm text-ink/55 tabular-nums">
+                <p className="mt-0.5 text-sm text-ink/55 tabular-nums">
                   {filteredProducts.length} productos
                 </p>
               </div>
             </div>
 
-            <div className="mt-5">
-              <section>
+            <div className="mt-6">
+              <section className="pb-1">
                 <h4 className={filterSectionLabelClass}>Buscar</h4>
-                <label className="relative mt-3 block">
+                <label className="relative mt-4 block">
                   <Search
                     size={18}
                     className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-plum"
@@ -393,13 +366,13 @@ export default function Catalog() {
                     type="search"
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
-                    placeholder="Buscar producto, sabor u ocasión"
-                    className="min-h-11 w-full rounded-full border border-lavender/45 bg-white px-11 py-2.5 text-sm font-medium text-ink outline-none transition-colors placeholder:text-ink/40 focus:border-plum"
+                    placeholder="Buscar por nombre"
+                    className="min-h-[3.25rem] w-full rounded-full border border-lavender/45 bg-white px-11 py-3 text-sm font-medium text-ink outline-none transition-colors placeholder:text-ink/40 focus:border-plum"
                   />
                   {searchTerm && (
                     <button
                       type="button"
-                      className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-ink/55 hover:bg-lavender-light"
+                      className="absolute right-2.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-ink/55 hover:bg-lavender-light"
                       onClick={() => setSearchTerm("")}
                       aria-label="Limpiar búsqueda"
                     >
@@ -409,7 +382,7 @@ export default function Catalog() {
                 </label>
               </section>
 
-              <FilterSection label="Categoría" className="mt-5">
+              <FilterSection label="Categoría">
                 <CategoryTabs value={activeCategory} onChange={setActiveCategory} />
               </FilterSection>
 
@@ -419,37 +392,12 @@ export default function Catalog() {
                 onChange={setPriceRange}
               />
 
-              <div className="mt-5 grid gap-5 border-t border-blush/35 pt-5">
-                <FilterSelect
-                  label="Tamaño o porciones"
-                  value={portionRange}
-                  options={portionRanges.map((range) => range.label)}
-                  onChange={setPortionRange}
-                />
-                <FilterSelect
-                  label="Sabor"
-                  value={flavor}
-                  options={flavorOptions}
-                  onChange={setFlavor}
-                />
-                <FilterSelect
-                  label="Ocasión"
-                  value={occasion}
-                  options={occasionOptions}
-                  onChange={setOccasion}
-                />
-                <FilterSelect
-                  label="Ordenar por"
-                  value={sortBy}
-                  options={sortOptions}
-                  onChange={setSortBy}
-                />
-              </div>
+              <OccasionSelect value={occasion} onChange={setOccasion} />
 
               {hasActiveFilters && (
                 <button
                   type="button"
-                  className="min-h-11 w-full rounded-full border border-lavender/45 bg-lavender-light px-4 text-sm font-semibold text-ink"
+                  className="mt-6 min-h-[3.25rem] w-full rounded-full border border-lavender/45 bg-lavender-light px-5 text-sm font-semibold text-ink"
                   onClick={clearFilters}
                 >
                   Limpiar filtros
@@ -462,12 +410,15 @@ export default function Catalog() {
             <div className="flex flex-col gap-2 border-b border-blush/35 pb-4 text-sm text-ink/62 sm:flex-row sm:items-center sm:justify-between">
               <p>
                 Mostrando{" "}
-                <span className="font-semibold text-ink">{visibleProducts.length}</span>{" "}
+                <span className="font-semibold text-ink">
+                  {firstVisibleProduct}-{lastVisibleProduct}
+                </span>{" "}
                 de{" "}
                 <span className="font-semibold text-ink">{filteredProducts.length}</span>
               </p>
               <p className="font-semibold text-plum">
                 {activeCategory === "Todos" ? "Todos los productos" : activeCategory}
+                {occasion !== DEFAULT_OCCASION ? ` · ${occasion}` : ""}
               </p>
             </div>
 
@@ -483,32 +434,21 @@ export default function Catalog() {
                   No encontramos productos
                 </h3>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-ink/65">
-                  Prueba con otro filtro o vuelve a ver todo el catálogo.
+                  Prueba con otro filtro o vuelve a ver toda la tienda.
                 </p>
                 <button type="button" className="button-primary mt-6" onClick={clearFilters}>
-                  Ver todo el catálogo
+                  Ver toda la tienda
                 </button>
               </div>
             )}
 
-            {hasMoreProducts && (
-              <div className="mt-10 flex justify-center">
-                <button
-                  type="button"
-                  className="button-secondary bg-white"
-                  onClick={() =>
-                    setVisibleCount((current) => current + VISIBLE_INCREMENT)
-                  }
-                >
-                  Ver más productos
-                </button>
-              </div>
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
 
-            <p className="mx-auto mt-8 max-w-2xl text-center text-sm leading-6 text-ink/55">
-              Los precios son referenciales y pueden variar según diseño, relleno,
-              acabados y nivel de personalización.
-            </p>
+         
           </div>
         </div>
       </div>

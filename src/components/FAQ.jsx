@@ -13,7 +13,7 @@ const faqs = [
       "Sí. Puedes enviar referencias, paleta de colores, temática y cantidad de porciones. Adaptamos la idea al estilo de Bake Me Happy y al presupuesto.",
   },
   {
-    question: "¿Los precios del catálogo son finales?",
+    question: "¿Los precios de la tienda son finales?",
     answer:
       "Son referenciales. El precio final depende del tamaño, relleno, decoración, acabados personalizados y complejidad del diseño.",
   },

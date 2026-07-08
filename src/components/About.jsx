@@ -1,8 +1,8 @@
 import { CakeSlice, ClipboardCheck, PackageCheck, WandSparkles } from "lucide-react";
 
-const heroImage = "/images/webp/bake-me-happy-hero.webp";
-const celebrationImage = "/images/webp/FONDO.webp";
-const birthdayImage = "/images/webp/fondo1.webp";
+const heroImage = "/images/webp/hero 1.webp";
+const celebrationImage = "/images/webp/hero 2.webp";
+const birthdayImage = "/images/webp/hero 3.webp";
 
 const processSteps = [
   {
@@ -60,7 +60,7 @@ function EditorialImage({
 
 export default function About() {
   return (
-    <div className="bg-white pt-20 text-ink">
+    <div className="bg-white pt-20 text-ink lg:pt-28">
       <section
         id="nosotros"
         className="scroll-mt-20 bg-[#F7F2EA]"
@@ -126,7 +126,7 @@ export default function About() {
                 </p>
                 <p>
                   Con el tiempo, las recomendaciones dieron forma al negocio.
-                  Hoy elaboramos tortas clásicas, tortas personalizadas y mini
+                  Hoy elaboramos tortas clasicas, tortas tematicas y bocaditos
                   tortas, manteniendo una atención cercana y una estética dulce,
                   limpia y artesanal.
                 </p>

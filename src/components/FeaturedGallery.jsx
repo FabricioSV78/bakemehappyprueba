@@ -72,16 +72,16 @@ export default function FeaturedGallery() {
             Diseños dulces que inspiran tu próxima celebración
           </h2>
           <p className="mt-5 text-base leading-7 text-ink/70">
-            Una pequeña muestra de tortas personalizadas hechas para
+            Una pequeña muestra de tortas tematicas hechas para
             cumpleaños, fechas especiales y momentos que merecen algo único.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
             <a
-              href="#/catalogo"
+              href="#/tienda"
               className="button-primary shrink-0 whitespace-nowrap"
             >
-              Ver catálogo completo
+              Ver tienda completa
               <ArrowRight size={18} aria-hidden="true" />
             </a>
             <a
