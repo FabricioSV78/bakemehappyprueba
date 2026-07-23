@@ -8,7 +8,7 @@ import {
 import { products } from "../data/products";
 import { getWhatsAppUrl } from "../data/site";
 
-const featuredProductIds = [1, 7, 2, 13, 6, 14];
+const featuredProductIds = [101, 102, 103, 104, 105, 106];
 const featuredProducts = featuredProductIds
   .map((productId) => products.find((product) => product.id === productId))
   .filter(Boolean);

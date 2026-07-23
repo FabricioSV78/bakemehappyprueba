@@ -1,3 +1,5 @@
+import { thematicProducts } from "./thematicProducts.js";
+
 const heroImages = [
   {
     src: "/images/webp/hero 1.webp",
@@ -42,6 +44,8 @@ function namedCakeImages(folderPath, filePrefix, productName) {
 
 const personalizedBasePath = "/images/webp/TORTAS/tortas personalizadas";
 const classicBasePath = "/images/webp/TORTAS/tortas clasicas";
+const themedBitesBasePath =
+  "/images/webp/BOCADITOS/bocaditos tematicos";
 
 const butterflyImages = numberedCakeImages(
   `${personalizedBasePath}/personalizada 1`,
@@ -97,7 +101,7 @@ const fullChocolateImages = numberedCakeImages(
   "Torta Full Chocolate",
 );
 
-export const products = [
+const existingProducts = [
   {
     id: 1,
     name: "Butterfly Cake",
@@ -614,6 +618,35 @@ export const products = [
     ],
   },
   {
+    id: 26,
+    name: "Cupcakes de Mariposas",
+    description:
+      "Cupcakes decorados con buttercream y mariposas comestibles.",
+    category: "Bocaditos tematicos",
+    occasions: ["PARA ELLA", "BABY", "NIÑOS Y NIÑAS"],
+    tags: ["Cupcakes", "Mariposas", "Buttercream"],
+    image: heroImages[1].src,
+    images: heroImages.map((image, index) => ({
+      ...image,
+      alt:
+        index === 0
+          ? "Cupcakes de Mariposas de Bake Me Happy"
+          : "Imagen referencial de Cupcakes de Mariposas",
+    })),
+    imageFolder: `${themedBitesBasePath}/Cupcakes de Mariposas`,
+    hasProductImages: false,
+    imagePosition: "center",
+    servings: "Pack de 6 o 12 cupcakes",
+    details:
+      "Cupcakes decorados con buttercream y mariposas comestibles. Disponibles únicamente en sabores vainilla y chocolate.",
+    flavors: ["Vainilla", "Chocolate"],
+    includes: ["Decoración en buttercream", "Mariposas comestibles"],
+    prices: [
+      "Pack de 6 cupcakes: S/ 45",
+      "Pack de 12 cupcakes: S/ 90",
+    ],
+  },
+  {
     id: 23,
     name: "Vela de Signo de Interrogacion",
     description:
@@ -664,6 +697,13 @@ export const products = [
     includes: ["Listo para usar", "Detalle decorativo", "Compatible con varias tortas"],
     price: "S/ 15",
   },
+];
+
+export const products = [
+  ...thematicProducts,
+  ...existingProducts.filter(
+    (product) => product.category !== "Tortas tematicas",
+  ),
 ];
 
 export const categories = [

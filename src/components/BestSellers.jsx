@@ -3,7 +3,7 @@ import ProductCard from "./ProductCard";
 import SectionHeading from "./SectionHeading";
 import { products } from "../data/products";
 
-const bestSellerProductIds = [1, 6, 7, 8];
+const bestSellerProductIds = [101, 103, 7, 8];
 const bestSellerProducts = bestSellerProductIds
   .map((productId) => products.find((product) => product.id === productId))
   .filter(Boolean);

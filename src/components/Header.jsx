@@ -6,6 +6,7 @@ import {
   NAV_LINKS,
   SITE_CONFIG,
 } from "../data/site";
+import CustomOrderModal from "./CustomOrderModal";
 
 function HeaderContactLink({
   href,
@@ -42,6 +43,7 @@ function HeaderContactLink({
 
 export default function Header({ currentPath = "/" }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const activePath = currentPath.startsWith("/producto/")
     ? "/tienda"
     : currentPath === "/catalogo"
@@ -122,15 +124,14 @@ export default function Header({ currentPath = "/" }) {
           ))}
         </nav>
 
-        <a
-          href={getWhatsAppUrl()}
-          target="_blank"
-          rel="noreferrer"
+        <button
+          type="button"
+          onClick={() => setIsOrderModalOpen(true)}
           className="button-primary hidden lg:inline-flex"
         >
           <MessageCircle size={18} aria-hidden="true" />
           Hacer un pedido
-        </a>
+        </button>
 
         <button
           type="button"
@@ -187,18 +188,25 @@ export default function Header({ currentPath = "/" }) {
                 {link.label}
               </a>
             ))}
-            <a
-              href={getWhatsAppUrl()}
-              target="_blank"
-              rel="noreferrer"
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                setIsOrderModalOpen(true);
+              }}
               className="button-primary mt-5"
             >
               <MessageCircle size={18} aria-hidden="true" />
               Hacer un pedido
-            </a>
+            </button>
           </nav>
         </div>
       </div>
+
+      <CustomOrderModal
+        isOpen={isOrderModalOpen}
+        onClose={() => setIsOrderModalOpen(false)}
+      />
     </header>
   );
 }

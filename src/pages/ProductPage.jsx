@@ -7,7 +7,9 @@ import {
   Check,
   Heart,
   MessageCircle,
+  Minus,
   Palette,
+  Plus,
   Ruler,
   Truck,
 } from "lucide-react";
@@ -75,9 +77,11 @@ function getStartingPriceLabel(product) {
 }
 
 function getPreparationTime(product) {
+  if (product?.preparationTime) return product.preparationTime;
+
   const preparationByCategory = {
     "Tortas clasicas": "2 a 3 dias habiles",
-    "Tortas tematicas": "5 a 7 dias habiles",
+    "Tortas tematicas": "24 horas",
     "Bocaditos tematicos": "4 a 5 dias habiles",
     Complementos: "24 a 48 horas",
     "Mini tortas": "2 a 3 dias habiles",
@@ -105,26 +109,82 @@ function getPriceOptions(product) {
   ];
 }
 
+function getPortionKey(value) {
+  const [, amount] = value?.match(/(\d+)/) ?? [];
+  return amount ?? "";
+}
+
+function getGuideLabel(size) {
+  return `${size.portions} - ${size.name}`;
+}
+
+function findPriceByLabel(prices, label) {
+  const labelKey = getPortionKey(label);
+
+  return prices.find((price) => {
+    if (price.label.toLowerCase() === label.toLowerCase()) return true;
+    return labelKey && getPortionKey(price.label) === labelKey;
+  });
+}
+
 function getSizeOptions(product) {
-  if (product?.name.toLowerCase().includes("two")) {
+  const productName = product?.name.toLowerCase() ?? "";
+  const prices = getPriceOptions(product);
+
+  if (productName.includes("two")) {
     return sizeGuide.twoTiers.map((size) => ({
-      label: size.name,
-      value: size.portions,
+      label: getGuideLabel(size),
+      value: findPriceByLabel(prices, size.name)?.value ?? "Consultar",
       helper: size.dimensions,
     }));
   }
 
-  if (product?.name.toLowerCase().includes("heart")) {
-    return sizeGuide.special
-      .filter((size) => size.name.toLowerCase().includes("corazón") || size.name.toLowerCase().includes("corazon"))
-      .map((size) => ({
-        label: size.name,
-        value: size.portions,
-        helper: size.dimensions,
-      }));
+  if (productName.includes("tiny")) {
+    const tinySize = sizeGuide.special.find(
+      (size) => size.name.toLowerCase() === "tiny cake",
+    );
+
+    if (tinySize) {
+      return [
+        {
+          label: getGuideLabel(tinySize),
+          value: product?.price ?? "Consultar",
+          helper: tinySize.dimensions,
+        },
+      ];
+    }
   }
 
-  const prices = getPriceOptions(product);
+  if (product?.category === "Tortas tematicas") {
+    return prices.map((price) => {
+      const normalizedLabel = price.label.toLowerCase();
+      const isHeartCake =
+        productName.includes("heart") ||
+        productName.includes("corazon") ||
+        productName.includes("corazón");
+      const matchingSize = normalizedLabel.includes("tiny")
+        ? sizeGuide.special.find(
+            (size) => size.name.toLowerCase() === "tiny cake",
+          )
+        : isHeartCake
+          ? sizeGuide.special.find(
+              (size) =>
+                size.name.toLowerCase().includes("corazon") &&
+                getPortionKey(size.portions) === getPortionKey(price.label),
+            )
+          : sizeGuide.oneTier.find(
+              (size) =>
+                getPortionKey(size.portions) === getPortionKey(price.label),
+            );
+
+      return {
+        label: matchingSize ? getGuideLabel(matchingSize) : price.label,
+        value: price.value,
+        helper: matchingSize?.dimensions ?? "Precio base",
+      };
+    });
+  }
+
   return prices.map((size) => ({
     label: size.label,
     value: size.value,
@@ -132,9 +192,16 @@ function getSizeOptions(product) {
   }));
 }
 
-function TextField({ label, value, onChange, placeholder, type = "text" }) {
+function TextField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  columnsClassName = "md:grid-cols-[8.5rem_minmax(0,1fr)]",
+}) {
   return (
-    <label className="grid gap-2 md:grid-cols-[8.5rem_minmax(0,1fr)] md:items-center">
+    <label className={`grid gap-2 ${columnsClassName} md:items-center`}>
       <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55">
         {label}
       </span>
@@ -146,6 +213,77 @@ function TextField({ label, value, onChange, placeholder, type = "text" }) {
         className="min-h-12 w-full rounded-lg border border-blush/55 bg-white px-4 text-base font-medium text-ink outline-none placeholder:text-ink/35 focus:border-plum/60 focus:ring-4 focus:ring-blush/30"
       />
     </label>
+  );
+}
+
+function QuantityControls({
+  label = "Cantidad",
+  value,
+  onChange,
+  min = 1,
+  max = 99,
+  className = "",
+}) {
+  const numericValue = Math.min(
+    max,
+    Math.max(min, Number.parseInt(value, 10) || min),
+  );
+  const updateQuantity = (nextValue) => {
+    onChange(Math.min(max, Math.max(min, nextValue)));
+  };
+
+  return (
+    <div
+      className={`inline-flex min-h-12 w-fit items-center gap-4 text-ink ${className}`}
+      role="group"
+      aria-label={label}
+    >
+      <button
+        type="button"
+        onClick={() => updateQuantity(numericValue - 1)}
+        disabled={numericValue <= min}
+        aria-label={`Restar ${label.toLowerCase()}`}
+        className="grid h-9 w-9 place-items-center rounded-full border border-blush/55 bg-white text-ink transition-colors hover:border-plum/45 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <Minus size={15} aria-hidden="true" />
+      </button>
+      <span className="min-w-10 text-center text-base font-semibold text-ink">
+        {numericValue}
+      </span>
+      <button
+        type="button"
+        onClick={() => updateQuantity(numericValue + 1)}
+        disabled={numericValue >= max}
+        aria-label={`Agregar ${label.toLowerCase()}`}
+        className="grid h-9 w-9 place-items-center rounded-full border border-blush/55 bg-white text-ink transition-colors hover:border-plum/45 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <Plus size={15} aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
+function QuantityField({
+  label = "Cantidad",
+  value,
+  onChange,
+  min = 1,
+  max = 99,
+  columnsClassName = "md:grid-cols-[8.5rem_minmax(0,1fr)]",
+}) {
+  return (
+    <div className={`grid gap-1.5 ${columnsClassName} md:items-start`}>
+      <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55 md:pt-3">
+        {label}
+      </span>
+      <QuantityControls
+        label={label}
+        value={value}
+        onChange={onChange}
+        min={min}
+        max={max}
+      />
+    </div>
   );
 }
 
@@ -193,7 +331,87 @@ function DeliveryOptions({ delivery, onChange }) {
   );
 }
 
-function SelectField({ label, value, onChange, options, name }) {
+function GiftCandleOptions({ value, onChange }) {
+  return (
+    <div className="grid gap-2 md:grid-cols-[8.5rem_minmax(0,1fr)] md:items-start">
+      <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55 md:pt-3">
+        Velita de regalo
+      </span>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {["Si", "No"].map((option) => (
+          <label
+            key={option}
+            className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors duration-200 ${
+              value === option
+                ? "border-plum/45 bg-blush/15 shadow-sm"
+                : "border-blush/50 bg-white hover:border-plum/25"
+            }`}
+          >
+            <input
+              type="radio"
+              name="gift-candle"
+              value={option}
+              checked={value === option}
+              onChange={() => onChange(option)}
+              className="h-4 w-4 accent-plum"
+            />
+            <span className="text-sm font-semibold text-ink">{option}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ClassicSizeOptionsField({ value, onChange, options }) {
+  return (
+    <div className="grid gap-2 md:grid-cols-[8.5rem_minmax(0,1fr)] md:items-start">
+      <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55 md:pt-3">
+        Tamano o porciones
+      </span>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {options.map((option) => {
+          const optionValue = getOptionValue(option);
+          const isSelected = value === optionValue;
+          const optionPrice =
+            typeof option === "object" ? option.value ?? option.helper : null;
+
+          return (
+            <label
+              key={optionValue}
+              className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-colors duration-200 ${
+                isSelected
+                  ? "border-plum/45 bg-blush/15 shadow-sm"
+                  : "border-blush/50 bg-white hover:border-plum/25"
+              }`}
+            >
+              <input
+                type="radio"
+                name="classic-size"
+                value={optionValue}
+                checked={isSelected}
+                onChange={() => onChange(optionValue)}
+                className="mt-1 h-4 w-4 shrink-0 accent-plum"
+              />
+              <span className="min-w-0">
+                <span className="block text-base font-semibold text-ink">
+                  {optionValue}
+                </span>
+                {optionPrice && (
+                  <span className="mt-1 block text-sm text-ink/58">
+                    {optionPrice}
+                  </span>
+                )}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function getSelectHelper(options, value) {
   const selectedOption = options.find(
     (option) => getOptionValue(option) === value,
   );
@@ -203,43 +421,63 @@ function SelectField({ label, value, onChange, options, name }) {
     typeof selectedOption === "object"
       ? selectedOption.value ?? selectedOption.helper
       : null;
-  const selectedHelper =
-    selectedSurcharge > 0
-      ? `Adicional ${formatSoles(selectedSurcharge)}`
-      : selectedDetailValue && /s\/|consultar/i.test(selectedDetailValue)
-        ? selectedDetailValue
-        : selectedDetailValue
-          ? `Incluido - ${selectedDetailValue}`
-          : "Incluido";
-  const selectedDetail = null;
+
+  if (selectedSurcharge > 0) return `Adicional ${formatSoles(selectedSurcharge)}`;
+  if (selectedDetailValue && /s\/|consultar/i.test(selectedDetailValue)) {
+    return selectedDetailValue;
+  }
+  if (selectedDetailValue) return `Incluido - ${selectedDetailValue}`;
+
+  return "Incluido";
+}
+
+function SelectInput({ name, value, onChange, options, className = "" }) {
+  return (
+    <select
+      name={name}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      className={`min-h-12 w-full rounded-lg border border-blush/55 bg-white px-4 text-base font-semibold text-ink outline-none focus:border-plum/60 focus:ring-4 focus:ring-blush/30 ${className}`}
+    >
+      {options.map((option) => {
+        const optionValue = getOptionValue(option);
+        const surcharge =
+          typeof option === "object" ? option.surcharge ?? 0 : 0;
+
+        return (
+          <option key={optionValue} value={optionValue}>
+            {optionValue}
+            {surcharge > 0 ? ` (+ ${formatSoles(surcharge)})` : ""}
+          </option>
+        );
+      })}
+    </select>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  name,
+  columnsClassName = "md:grid-cols-[8.5rem_minmax(0,1fr)]",
+}) {
+  const selectedHelper = getSelectHelper(options, value);
 
   return (
-    <label className="grid gap-2 md:grid-cols-[8.5rem_minmax(0,1fr)] md:items-start">
+    <label className={`grid gap-1.5 ${columnsClassName} md:items-start`}>
       <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55 md:pt-3">
         {label}
       </span>
-      <select
+      <SelectInput
         name={name}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="min-h-12 w-full rounded-lg border border-blush/55 bg-white px-4 text-base font-semibold text-ink outline-none focus:border-plum/60 focus:ring-4 focus:ring-blush/30"
-      >
-        {options.map((option) => {
-          const optionValue = getOptionValue(option);
-          const surcharge =
-            typeof option === "object" ? option.surcharge ?? 0 : 0;
-
-          return (
-            <option key={optionValue} value={optionValue}>
-              {optionValue}
-              {surcharge > 0 ? ` (+ ${formatSoles(surcharge)})` : ""}
-            </option>
-          );
-        })}
-      </select>
+        onChange={onChange}
+        options={options}
+      />
       <p className="text-sm leading-5 text-ink/55 md:col-start-2">
         {selectedHelper}
-        {selectedDetail ? ` · ${selectedDetail}` : ""}
       </p>
     </label>
   );
@@ -263,6 +501,12 @@ function isThemedBite(product) {
 
 function isComplement(product) {
   return product?.category === "Complementos";
+}
+
+function getComplementOptions(currentProductId) {
+  return products.filter(
+    (item) => item.category === "Complementos" && item.id !== currentProductId,
+  );
 }
 
 function getProductGallery(product) {
@@ -359,6 +603,88 @@ function ProductGallery({ product, activeIndex, onSelect }) {
   );
 }
 
+function ComplementAddOns({ options, selectedItems, onQuantityChange }) {
+  if (!options.length) return null;
+
+  return (
+    <section className="mt-5 rounded-lg border border-blush/45 bg-white/75 p-4 shadow-sm">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-ink">Complementos</h2>
+          <p className="text-sm leading-6 text-ink/58">
+            Agrega velitas o topper a tu pedido.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        {options.map((option) => {
+          const quantity = selectedItems[option.id] ?? 0;
+          const isSelected = quantity > 0;
+
+          return (
+            <div
+              key={option.id}
+              className={`grid gap-3 rounded-lg border px-3 py-3 transition-colors sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center ${
+                isSelected
+                  ? "border-plum/40 bg-blush/15"
+                  : "border-blush/45 bg-white"
+              }`}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-blush/35 bg-cream">
+                  <img
+                    src={option.image}
+                    alt={option.name}
+                    className="h-full w-full object-cover"
+                    style={{
+                      objectPosition: option.imagePosition ?? "center",
+                    }}
+                    loading="lazy"
+                    width="96"
+                    height="96"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-ink">
+                    {option.name}
+                  </p>
+                  <p className="mt-0.5 text-sm text-ink/58">
+                    {option.price}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 justify-self-start sm:justify-self-end">
+                <button
+                  type="button"
+                  onClick={() => onQuantityChange(option.id, quantity - 1)}
+                  disabled={!isSelected}
+                  aria-label={`Restar ${option.name}`}
+                  className="grid h-9 w-9 place-items-center rounded-full border border-blush/55 bg-white text-ink transition-colors hover:border-plum/45 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Minus size={15} aria-hidden="true" />
+                </button>
+                <span className="min-w-7 text-center text-sm font-semibold text-ink">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onQuantityChange(option.id, quantity + 1)}
+                  aria-label={`Agregar ${option.name}`}
+                  className="grid h-9 w-9 place-items-center rounded-full border border-blush/55 bg-white text-ink transition-colors hover:border-plum/45"
+                >
+                  <Plus size={15} aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function ConfiguratorStepNav({ steps, activeStep, onStepChange }) {
   return (
     <nav
@@ -440,9 +766,16 @@ export default function ProductPage({ currentPath }) {
     if (personalizedCake) return fillingFlavors;
     return product?.fillings?.length ? product.fillings : EMPTY_OPTIONS;
   }, [personalizedCake, product]);
+  const complementOptions = useMemo(
+    () => getComplementOptions(productId),
+    [productId],
+  );
   const hasFlavorSelection = !classicCake && !complementProduct && flavorOptions.length > 0;
   const hasFillingSelection =
     !classicCake && !complementProduct && fillingOptions.length > 0;
+  const showComplementAddOns =
+    (classicCake || personalizedCake || miniCake) && complementOptions.length > 0;
+  const showGiftCandleOption = classicCake || personalizedCake || miniCake;
 
   const [selectedSize, setSelectedSize] = useState(sizeOptions[0]?.label ?? "");
   const [selectedFlavor, setSelectedFlavor] = useState(
@@ -456,9 +789,11 @@ export default function ProductPage({ currentPath }) {
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [message, setMessage] = useState("");
   const [delivery, setDelivery] = useState("Recojo coordinado");
+  const [giftCandle, setGiftCandle] = useState("No");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [selectedComplements, setSelectedComplements] = useState({});
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
   const [activeConfigStep, setActiveConfigStep] = useState(0);
 
@@ -471,9 +806,11 @@ export default function ProductPage({ currentPath }) {
     setAdditionalInfo("");
     setMessage("");
     setDelivery("Recojo coordinado");
+    setGiftCandle("No");
     setDate("");
     setTime("");
     setQuantity(1);
+    setSelectedComplements({});
     setActiveGalleryIndex(0);
     setActiveConfigStep(0);
   }, [fillingOptions, flavorOptions, productId, sizeOptions]);
@@ -513,9 +850,24 @@ export default function ProductPage({ currentPath }) {
       : basePrice !== null
         ? basePrice + totalSurcharge
         : null;
+  const selectedComplementItems = complementOptions
+    .map((option) => ({
+      ...option,
+      quantity: selectedComplements[option.id] ?? 0,
+      amount: getCurrencyAmount(option.price),
+    }))
+    .filter((option) => option.quantity > 0);
+  const complementsTotal = selectedComplementItems.reduce(
+    (total, option) =>
+      option.amount !== null ? total + option.amount * option.quantity : total,
+    0,
+  );
+  const hasComplementsTotal = complementsTotal > 0;
+  const orderTotal =
+    estimatedTotal !== null ? estimatedTotal + complementsTotal : estimatedTotal;
   const finalPriceLabel =
-    estimatedTotal !== null
-      ? formatSoles(estimatedTotal)
+    orderTotal !== null
+      ? formatSoles(orderTotal)
       : referenceValue;
   const finalPriceTitle =
     quantityProduct || personalizedCake ? "Precio final estimado" : "Precio final";
@@ -604,6 +956,25 @@ export default function ProductPage({ currentPath }) {
     );
   }
 
+  function updateComplementQuantity(complementId, nextQuantity) {
+    const normalizedQuantity = Math.max(
+      0,
+      Math.min(9, Number.parseInt(nextQuantity, 10) || 0),
+    );
+
+    setSelectedComplements((currentComplements) => {
+      const nextComplements = { ...currentComplements };
+
+      if (normalizedQuantity === 0) {
+        delete nextComplements[complementId];
+      } else {
+        nextComplements[complementId] = normalizedQuantity;
+      }
+
+      return nextComplements;
+    });
+  }
+
   const whatsappMessage = [
     `Hola, vengo de la página web de Bake Me Happy. Quisiera cotizar: ${product.name}.`,
     quantityProduct
@@ -627,9 +998,21 @@ export default function ProductPage({ currentPath }) {
       ? `Adicional por sabor y relleno: ${formatSoles(totalSurcharge)}.`
       : null,
     personalizedCake && theme ? `Temática: ${theme}.` : null,
-    biteProduct && theme ? `Tematica: ${theme}.` : null,
-    biteProduct && colorPalette ? `Colores: ${colorPalette}.` : null,
     additionalInfo ? `Información adicional: ${additionalInfo}.` : null,
+    showGiftCandleOption ? `Velita de regalo: ${giftCandle}.` : null,
+    selectedComplementItems.length
+      ? `Complementos: ${selectedComplementItems
+          .map(
+            (item) =>
+              `${item.name} x${item.quantity}${
+                item.price ? ` (${item.price})` : ""
+              }`,
+          )
+          .join(", ")}.`
+      : null,
+    hasComplementsTotal && orderTotal !== null
+      ? `Total estimado con complementos: ${formatSoles(orderTotal)}.`
+      : null,
     message ? `Mensaje en la torta: ${message}.` : null,
     date ? `Fecha deseada: ${date}.` : null,
     time ? `Hora deseada: ${time}.` : null,
@@ -656,6 +1039,14 @@ export default function ProductPage({ currentPath }) {
               activeIndex={activeGalleryIndex}
               onSelect={setActiveGalleryIndex}
             />
+
+            {showComplementAddOns && (
+              <ComplementAddOns
+                options={complementOptions}
+                selectedItems={selectedComplements}
+                onQuantityChange={updateComplementQuantity}
+              />
+            )}
 
               {false && miniCake && (
                   <div className="mt-4 rounded-md border border-blush/50 bg-cream/65 px-4 py-3 text-sm leading-6 text-ink/68">
@@ -691,8 +1082,8 @@ export default function ProductPage({ currentPath }) {
                   </p>
                 </div>
 
-                <div className="shrink-0 rounded-lg border border-blush/45 bg-white/85 px-5 py-4 shadow-sm sm:min-w-44 sm:text-right">
-                  <p className="text-2xl font-semibold text-plum sm:text-3xl">
+                <div className="shrink-0 sm:min-w-44 sm:pt-1 sm:text-right">
+                  <p className="text-2xl font-semibold tracking-[-0.02em] text-plum/85 sm:text-3xl">
                     {startingPriceLabel}
                   </p>
                 </div>
@@ -756,10 +1147,7 @@ export default function ProductPage({ currentPath }) {
                       <h2 className="font-display text-2xl leading-tight text-ink">
                         Configura tu pedido
                       </h2>
-                      <p className="mt-1 text-xs leading-5 text-ink/66">
-                        Enviaremos tu selección por WhatsApp para confirmar
-                        disponibilidad y entrega.
-                      </p>
+                      
                     </div>
 
                     {personalizedCake && (
@@ -823,52 +1211,95 @@ export default function ProductPage({ currentPath }) {
                 <div className="mt-4 space-y-4">
                   {quantityProduct ? (
                     <>
-                      <div className="rounded-lg border border-blush/45 bg-blush/10 p-4">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <div>
-                            <p className="text-base font-semibold text-ink">
-                              {selectedSize || product.servings}
-                            </p>
-                            <p className="mt-1 text-sm leading-6 text-ink/58">
-                              {selectedPrice?.value ?? product.price ?? "Consultar"}
-                            </p>
-                            {product.dimensions && (
-                              <p className="mt-1 text-sm leading-6 text-ink/52">
-                                {product.dimensions}
+                      {!biteProduct && (
+                        <div className="rounded-lg border border-blush/45 bg-blush/10 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                              <p className="text-base font-semibold text-ink">
+                                {selectedSize || product.servings}
                               </p>
+                              <p className="mt-1 text-sm leading-6 text-ink/58">
+                                {selectedPrice?.value ?? product.price ?? "Consultar"}
+                              </p>
+                              {product.dimensions && (
+                                <p className="mt-1 text-sm leading-6 text-ink/52">
+                                  {product.dimensions}
+                                </p>
+                              )}
+                            </div>
+                            {miniCake && (
+                              <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-plum">
+                                Buttercream
+                              </span>
                             )}
                           </div>
-                          {miniCake && (
-                            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-plum">
-                              Buttercream
-                            </span>
-                          )}
                         </div>
-                      </div>
-
-                      {!miniCake && (
-                        <SelectField
-                          label={complementProduct ? "Complemento o presentacion" : "Presentacion"}
-                          name="size"
-                          options={sizeOptions}
-                          value={selectedSize}
-                          onChange={setSelectedSize}
-                        />
                       )}
 
-                      <TextField
-                        label="Cantidad"
-                        value={quantity}
-                        onChange={(nextValue) =>
-                          setQuantity(
-                            Math.max(1, Number.parseInt(nextValue, 10) || 1),
-                          )
-                        }
-                        type="number"
-                        placeholder="1"
-                      />
+                      {biteProduct ? (
+                        <div className="grid gap-y-4">
+                          <div className="grid gap-x-4 gap-y-1.5 md:grid-cols-[7rem_minmax(12rem,13.5rem)_5.5rem_auto] md:items-start">
+                            <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55 md:pt-3">
+                              Presentacion
+                            </span>
+                            <div className="min-w-0">
+                              <SelectInput
+                                name="size"
+                                options={sizeOptions}
+                                value={selectedSize}
+                                onChange={setSelectedSize}
+                              />
+                              <p className="mt-1.5 text-sm leading-5 text-ink/55">
+                                {getSelectHelper(sizeOptions, selectedSize)}
+                              </p>
+                            </div>
+                            <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55 md:pt-3">
+                              Cantidad
+                            </span>
+                            <QuantityControls
+                              value={quantity}
+                              onChange={setQuantity}
+                            />
+                          </div>
+                          {hasFlavorSelection && (
+                            <div className="grid gap-x-4 gap-y-1.5 md:grid-cols-[7rem_minmax(0,1fr)] md:items-start">
+                              <span className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink/55 md:pt-3">
+                                Sabor
+                              </span>
+                              <div className="min-w-0">
+                                <SelectInput
+                                  name="flavor"
+                                  options={flavorOptions}
+                                  value={selectedFlavor}
+                                  onChange={setSelectedFlavor}
+                                />
+                                <p className="mt-1.5 text-sm leading-5 text-ink/55">
+                                  {getSelectHelper(flavorOptions, selectedFlavor)}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          {!miniCake && (
+                            <SelectField
+                              label={complementProduct ? "Complemento o presentacion" : "Presentacion"}
+                              name="size"
+                              options={sizeOptions}
+                              value={selectedSize}
+                              onChange={setSelectedSize}
+                            />
+                          )}
 
-                      {(hasFlavorSelection || hasFillingSelection) && !miniCake && (
+                          <QuantityField
+                            value={quantity}
+                            onChange={setQuantity}
+                          />
+                        </>
+                      )}
+
+                      {(hasFlavorSelection || hasFillingSelection) && !miniCake && !biteProduct && (
                         <div
                           className={`grid gap-4 ${
                             hasFlavorSelection && hasFillingSelection
@@ -898,32 +1329,61 @@ export default function ProductPage({ currentPath }) {
                       )}
                     </>
                   ) : (
-                    <SelectField
-                      label="Tamano o porciones"
-                      name="size"
-                      options={sizeOptions}
-                      value={selectedSize}
-                      onChange={setSelectedSize}
-                    />
-                  )}
+                    personalizedCake ? (
+                      <div className="space-y-4">
+                        <div
+                          className={`grid gap-x-5 gap-y-4 ${
+                            hasFillingSelection ? "sm:grid-cols-2" : "sm:grid-cols-1"
+                          }`}
+                        >
+                          <SelectField
+                            label="Tamano o porciones"
+                            name="size"
+                            options={sizeOptions}
+                            value={selectedSize}
+                            onChange={setSelectedSize}
+                            columnsClassName="md:grid-cols-[7rem_minmax(0,1fr)]"
+                          />
+                          {hasFillingSelection && (
+                            <SelectField
+                              label="Relleno"
+                              name="filling"
+                              options={fillingOptions}
+                              value={selectedFilling}
+                              onChange={setSelectedFilling}
+                              columnsClassName="md:grid-cols-[5.5rem_minmax(0,1fr)]"
+                            />
+                          )}
+                        </div>
 
-                  {personalizedCake && (
-                    <div className="grid gap-4 border-t border-blush/35 pt-4 sm:grid-cols-2">
-                      <SelectField
-                        label="Sabor de queque"
-                        name="flavor"
-                        options={flavorOptions}
-                        value={selectedFlavor}
-                        onChange={setSelectedFlavor}
+                        {hasFlavorSelection && (
+                          <div>
+                            <SelectField
+                              label="Sabor de queque"
+                              name="flavor"
+                              options={flavorOptions}
+                              value={selectedFlavor}
+                              onChange={setSelectedFlavor}
+                              columnsClassName="md:grid-cols-[7rem_minmax(0,1fr)]"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ) : classicCake ? (
+                      <ClassicSizeOptionsField
+                        value={selectedSize}
+                        onChange={setSelectedSize}
+                        options={sizeOptions}
                       />
+                    ) : (
                       <SelectField
-                        label="Relleno"
-                        name="filling"
-                        options={fillingOptions}
-                        value={selectedFilling}
-                        onChange={setSelectedFilling}
+                        label="Tamano o porciones"
+                        name="size"
+                        options={sizeOptions}
+                        value={selectedSize}
+                        onChange={setSelectedSize}
                       />
-                    </div>
+                    )
                   )}
                 </div>
               </section>
@@ -949,6 +1409,12 @@ export default function ProductPage({ currentPath }) {
                           type="time"
                         />
                       </div>
+                      {showGiftCandleOption && (
+                        <GiftCandleOptions
+                          value={giftCandle}
+                          onChange={setGiftCandle}
+                        />
+                      )}
                       <TextField
                         label="Mensaje en la torta"
                         value={message}
@@ -964,8 +1430,8 @@ export default function ProductPage({ currentPath }) {
                       />
                     </div>
                   ) : quantityProduct ? (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="sm:col-span-2 grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
                         <TextField
                           label="Fecha deseada"
                           value={date}
@@ -979,18 +1445,14 @@ export default function ProductPage({ currentPath }) {
                           type="time"
                         />
                       </div>
-                      <TextField
-                        label={complementProduct ? "Detalle o texto" : "Mensaje o referencia"}
-                        value={message}
-                        onChange={setMessage}
-                        placeholder={
-                          complementProduct
-                            ? "Ej. incluir con torta principal"
-                            : "Ej. mariposas rosas o feliz cumple"
-                        }
-                      />
-                      {!complementProduct && (
-                        <>
+                      {miniCake && showGiftCandleOption && (
+                        <GiftCandleOptions
+                          value={giftCandle}
+                          onChange={setGiftCandle}
+                        />
+                      )}
+                      {!complementProduct && !biteProduct && (
+                        <div className="grid gap-4 sm:grid-cols-2">
                           <TextField
                             label="Tematica"
                             value={theme}
@@ -1003,51 +1465,65 @@ export default function ProductPage({ currentPath }) {
                             onChange={setColorPalette}
                             placeholder="Ej. rosa pastel y lavanda"
                           />
-                        </>
+                        </div>
                       )}
-                      <div className="sm:col-span-2">
-                        <TextAreaField
-                          label="Informacion adicional"
-                          value={additionalInfo}
-                          onChange={setAdditionalInfo}
-                          rows={3}
-                          placeholder={
-                            complementProduct
-                              ? "Ej. combinar con otro pedido, color disponible o alguna indicacion puntual."
-                              : "Ej. referencia del diseno, empaque para regalo o alguna indicacion puntual."
-                          }
-                        />
-                      </div>
+                      <TextField
+                        label={complementProduct ? "Detalle o texto" : "Mensaje o referencia"}
+                        value={message}
+                        onChange={setMessage}
+                        placeholder={
+                          complementProduct
+                            ? "Ej. incluir con torta principal"
+                            : "Ej. mariposas rosas o feliz cumple"
+                        }
+                      />
+                      <TextAreaField
+                        label="Informacion adicional"
+                        value={additionalInfo}
+                        onChange={setAdditionalInfo}
+                        rows={3}
+                        placeholder={
+                          complementProduct
+                            ? "Ej. combinar con otro pedido, color disponible o alguna indicacion puntual."
+                            : "Ej. referencia del diseno, empaque para regalo o alguna indicacion puntual."
+                        }
+                      />
                     </div>
                   ) : (
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <TextField
+                          label="Fecha deseada"
+                          value={date}
+                          onChange={setDate}
+                          type="date"
+                        />
+                        <TextField
+                          label="Hora deseada"
+                          value={time}
+                          onChange={setTime}
+                          type="time"
+                        />
+                      </div>
+                      {showGiftCandleOption && (
+                        <GiftCandleOptions
+                          value={giftCandle}
+                          onChange={setGiftCandle}
+                        />
+                      )}
                       <TextField
                         label="Mensaje"
                         value={message}
                         onChange={setMessage}
                         placeholder="Ej. Feliz cumple, Valeria"
                       />
-                      <TextField
-                        label="Fecha deseada"
-                        value={date}
-                        onChange={setDate}
-                        type="date"
+                      <TextAreaField
+                        label="Informacion adicional"
+                        value={additionalInfo}
+                        onChange={setAdditionalInfo}
+                        rows={3}
+                        placeholder="Ej. topper especial, referencia del acabado, cambios en decoracion, indicaciones para la entrega, etc."
                       />
-                      <TextField
-                        label="Hora deseada"
-                        value={time}
-                        onChange={setTime}
-                        type="time"
-                      />
-                      <div className="sm:col-span-2">
-                        <TextAreaField
-                          label="Informacion adicional"
-                          value={additionalInfo}
-                          onChange={setAdditionalInfo}
-                          rows={3}
-                          placeholder="Ej. topper especial, referencia del acabado, cambios en decoracion, indicaciones para la entrega, etc."
-                        />
-                      </div>
                     </div>
                   )}
                 </div>
@@ -1069,6 +1545,11 @@ export default function ProductPage({ currentPath }) {
                         <p className="mt-2 font-display text-3xl leading-none text-ink sm:text-4xl">
                           {finalPriceLabel}
                         </p>
+                        {selectedComplementItems.length > 0 && (
+                          <p className="mt-2 text-sm font-medium text-ink/58">
+                            Complementos agregados
+                          </p>
+                        )}
                       </div>
                       <div className="space-y-1 text-sm leading-6 text-ink/62 sm:text-right">
                         <p>{delivery}</p>
@@ -1199,16 +1680,9 @@ export default function ProductPage({ currentPath }) {
                         />
                       )}
 
-                      <TextField
-                        label="Cantidad"
+                      <QuantityField
                         value={quantity}
-                        onChange={(nextValue) =>
-                          setQuantity(
-                            Math.max(1, Number.parseInt(nextValue, 10) || 1),
-                          )
-                        }
-                        type="number"
-                        placeholder="1"
+                        onChange={setQuantity}
                       />
 
                       {(hasFlavorSelection || hasFillingSelection) && !miniCake && (

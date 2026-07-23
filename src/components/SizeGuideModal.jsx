@@ -110,29 +110,54 @@ function GuideTitle() {
 
 function LabelPill({ children }) {
   return (
-    <div className="mx-auto mt-1 w-fit min-w-[6.4rem] rounded-full bg-[#F5D1E6] px-4 py-1 text-center text-[0.62rem] font-bold uppercase tracking-[0.3em] text-[#4B2673]">
+    <div className="mx-auto mt-2 w-fit min-w-[6.8rem] rounded-full bg-[#F5D1E6] px-4 py-1.5 text-center text-[0.68rem] font-bold uppercase tracking-[0.24em] text-[#4B2673]">
       {children}
     </div>
   );
 }
 
-function MeasureText({ x, y, fontSize = 13.5, children }) {
+function MeasureText({
+  x,
+  y,
+  fontSize = 15.5,
+  textAnchor = "middle",
+  children,
+}) {
+  const label = String(children);
+  const backgroundWidth = Math.max(42, label.length * fontSize * 0.62 + 14);
+  const backgroundHeight = fontSize + 8;
+  const backgroundX =
+    textAnchor === "middle"
+      ? x - backgroundWidth / 2
+      : textAnchor === "end"
+        ? x - backgroundWidth
+        : x - 6;
+
   return (
-    <text
-      x={x}
-      y={y}
-      fill={pink}
-      stroke={cream}
-      strokeWidth="3.2"
-      paintOrder="stroke"
-      fontSize={fontSize}
-      fontWeight="800"
-      textAnchor="middle"
-      dominantBaseline="middle"
-      fontFamily="Poppins, sans-serif"
-    >
-      {children}
-    </text>
+    <g>
+      <rect
+        x={backgroundX}
+        y={y - backgroundHeight / 2}
+        width={backgroundWidth}
+        height={backgroundHeight}
+        rx={backgroundHeight / 2}
+        fill="#FFFDFC"
+        stroke="#F3B8CB"
+        strokeWidth="1"
+      />
+      <text
+        x={x}
+        y={y + 0.5}
+        fill={pink}
+        fontSize={fontSize}
+        fontWeight="900"
+        textAnchor={textAnchor}
+        dominantBaseline="middle"
+        fontFamily="Poppins, sans-serif"
+      >
+        {children}
+      </text>
+    </g>
   );
 }
 
@@ -142,17 +167,17 @@ function HorizontalMeasure({
   y,
   label,
   labelPosition = "above",
-  labelOffset = 12,
-  fontSize,
+  labelOffset = 15,
+  fontSize = 15.5,
 }) {
   const center = (x1 + x2) / 2;
   const labelY = labelPosition === "below" ? y + labelOffset : y - labelOffset;
 
   return (
     <>
-      <line x1={x1} x2={x2} y1={y} y2={y} stroke={pink} strokeWidth="1.5" />
-      <line x1={x1} x2={x1} y1={y - 5} y2={y + 5} stroke={pink} strokeWidth="1.5" />
-      <line x1={x2} x2={x2} y1={y - 5} y2={y + 5} stroke={pink} strokeWidth="1.5" />
+      <line x1={x1} x2={x2} y1={y} y2={y} stroke={pink} strokeWidth="1.8" />
+      <line x1={x1} x2={x1} y1={y - 6} y2={y + 6} stroke={pink} strokeWidth="1.8" />
+      <line x1={x2} x2={x2} y1={y - 6} y2={y + 6} stroke={pink} strokeWidth="1.8" />
       <MeasureText x={center} y={labelY} fontSize={fontSize}>
         {label}
       </MeasureText>
@@ -160,26 +185,20 @@ function HorizontalMeasure({
   );
 }
 
-function VerticalMeasure({ x, y1, y2, label, labelOffset = 14, fontSize = 13.5 }) {
+function VerticalMeasure({ x, y1, y2, label, labelOffset = 16, fontSize = 15.5 }) {
   return (
     <>
-      <line x1={x} x2={x} y1={y1} y2={y2} stroke={pink} strokeWidth="1.5" />
-      <line x1={x - 5} x2={x + 5} y1={y1} y2={y1} stroke={pink} strokeWidth="1.5" />
-      <line x1={x - 5} x2={x + 5} y1={y2} y2={y2} stroke={pink} strokeWidth="1.5" />
-      <text
+      <line x1={x} x2={x} y1={y1} y2={y2} stroke={pink} strokeWidth="1.8" />
+      <line x1={x - 6} x2={x + 6} y1={y1} y2={y1} stroke={pink} strokeWidth="1.8" />
+      <line x1={x - 6} x2={x + 6} y1={y2} y2={y2} stroke={pink} strokeWidth="1.8" />
+      <MeasureText
         x={x + labelOffset}
         y={(y1 + y2) / 2}
-        fill={pink}
-        stroke={cream}
-        strokeWidth="3.2"
-        paintOrder="stroke"
         fontSize={fontSize}
-        fontWeight="800"
-        dominantBaseline="middle"
-        fontFamily="Poppins, sans-serif"
+        textAnchor="start"
       >
         {label}
-      </text>
+      </MeasureText>
     </>
   );
 }
@@ -222,13 +241,13 @@ function TwoTierCake({ top, base, label, portions }) {
   const baseRight = cakeCenter + baseWidth / 2;
 
   return (
-    <article className="text-center">
+    <article className="flex h-full flex-col items-center justify-end text-center">
       <svg
-        viewBox="0 0 290 250"
-        className="mx-auto h-auto w-full max-w-[13.1rem] sm:max-w-[14.25rem]"
+        viewBox="0 0 320 256"
+        className="mx-auto h-auto w-full max-w-[13.75rem] sm:max-w-[14.85rem]"
         aria-hidden="true"
       >
-        <HorizontalMeasure x1={topLeft} x2={topRight} y={34} label={top} fontSize={13.5} />
+        <HorizontalMeasure x1={topLeft} x2={topRight} y={34} label={top} />
         <Cylinder cx={cakeCenter} topY={baseY} width={baseWidth} height={baseHeight} />
         <Cylinder cx={cakeCenter} topY={topY} width={topWidth} height={topHeight} />
         <Cherry cx={cakeCenter} cy={topY} />
@@ -237,16 +256,14 @@ function TwoTierCake({ top, base, label, portions }) {
           y1={topY}
           y2={topY + topHeight}
           label="14 cm."
-          labelOffset={15}
-          fontSize={13.5}
+          labelOffset={16}
         />
         <VerticalMeasure
           x={baseRight + 22}
           y1={baseY}
           y2={baseY + baseHeight}
           label="14 cm."
-          labelOffset={15}
-          fontSize={13.5}
+          labelOffset={16}
         />
         <HorizontalMeasure
           x1={baseLeft}
@@ -254,12 +271,11 @@ function TwoTierCake({ top, base, label, portions }) {
           y={218}
           label={base}
           labelPosition="below"
-          labelOffset={13}
-          fontSize={13.5}
+          labelOffset={16}
         />
       </svg>
       <LabelPill>{label}</LabelPill>
-      <p className="mt-1.5 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-[#1E3264] sm:text-[0.72rem]">
+      <p className="mt-1.5 min-h-[1.2rem] text-center text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#1E3264] sm:text-[0.76rem]">
         {portions}
       </p>
     </article>
@@ -275,13 +291,13 @@ function OneTierCake({ diameter, height, name, portions }) {
   const right = cakeCenter + width / 2;
 
   return (
-    <article className="text-center">
+    <article className="flex h-full flex-col items-center justify-end text-center">
       <svg
-        viewBox="0 0 250 178"
-        className="mx-auto h-auto w-full max-w-[10.1rem] sm:max-w-[10.75rem]"
+        viewBox="0 0 272 190"
+        className="mx-auto h-auto w-full max-w-[10.6rem] sm:max-w-[11.3rem]"
         aria-hidden="true"
       >
-        <HorizontalMeasure x1={left} x2={right} y={29} label={diameter} fontSize={13.5} />
+        <HorizontalMeasure x1={left} x2={right} y={30} label={diameter} />
         <Cylinder cx={cakeCenter} topY={topY} width={width} height={cakeHeight} />
         <Cherry cx={cakeCenter} cy={topY} />
         <VerticalMeasure
@@ -289,12 +305,11 @@ function OneTierCake({ diameter, height, name, portions }) {
           y1={topY}
           y2={topY + cakeHeight}
           label={height}
-          labelOffset={11}
-          fontSize={13.5}
+          labelOffset={14}
         />
       </svg>
       <LabelPill>{name}</LabelPill>
-      <p className="mt-1 text-[0.62rem] font-bold uppercase tracking-[0.11em] text-[#1E3264] sm:text-[0.68rem]">
+      <p className="mt-1.5 min-h-[1.2rem] text-center text-[0.7rem] font-bold uppercase tracking-[0.11em] text-[#1E3264] sm:text-[0.74rem]">
         {portions}
       </p>
     </article>
@@ -322,8 +337,8 @@ function GiftCake() {
 function MiniRoundCake() {
   return (
     <svg
-      viewBox="0 0 195 150"
-      className="mx-auto h-auto w-full max-w-[9.5rem] sm:max-w-[10.5rem]"
+      viewBox="0 0 235 162"
+      className="mx-auto h-auto w-full max-w-[10rem] sm:max-w-[11rem]"
       aria-hidden="true"
     >
       <g transform="translate(10, 2) scale(1.28)">
@@ -348,16 +363,14 @@ function MiniRoundCake() {
         y={118}
         label="14 cm."
         labelPosition="below"
-        labelOffset={11}
-        fontSize={14}
+        labelOffset={14}
       />
       <VerticalMeasure
         x={143}
         y1={52}
         y2={101}
         label="7 cm."
-        labelOffset={11}
-        fontSize={14}
+        labelOffset={14}
       />
     </svg>
   );
@@ -366,8 +379,8 @@ function MiniRoundCake() {
 function MiniHeartCake() {
   return (
     <svg
-      viewBox="0 0 195 150"
-      className="mx-auto h-auto w-full max-w-[9.5rem] sm:max-w-[10.5rem]"
+      viewBox="0 0 235 162"
+      className="mx-auto h-auto w-full max-w-[10rem] sm:max-w-[11rem]"
       aria-hidden="true"
     >
       <g transform="translate(10, 2) scale(1.28)">
@@ -386,16 +399,14 @@ function MiniHeartCake() {
         y={135}
         label="14 cm."
         labelPosition="below"
-        labelOffset={11}
-        fontSize={14}
+        labelOffset={14}
       />
       <VerticalMeasure
         x={144}
         y1={66}
         y2={110}
         label="7 cm."
-        labelOffset={11}
-        fontSize={14}
+        labelOffset={14}
       />
     </svg>
   );
@@ -407,13 +418,19 @@ function TinyCakeSection() {
       <SectionPill className="min-w-[9.5rem] !bg-[#F5C3D5] !text-[#4B2673]">
         Tiny cake
       </SectionPill>
-      <p className="mt-1.5 text-center text-[0.54rem] font-bold uppercase tracking-[0.15em] text-[#4B2673] sm:text-[0.58rem]">
+      <p className="mt-2 text-center text-[0.64rem] font-bold uppercase tracking-[0.13em] text-[#4B2673] sm:text-[0.68rem]">
         Pequeñas para 6 a 7 porciones
       </p>
-      <div className="mt-4 grid w-full gap-6 items-end sm:grid-cols-3 sm:gap-3">
-        <GiftCake />
-        <MiniRoundCake />
-        <MiniHeartCake />
+      <div className="mt-4 grid w-full items-end gap-5 sm:grid-cols-3 sm:gap-4">
+        <div className="flex justify-center">
+          <GiftCake />
+        </div>
+        <div className="flex justify-center">
+          <MiniRoundCake />
+        </div>
+        <div className="flex justify-center">
+          <MiniHeartCake />
+        </div>
       </div>
     </section>
   );
@@ -442,10 +459,10 @@ function HeartCake({ width, portions }) {
         };
 
   return (
-    <article className="text-center">
+    <article className="flex h-full flex-col items-center justify-end text-center">
       <svg
-        viewBox="0 0 300 214"
-        className="mx-auto h-auto w-full max-w-[12rem] sm:max-w-[13.15rem]"
+        viewBox="0 0 332 226"
+        className="mx-auto h-auto w-full max-w-[12.75rem] sm:max-w-[13.85rem]"
         aria-hidden="true"
       >
         <g transform={config.shapeTransform}>
@@ -489,19 +506,17 @@ function HeartCake({ width, portions }) {
           y={config.measureY}
           label={width}
           labelPosition="below"
-          labelOffset={13}
-          fontSize={14}
+          labelOffset={15}
         />
         <VerticalMeasure
           x={config.measureX}
           y1={config.verticalTop}
           y2={config.verticalBottom}
           label="12 cm."
-          labelOffset={12}
-          fontSize={14}
+          labelOffset={14}
         />
       </svg>
-      <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-[#1E3264] sm:text-xs">
+      <p className="mt-2 min-h-[1.2rem] text-center text-[0.74rem] font-bold uppercase tracking-[0.12em] text-[#1E3264] sm:text-xs">
         Corazón {portions}
       </p>
     </article>
@@ -521,6 +536,86 @@ function Divider() {
         />
       </svg>
       <span className="h-px flex-1 bg-[#F0A8BF]" />
+    </div>
+  );
+}
+
+export function SizeGuideContent({ className = "" }) {
+  return (
+    <div className={`relative overflow-hidden px-4 pb-7 pt-12 sm:px-8 sm:pb-8 sm:pt-12 ${className}`}>
+      <Doodles />
+      <LogoMark />
+      <GuideTitle />
+
+      <div className="relative z-10 mt-4 sm:mt-5">
+        <SectionPill>2 pisos</SectionPill>
+        <div className="mt-4 grid items-end gap-5 sm:grid-cols-3 sm:gap-5">
+          <TwoTierCake
+            top="14 cm."
+            base="18 cm."
+            label="Small"
+            portions="25 - 30 porciones"
+          />
+          <TwoTierCake
+            top="18 cm."
+            base="22 cm."
+            label="Medium"
+            portions="40 - 45 porciones"
+          />
+          <TwoTierCake
+            top="18 cm."
+            base="26 cm."
+            label="Large"
+            portions="60 - 65 porciones"
+          />
+        </div>
+
+        <Divider />
+
+        <section>
+          <SectionPill className="!bg-[#F9C7D8] !text-[#4B2673]">
+            1 piso
+          </SectionPill>
+          <div className="mt-4 grid items-end gap-5 sm:grid-cols-3 sm:gap-5">
+            <OneTierCake
+              diameter="18 cm."
+              height="14 cm."
+              name="Small"
+              portions="15 porciones"
+            />
+            <OneTierCake
+              diameter="22 cm."
+              height="15 cm."
+              name="Medium"
+              portions="20 porciones"
+            />
+            <OneTierCake
+              diameter="22 cm."
+              height="18 cm."
+              name="Large"
+              portions="30 porciones"
+            />
+          </div>
+        </section>
+
+        <Divider />
+
+        <section>
+          <TinyCakeSection />
+        </section>
+
+        <Divider />
+
+        <section>
+          <SectionPill className="!bg-[#F9C7D8] !text-[#4B2673]">
+            Corazón
+          </SectionPill>
+          <div className="mt-4 grid items-end gap-6 sm:grid-cols-2">
+            <HeartCake width="17 cm." portions="20 porciones" />
+            <HeartCake width="23 cm." portions="30 porciones" />
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
@@ -567,7 +662,10 @@ export default function SizeGuideModal({ isOpen, onClose }) {
           <X size={20} aria-hidden="true" />
         </button>
 
-        <div className="relative overflow-hidden px-4 pb-7 pt-12 sm:px-8 sm:pb-8 sm:pt-12">
+        <SizeGuideContent />
+
+        {false && (
+        <div className="hidden" aria-hidden="true">
           <Doodles />
           <LogoMark />
           <GuideTitle />
@@ -642,6 +740,7 @@ export default function SizeGuideModal({ isOpen, onClose }) {
             </section>
           </div>
         </div>
+        )}
       </section>
     </div>
   );
