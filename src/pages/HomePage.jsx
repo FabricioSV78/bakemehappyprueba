@@ -5,12 +5,12 @@ import FeaturedGallery from "../components/FeaturedGallery";
 import Hero from "../components/Hero";
 import Testimonials from "../components/Testimonials";
 
-export default function HomePage() {
+export default function HomePage({ onOpenOrderModal }) {
   return (
     <>
-      <Hero />
+      <Hero onOpenOrderModal={onOpenOrderModal} />
       <BestSellers />
-      <FeaturedGallery />
+      <FeaturedGallery onOpenOrderModal={onOpenOrderModal} />
       <FAQ />
       <Testimonials />
       <Contact />

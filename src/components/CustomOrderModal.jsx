@@ -5,6 +5,7 @@ import {
   Camera,
   CakeSlice,
   Clock,
+  FileText,
   MessageCircle,
   Palette,
   Ruler,
@@ -28,8 +29,26 @@ const INITIAL_FORM = {
   details: "",
 };
 
+const DELIVERY_OPTIONS = [
+  { value: "Recojo coordinado", label: "Recojo" },
+  { value: "Delivery previa coordinación", label: "Delivery" },
+];
+
 function getOptionValue(option) {
   return option?.label ?? option ?? "";
+}
+
+function getLocalToday() {
+  const today = new Date();
+  const timezoneOffset = today.getTimezoneOffset() * 60_000;
+  return new Date(today.getTime() - timezoneOffset).toISOString().slice(0, 10);
+}
+
+function formatDate(date) {
+  if (!date) return "";
+
+  const [year, month, day] = date.split("-");
+  return `${day}/${month}/${year}`;
 }
 
 function buildSizeOptions() {
@@ -49,25 +68,49 @@ function buildSizeOptions() {
   return [...oneTier, ...twoTiers, ...special];
 }
 
-function FieldLabel({ children, icon: Icon }) {
+function buildPricedOptions(options) {
+  return options.map((option) => ({
+    ...option,
+    helper: option.surcharge ? `Adicional S/ ${option.surcharge}` : "",
+  }));
+}
+
+function FieldLabel({ children, icon: Icon, optional = false }) {
   return (
-    <span className="flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-ink/55">
-      {Icon && <Icon size={15} className="text-plum" aria-hidden="true" />}
-      {children}
+    <span className="flex items-center gap-2 text-sm font-semibold text-ink/72">
+      {Icon && <Icon size={16} className="shrink-0 text-plum" aria-hidden="true" />}
+      <span>{children}</span>
+      {optional && (
+        <span className="text-xs font-normal text-ink/45">(opcional)</span>
+      )}
     </span>
   );
 }
 
-function TextInput({ label, icon, value, onChange, type = "text", placeholder }) {
+function TextInput({
+  label,
+  icon,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+  optional = false,
+  required = false,
+  min,
+}) {
   return (
-    <label className="grid gap-2">
-      <FieldLabel icon={icon}>{label}</FieldLabel>
+    <label className="grid content-start gap-1.5">
+      <FieldLabel icon={icon} optional={optional}>
+        {label}
+      </FieldLabel>
       <input
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="min-h-12 w-full rounded-xl border border-blush/55 bg-white px-4 text-base font-medium text-ink outline-none placeholder:text-ink/35 focus:border-plum/60 focus:ring-4 focus:ring-blush/30"
+        required={required}
+        min={min}
+        className="min-h-12 w-full rounded-xl border border-blush/35 bg-white px-4 text-base font-medium text-ink outline-none placeholder:text-ink/35 focus:border-plum/45 focus:ring-4 focus:ring-plum/10"
       />
     </label>
   );
@@ -77,12 +120,12 @@ function SelectInput({ label, icon, value, onChange, options }) {
   const selectedOption = options.find((option) => getOptionValue(option) === value);
 
   return (
-    <label className="grid gap-2">
+    <label className="grid content-start gap-1.5">
       <FieldLabel icon={icon}>{label}</FieldLabel>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-12 w-full rounded-xl border border-blush/55 bg-white px-4 text-base font-semibold text-ink outline-none focus:border-plum/60 focus:ring-4 focus:ring-blush/30"
+        className="min-h-12 w-full rounded-xl border border-blush/35 bg-white px-4 text-base font-semibold text-ink outline-none focus:border-plum/45 focus:ring-4 focus:ring-plum/10"
       >
         {options.map((option) => {
           const optionValue = getOptionValue(option);
@@ -101,17 +144,62 @@ function SelectInput({ label, icon, value, onChange, options }) {
   );
 }
 
-function TextAreaInput({ label, value, onChange, placeholder }) {
+function TextAreaInput({ label, value, onChange, placeholder, optional = false }) {
   return (
-    <label className="grid gap-2">
-      <FieldLabel icon={Palette}>{label}</FieldLabel>
+    <label className="grid content-start gap-1.5">
+      <FieldLabel icon={FileText} optional={optional}>
+        {label}
+      </FieldLabel>
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        rows={4}
-        className="w-full rounded-xl border border-blush/55 bg-white px-4 py-3 text-base font-medium leading-7 text-ink outline-none placeholder:text-ink/35 focus:border-plum/60 focus:ring-4 focus:ring-blush/30"
+        rows={3}
+        className="w-full rounded-xl border border-blush/35 bg-white px-4 py-3 text-base font-medium leading-6 text-ink outline-none placeholder:text-ink/35 focus:border-plum/45 focus:ring-4 focus:ring-plum/10"
       />
+    </label>
+  );
+}
+
+function FormSection({ step, title, children }) {
+  return (
+    <section className="rounded-2xl border border-blush/30 bg-white p-4 shadow-sm sm:p-5">
+      <div className="mb-4 flex items-center gap-2.5">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-blush/35 text-sm font-bold text-plum">
+          {step}
+        </span>
+        <h3 className="text-base font-semibold text-ink">{title}</h3>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function ReferenceUpload({ fileName, onChange }) {
+  return (
+    <label className="grid cursor-pointer gap-2 rounded-xl border border-dashed border-blush/40 bg-blush/10 p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <FieldLabel icon={Camera} optional>
+          Foto de referencia
+        </FieldLabel>
+        <span className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border border-blush/30 bg-white px-4 text-sm font-semibold text-ink shadow-sm transition-colors hover:border-plum/35 hover:text-plum">
+          Elegir imagen
+        </span>
+      </div>
+      <p className="text-sm leading-5 text-ink/58">
+        Al abrir WhatsApp, adjunta esta misma imagen.
+      </p>
+      <input
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        onChange={(event) => onChange(event.target.files?.[0]?.name ?? "")}
+      />
+      {fileName && (
+        <p className="truncate text-sm font-semibold text-plum" aria-live="polite">
+          {fileName}
+        </p>
+      )}
     </label>
   );
 }
@@ -119,24 +207,24 @@ function TextAreaInput({ label, value, onChange, placeholder }) {
 function DeliveryOptions({ value, onChange }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      {["Recojo coordinado", "Delivery previa coordinacion"].map((option) => (
+      {DELIVERY_OPTIONS.map((option) => (
         <label
-          key={option}
+          key={option.value}
           className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors duration-200 ${
-            value === option
-              ? "border-plum/45 bg-blush/15 shadow-sm"
-              : "border-blush/50 bg-white hover:border-plum/25"
+            value === option.value
+              ? "border-plum/30 bg-plum/10 shadow-sm"
+              : "border-blush/30 bg-white hover:border-plum/20"
           }`}
         >
           <input
             type="radio"
             name="custom-order-delivery"
-            value={option}
-            checked={value === option}
-            onChange={() => onChange(option)}
+            value={option.value}
+            checked={value === option.value}
+            onChange={() => onChange(option.value)}
             className="h-4 w-4 accent-plum"
           />
-          <span className="text-sm font-semibold text-ink">{option}</span>
+          <span className="text-sm font-semibold text-ink">{option.label}</span>
         </label>
       ))}
     </div>
@@ -145,14 +233,8 @@ function DeliveryOptions({ value, onChange }) {
 
 export default function CustomOrderModal({ isOpen, onClose }) {
   const sizeOptions = useMemo(buildSizeOptions, []);
-  const flavorOptions = useMemo(
-    () => cakeFlavors.map((flavor) => ({ ...flavor, helper: flavor.helper })),
-    [],
-  );
-  const fillingOptions = useMemo(
-    () => fillingFlavors.map((filling) => ({ ...filling, helper: filling.helper })),
-    [],
-  );
+  const flavorOptions = useMemo(() => buildPricedOptions(cakeFlavors), []);
+  const fillingOptions = useMemo(() => buildPricedOptions(fillingFlavors), []);
   const [form, setForm] = useState({
     ...INITIAL_FORM,
     size: sizeOptions[0]?.label ?? "",
@@ -183,24 +265,33 @@ export default function CustomOrderModal({ isOpen, onClose }) {
 
   const whatsappMessage = useMemo(() => {
     const lines = [
-      "Hola, vengo de la pagina web de Bake Me Happy. Quisiera cotizar una torta personalizada.",
-      `Tamano/pisos: ${form.size}.`,
+      "Hola, quisiera cotizar una torta personalizada desde la web de Bake Me Happy.",
+      `Tamaño: ${form.size}.`,
       `Sabor: ${form.flavor}.`,
       `Relleno: ${form.filling}.`,
-      form.occasion ? `Ocasion o tematica: ${form.occasion}.` : null,
-      form.colors ? `Colores de referencia: ${form.colors}.` : null,
+      form.occasion ? `Temática: ${form.occasion}.` : null,
+      form.colors ? `Colores: ${form.colors}.` : null,
       form.message ? `Mensaje en la torta: ${form.message}.` : null,
-      form.date ? `Fecha deseada: ${form.date}.` : null,
-      form.time ? `Hora deseada: ${form.time}.` : null,
+      form.date ? `Fecha: ${formatDate(form.date)}.` : null,
+      form.time ? `Hora: ${form.time}.` : null,
       `Entrega: ${form.delivery}.`,
       referenceFileName
-        ? `Foto de referencia: adjuntare por WhatsApp el archivo "${referenceFileName}".`
-        : "Foto de referencia: pendiente de adjuntar por WhatsApp.",
-      form.details ? `Detalles adicionales: ${form.details}.` : null,
+        ? `Foto de referencia: adjuntaré "${referenceFileName}" en WhatsApp.`
+        : null,
+      form.details ? `Notas: ${form.details}.` : null,
     ];
 
     return lines.filter(Boolean).join("\n");
   }, [form, referenceFileName]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    window.open(
+      getWhatsAppUrl(whatsappMessage),
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
 
   if (!isOpen) return null;
 
@@ -213,7 +304,7 @@ export default function CustomOrderModal({ isOpen, onClose }) {
       }}
     >
       <section
-        className="relative grid max-h-[calc(100dvh-2rem)] w-full max-w-[1420px] overflow-y-auto rounded-[1.75rem] bg-[#fffdfc] shadow-lift sm:max-h-[calc(100dvh-3rem)] lg:h-[min(50rem,calc(100dvh-4rem))] lg:grid-cols-[minmax(0,0.98fr)_minmax(25rem,0.82fr)] lg:overflow-hidden"
+        className="modal-panel-enter relative grid max-h-[calc(100dvh-2rem)] w-full max-w-[1420px] overflow-y-auto rounded-[1.75rem] bg-[#FFF8F4] shadow-lift sm:max-h-[calc(100dvh-3rem)] lg:h-[min(50rem,calc(100dvh-4rem))] lg:grid-cols-[minmax(0,0.98fr)_minmax(25rem,0.82fr)] lg:overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-labelledby="custom-order-title"
@@ -227,137 +318,135 @@ export default function CustomOrderModal({ isOpen, onClose }) {
           <X size={20} aria-hidden="true" />
         </button>
 
-        <div className="border-b border-blush/35 bg-cream/80 lg:h-full lg:overflow-y-auto lg:border-b-0 lg:border-r">
+        <div className="order-2 border-t border-blush/25 bg-cream/80 lg:order-none lg:col-start-1 lg:row-start-1 lg:h-full lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-t-0">
           <SizeGuideContent className="lg:!px-5 lg:!pb-6 lg:!pt-9" />
         </div>
 
-        <div className="p-5 pt-14 sm:p-7 sm:pt-16 lg:h-full lg:overflow-y-auto lg:p-8 lg:pt-10">
-          <div className="rounded-[1.4rem] border border-blush/45 bg-white p-4 shadow-sm sm:p-5">
+        <div className="order-1 p-5 pt-14 sm:p-7 sm:pt-14 lg:order-none lg:col-start-2 lg:row-start-1 lg:h-full lg:overflow-y-auto lg:p-7 lg:pt-8">
+          <header className="border-b border-blush/25 pb-5 pr-12">
             <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-plum">
               Pedido personalizado
             </p>
             <h2
               id="custom-order-title"
-              className="mt-2 font-display text-3xl leading-tight text-ink sm:text-4xl"
+              className="mt-1.5 font-display text-3xl leading-tight text-ink sm:text-4xl"
             >
-              Detalla tu torta ideal
+              Diseña tu torta
             </h2>
             <p className="mt-2 text-sm leading-6 text-ink/62 sm:text-base">
-              Completa lo esencial y lo revisamos por WhatsApp para confirmar
-              disponibilidad, precio final y entrega.
+              Completa los datos y envía tu solicitud por WhatsApp.
             </p>
-          </div>
+          </header>
 
-          <form className="mt-5 space-y-5">
-            <label className="grid gap-2 rounded-[1.25rem] border border-dashed border-blush/65 bg-blush/10 p-4">
-              <FieldLabel icon={Camera}>Foto de referencia</FieldLabel>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm leading-6 text-ink/58">
-                  Sube una imagen guía. El nombre se enviara en el mensaje y
-                  podras adjuntarla en WhatsApp.
-                </p>
-                <span className="inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-blush/55 bg-white px-4 text-sm font-semibold text-ink shadow-sm transition-colors hover:border-plum/45 hover:text-plum">
-                  Elegir imagen
-                </span>
+          <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
+            <FormSection step="1" title="Elige la base">
+              <div className="grid gap-4">
+                <SelectInput
+                  label="Tamaño y porciones"
+                  icon={Ruler}
+                  options={sizeOptions}
+                  value={form.size}
+                  onChange={(value) => updateField("size", value)}
+                />
+                <div className="grid items-start gap-4 sm:grid-cols-2">
+                  <SelectInput
+                    label="Sabor"
+                    icon={CakeSlice}
+                    options={flavorOptions}
+                    value={form.flavor}
+                    onChange={(value) => updateField("flavor", value)}
+                  />
+                  <SelectInput
+                    label="Relleno"
+                    icon={CakeSlice}
+                    options={fillingOptions}
+                    value={form.filling}
+                    onChange={(value) => updateField("filling", value)}
+                  />
+                </div>
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={(event) =>
-                  setReferenceFileName(event.target.files?.[0]?.name ?? "")
-                }
-              />
-              {referenceFileName && (
-                <p className="text-sm font-semibold text-plum">
-                  Imagen seleccionada: {referenceFileName}
-                </p>
-              )}
-            </label>
+            </FormSection>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <SelectInput
-                label="Tamano (pisos)"
-                icon={Ruler}
-                options={sizeOptions}
-                value={form.size}
-                onChange={(value) => updateField("size", value)}
+            <FormSection step="2" title="Personaliza el diseño">
+              <ReferenceUpload
+                fileName={referenceFileName}
+                onChange={setReferenceFileName}
               />
-              <TextInput
-                label="Ocasion o tematica"
-                icon={CakeSlice}
-                value={form.occasion}
-                onChange={(value) => updateField("occasion", value)}
-                placeholder="Ej. mariposas, safari, flores"
-              />
-              <SelectInput
-                label="Sabor"
-                icon={CakeSlice}
-                options={flavorOptions}
-                value={form.flavor}
-                onChange={(value) => updateField("flavor", value)}
-              />
-              <SelectInput
-                label="Relleno"
-                icon={CakeSlice}
-                options={fillingOptions}
-                value={form.filling}
-                onChange={(value) => updateField("filling", value)}
-              />
-              <TextInput
-                label="Fecha"
-                icon={CalendarDays}
-                type="date"
-                value={form.date}
-                onChange={(value) => updateField("date", value)}
-              />
-              <TextInput
-                label="Hora"
-                icon={Clock}
-                type="time"
-                value={form.time}
-                onChange={(value) => updateField("time", value)}
-              />
-              <TextInput
-                label="Colores"
-                icon={Palette}
-                value={form.colors}
-                onChange={(value) => updateField("colors", value)}
-                placeholder="Ej. rosado pastel y dorado"
-              />
-              <TextInput
-                label="Mensaje en torta"
-                icon={Palette}
-                value={form.message}
-                onChange={(value) => updateField("message", value)}
-                placeholder="Ej. Feliz cumple, Valeria"
-              />
-            </div>
 
-            <section className="grid gap-3">
-              <FieldLabel icon={Truck}>Entrega</FieldLabel>
-              <DeliveryOptions
-                value={form.delivery}
-                onChange={(value) => updateField("delivery", value)}
-              />
-            </section>
+              <div className="mt-4 grid items-start gap-4 sm:grid-cols-2">
+                <TextInput
+                  label="Ocasión o temática"
+                  icon={CakeSlice}
+                  value={form.occasion}
+                  onChange={(value) => updateField("occasion", value)}
+                  placeholder="Ej. cumpleaños con mariposas"
+                  required
+                />
+                <TextInput
+                  label="Colores"
+                  icon={Palette}
+                  value={form.colors}
+                  onChange={(value) => updateField("colors", value)}
+                  placeholder="Ej. rosado y dorado"
+                  optional
+                />
+                <div className="sm:col-span-2">
+                  <TextInput
+                    label="Mensaje en la torta"
+                    icon={MessageCircle}
+                    value={form.message}
+                    onChange={(value) => updateField("message", value)}
+                    placeholder="Ej. Feliz cumpleaños, Valeria"
+                    optional
+                  />
+                </div>
+              </div>
 
-            <TextAreaInput
-              label="Detalles adicionales"
-              value={form.details}
-              onChange={(value) => updateField("details", value)}
-              placeholder="Cuéntanos cambios de diseño, dedicatoria, alergias, referencias, colores exactos o cualquier detalle importante."
-            />
+              <div className="mt-4">
+                <TextAreaInput
+                  label="Notas importantes"
+                  value={form.details}
+                  onChange={(value) => updateField("details", value)}
+                  placeholder="Alergias, cambios o indicaciones importantes."
+                  optional
+                />
+              </div>
+            </FormSection>
 
-            <a
-              href={getWhatsAppUrl(whatsappMessage)}
-              target="_blank"
-              rel="noreferrer"
-              className="button-primary w-full justify-center sm:w-auto"
-            >
+            <FormSection step="3" title="Fecha y entrega">
+              <div className="grid items-start gap-4 sm:grid-cols-2">
+                <TextInput
+                  label="Fecha de entrega"
+                  icon={CalendarDays}
+                  type="date"
+                  value={form.date}
+                  onChange={(value) => updateField("date", value)}
+                  min={getLocalToday()}
+                  required
+                />
+                <TextInput
+                  label="Hora"
+                  icon={Clock}
+                  type="time"
+                  value={form.time}
+                  onChange={(value) => updateField("time", value)}
+                  required
+                />
+              </div>
+
+              <div className="mt-4 grid gap-2">
+                <FieldLabel icon={Truck}>Modalidad</FieldLabel>
+                <DeliveryOptions
+                  value={form.delivery}
+                  onChange={(value) => updateField("delivery", value)}
+                />
+              </div>
+            </FormSection>
+
+            <button type="submit" className="button-primary w-full justify-center">
               <MessageCircle size={19} aria-hidden="true" />
-              Enviar detalle por WhatsApp
-            </a>
+              Solicitar cotización por WhatsApp
+            </button>
           </form>
         </div>
       </section>

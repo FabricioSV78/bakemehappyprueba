@@ -1,3 +1,5 @@
+import Reveal from "./Reveal";
+
 export default function SectionHeading({
   eyebrow,
   title,
@@ -12,7 +14,9 @@ export default function SectionHeading({
     align === "left" ? "max-w-2xl" : "max-w-[34ch] sm:max-w-2xl";
 
   return (
-    <div className={`flex w-full min-w-0 max-w-full flex-col sm:max-w-3xl ${alignment}`}>
+    <Reveal
+      className={`flex w-full min-w-0 max-w-full flex-col sm:max-w-3xl ${alignment}`}
+    >
       <span
         className={`mb-3 text-xs font-semibold uppercase tracking-[0.18em] ${
           light ? "text-blush" : "text-plum"
@@ -36,6 +40,6 @@ export default function SectionHeading({
           {description}
         </p>
       )}
-    </div>
+    </Reveal>
   );
 }

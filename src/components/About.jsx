@@ -1,4 +1,5 @@
 import { CakeSlice, ClipboardCheck, PackageCheck, WandSparkles } from "lucide-react";
+import Reveal from "./Reveal";
 
 const heroImage = "/images/webp/hero 1.webp";
 const celebrationImage = "/images/webp/hero 2.webp";
@@ -44,7 +45,11 @@ function EditorialImage({
   height = "520",
 }) {
   return (
-    <figure className={`overflow-hidden rounded-lg bg-lavender-light ${className}`}>
+    <Reveal
+      as="figure"
+      className={`overflow-hidden rounded-lg bg-lavender-light ${className}`}
+      direction="scale"
+    >
       <img
         src={src}
         alt={alt}
@@ -54,7 +59,7 @@ function EditorialImage({
         width={width}
         height={height}
       />
-    </figure>
+    </Reveal>
   );
 }
 
@@ -63,10 +68,10 @@ export default function About() {
     <div className="bg-white pt-20 text-ink lg:pt-28">
       <section
         id="nosotros"
-        className="scroll-mt-20 bg-[#F7F2EA]"
+        className="scroll-mt-20 bg-[#F2E4D8]"
       >
         <div className="mx-auto grid max-w-5xl items-center gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1fr_0.82fr] lg:py-16">
-          <div>
+          <Reveal direction="left">
             <h1 className="font-display text-5xl leading-tight text-ink sm:text-6xl">
               Quiénes somos
             </h1>
@@ -75,7 +80,7 @@ export default function About() {
               para convertir celebraciones familiares, cumpleaños y fechas
               especiales en momentos dulces, memorables y hechos a medida.
             </p>
-          </div>
+          </Reveal>
 
           <EditorialImage
             src={heroImage}
@@ -98,7 +103,7 @@ export default function About() {
               imagePosition="70% 52%"
             />
 
-            <div>
+            <Reveal direction="right">
               <h2 className="max-w-xl text-2xl font-semibold leading-snug text-ink sm:text-3xl">
                 Nuestra misión: endulzar celebraciones con tortas hechas con
                 amor
@@ -109,11 +114,11 @@ export default function About() {
                 proporciones y detalles para que cada pedido acompañe de verdad
                 el momento que quieres celebrar.
               </p>
-            </div>
+            </Reveal>
           </div>
 
           <div className="mt-16 grid items-start gap-10 lg:grid-cols-[0.95fr_1fr] lg:gap-12">
-            <div>
+            <Reveal direction="left">
               <h2 className="text-2xl font-semibold leading-snug text-ink sm:text-3xl">
                 Nuestra historia
               </h2>
@@ -131,7 +136,7 @@ export default function About() {
                   limpia y artesanal.
                 </p>
               </div>
-            </div>
+            </Reveal>
 
             <EditorialImage
               src={birthdayImage}
@@ -143,10 +148,10 @@ export default function About() {
         </div>
       </section>
 
-      <section className="bg-[#FFF8F3] py-16 sm:py-20">
+      <section className="bg-[#FFF4ED] py-16 sm:py-20">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
           <div className="grid items-start gap-10 lg:grid-cols-[0.75fr_1fr] lg:gap-14">
-            <div>
+            <Reveal direction="left">
               <h2 className="font-display text-4xl leading-tight text-ink sm:text-5xl">
                 Proceso de elaboración
               </h2>
@@ -154,14 +159,16 @@ export default function About() {
                 Trabajamos cada pedido con un flujo claro para que el diseño,
                 sabor y entrega estén bien coordinados desde el inicio.
               </p>
-            </div>
+            </Reveal>
 
             <div className="grid gap-5 sm:grid-cols-2">
               {processSteps.map(
                 ({ icon: Icon, title, text, image, imagePosition }, index) => (
-                  <article
+                  <Reveal
+                    as="article"
                     key={title}
-                    className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-4 border-b border-blush/40 pb-5 last:border-b-0 sm:last:border-b sm:[&:nth-last-child(-n+2)]:border-b-0"
+                    delay={index * 65}
+                    className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-4 border-b border-blush/25 pb-5 last:border-b-0 sm:last:border-b sm:[&:nth-last-child(-n+2)]:border-b-0"
                   >
                     <EditorialImage
                       src={image}
@@ -185,7 +192,7 @@ export default function About() {
                       </h3>
                       <p className="mt-2 text-sm leading-6 text-ink/66">{text}</p>
                     </div>
-                  </article>
+                  </Reveal>
                 ),
               )}
             </div>

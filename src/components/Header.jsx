@@ -6,7 +6,6 @@ import {
   NAV_LINKS,
   SITE_CONFIG,
 } from "../data/site";
-import CustomOrderModal from "./CustomOrderModal";
 
 function HeaderContactLink({
   href,
@@ -41,9 +40,8 @@ function HeaderContactLink({
   );
 }
 
-export default function Header({ currentPath = "/" }) {
+export default function Header({ currentPath = "/", onOpenOrderModal }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const activePath = currentPath.startsWith("/producto/")
     ? "/tienda"
     : currentPath === "/catalogo"
@@ -58,8 +56,8 @@ export default function Header({ currentPath = "/" }) {
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-blush/45 bg-[linear-gradient(180deg,rgba(255,250,246,0.98)_0%,rgba(255,255,255,0.94)_100%)] shadow-[0_12px_32px_rgba(30,50,100,0.08)] backdrop-blur-xl">
-      <div className="hidden border-b border-blush/35 bg-[linear-gradient(90deg,rgba(247,200,216,0.32)_0%,rgba(255,255,255,0.88)_48%,rgba(200,205,247,0.32)_100%)] lg:block">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-blush/30 bg-[linear-gradient(180deg,rgba(255,248,244,0.98)_0%,rgba(255,255,255,0.96)_100%)] shadow-[0_12px_32px_rgba(23,54,109,0.09)] backdrop-blur-xl">
+      <div className="hidden border-b border-blush/25 bg-[linear-gradient(90deg,rgba(228,154,175,0.30)_0%,rgba(255,255,255,0.92)_48%,rgba(170,179,229,0.30)_100%)] lg:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-2.5 sm:px-8">
           <div className="flex min-w-0 flex-wrap items-center gap-3">
             <HeaderContactLink
@@ -92,18 +90,22 @@ export default function Header({ currentPath = "/" }) {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
         <a
           href="#/"
-          className="group flex min-w-0 items-center gap-3"
+          className="group flex min-w-0 shrink-0 items-center gap-3"
           aria-label="Bake Me Happy, ir al inicio"
           onClick={() => setIsOpen(false)}
         >
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink font-display text-xl text-white shadow-soft transition-transform group-hover:rotate-6">
-            B
-          </span>
+          <img
+            src="/images/webp/LOGO/logo-principal-header.webp"
+            alt=""
+            className="h-14 w-14 shrink-0 rounded-[1rem] object-cover shadow-sm ring-1 ring-ink/10 transition-transform duration-200 group-hover:-rotate-1 group-hover:scale-[1.02] sm:h-[3.75rem] sm:w-[3.75rem]"
+            width="320"
+            height="320"
+          />
           <span className="min-w-0">
-            <span className="block truncate font-display text-xl leading-none text-ink">
+            <span className="block truncate font-display text-lg leading-none text-ink sm:text-xl">
               Bake Me Happy
             </span>
-            <span className="mt-1 block truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-plum">
+            <span className="mt-1.5 block truncate text-[8px] font-semibold uppercase tracking-[0.18em] text-plum sm:text-[9px]">
               Pasteleria artesanal
             </span>
           </span>
@@ -126,7 +128,7 @@ export default function Header({ currentPath = "/" }) {
 
         <button
           type="button"
-          onClick={() => setIsOrderModalOpen(true)}
+          onClick={onOpenOrderModal}
           className="button-primary hidden lg:inline-flex"
         >
           <MessageCircle size={18} aria-hidden="true" />
@@ -147,7 +149,7 @@ export default function Header({ currentPath = "/" }) {
 
       <div
         id="mobile-navigation"
-        className={`overflow-hidden border-t border-blush/35 bg-[linear-gradient(180deg,rgba(255,250,246,0.98)_0%,rgba(255,255,255,0.95)_100%)] shadow-[0_18px_36px_rgba(30,50,100,0.08)] transition-all duration-300 lg:hidden ${
+        className={`overflow-hidden border-t border-blush/25 bg-[linear-gradient(180deg,rgba(255,248,244,0.99)_0%,rgba(255,255,255,0.97)_100%)] shadow-[0_18px_36px_rgba(23,54,109,0.09)] transition-all duration-300 lg:hidden ${
           isOpen ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
@@ -192,7 +194,7 @@ export default function Header({ currentPath = "/" }) {
               type="button"
               onClick={() => {
                 setIsOpen(false);
-                setIsOrderModalOpen(true);
+                onOpenOrderModal();
               }}
               className="button-primary mt-5"
             >
@@ -203,10 +205,6 @@ export default function Header({ currentPath = "/" }) {
         </div>
       </div>
 
-      <CustomOrderModal
-        isOpen={isOrderModalOpen}
-        onClose={() => setIsOrderModalOpen(false)}
-      />
     </header>
   );
 }

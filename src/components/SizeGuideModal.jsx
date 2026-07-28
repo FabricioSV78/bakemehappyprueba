@@ -1,9 +1,10 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 const ink = "#2E236C";
 const pink = "#E96B9C";
-const cream = "#FDFAF6";
+const cream = "#FFF7F0";
 
 function LogoMark() {
   return (
@@ -90,7 +91,7 @@ function Doodles() {
 function SectionPill({ children, className = "" }) {
   return (
     <div
-      className={`mx-auto flex min-h-6 w-fit min-w-[7.2rem] items-center justify-center rounded-full bg-[linear-gradient(90deg,#FBC4D2,#B264B4)] px-5 text-center text-[0.68rem] font-bold uppercase tracking-[0.3em] text-white shadow-sm ${className}`}
+      className={`mx-auto flex min-h-6 w-fit min-w-[7.2rem] items-center justify-center rounded-full bg-[linear-gradient(90deg,#E49AAF,#A16BAA)] px-5 text-center text-[0.68rem] font-bold uppercase tracking-[0.3em] text-white shadow-sm ${className}`}
     >
       {children}
     </div>
@@ -101,7 +102,7 @@ function GuideTitle() {
   return (
     <h2
       id="size-guide-title"
-      className="mx-auto mt-4 flex max-w-[28rem] items-center justify-center rounded-full border border-dashed border-[#D86092] bg-[#FFE3EC] px-4 py-2.5 text-center text-[clamp(1.18rem,3.25vw,1.9rem)] font-bold uppercase tracking-[0.18em] text-[#542477] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.75)] sm:tracking-[0.22em]"
+      className="mx-auto mt-4 flex max-w-[28rem] items-center justify-center rounded-full border border-dashed border-[#C84478] bg-[#FFD4E2] px-4 py-2.5 text-center text-[clamp(1.18rem,3.25vw,1.9rem)] font-bold uppercase tracking-[0.18em] text-[#542477] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.75)] sm:tracking-[0.22em]"
     >
       Guía de tamaños
     </h2>
@@ -110,7 +111,7 @@ function GuideTitle() {
 
 function LabelPill({ children }) {
   return (
-    <div className="mx-auto mt-2 w-fit min-w-[6.8rem] rounded-full bg-[#F5D1E6] px-4 py-1.5 text-center text-[0.68rem] font-bold uppercase tracking-[0.24em] text-[#4B2673]">
+    <div className="mx-auto mt-2 w-fit min-w-[6.8rem] rounded-full bg-[#EFB2D2] px-4 py-1.5 text-center text-[0.68rem] font-bold uppercase tracking-[0.24em] text-[#4B2673]">
       {children}
     </div>
   );
@@ -119,45 +120,23 @@ function LabelPill({ children }) {
 function MeasureText({
   x,
   y,
-  fontSize = 15.5,
+  fontSize = 19,
   textAnchor = "middle",
   children,
 }) {
-  const label = String(children);
-  const backgroundWidth = Math.max(42, label.length * fontSize * 0.62 + 14);
-  const backgroundHeight = fontSize + 8;
-  const backgroundX =
-    textAnchor === "middle"
-      ? x - backgroundWidth / 2
-      : textAnchor === "end"
-        ? x - backgroundWidth
-        : x - 6;
-
   return (
-    <g>
-      <rect
-        x={backgroundX}
-        y={y - backgroundHeight / 2}
-        width={backgroundWidth}
-        height={backgroundHeight}
-        rx={backgroundHeight / 2}
-        fill="#FFFDFC"
-        stroke="#F3B8CB"
-        strokeWidth="1"
-      />
-      <text
-        x={x}
-        y={y + 0.5}
-        fill={pink}
-        fontSize={fontSize}
-        fontWeight="900"
-        textAnchor={textAnchor}
-        dominantBaseline="middle"
-        fontFamily="Poppins, sans-serif"
-      >
-        {children}
-      </text>
-    </g>
+    <text
+      x={x}
+      y={y}
+      fill="#C84F80"
+      fontSize={fontSize}
+      fontWeight="800"
+      textAnchor={textAnchor}
+      dominantBaseline="middle"
+      fontFamily="Poppins, sans-serif"
+    >
+      {children}
+    </text>
   );
 }
 
@@ -167,17 +146,44 @@ function HorizontalMeasure({
   y,
   label,
   labelPosition = "above",
-  labelOffset = 15,
-  fontSize = 15.5,
+  labelOffset = 17,
+  fontSize = 19,
 }) {
   const center = (x1 + x2) / 2;
   const labelY = labelPosition === "below" ? y + labelOffset : y - labelOffset;
 
   return (
     <>
-      <line x1={x1} x2={x2} y1={y} y2={y} stroke={pink} strokeWidth="1.8" />
-      <line x1={x1} x2={x1} y1={y - 6} y2={y + 6} stroke={pink} strokeWidth="1.8" />
-      <line x1={x2} x2={x2} y1={y - 6} y2={y + 6} stroke={pink} strokeWidth="1.8" />
+      <line
+        x1={x1}
+        x2={x2}
+        y1={y}
+        y2={y}
+        stroke={pink}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+      <line
+        x1={x1}
+        x2={x1}
+        y1={y - 5}
+        y2={y + 5}
+        stroke={pink}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+      <line
+        x1={x2}
+        x2={x2}
+        y1={y - 5}
+        y2={y + 5}
+        stroke={pink}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
       <MeasureText x={center} y={labelY} fontSize={fontSize}>
         {label}
       </MeasureText>
@@ -185,12 +191,39 @@ function HorizontalMeasure({
   );
 }
 
-function VerticalMeasure({ x, y1, y2, label, labelOffset = 16, fontSize = 15.5 }) {
+function VerticalMeasure({ x, y1, y2, label, labelOffset = 14, fontSize = 19 }) {
   return (
     <>
-      <line x1={x} x2={x} y1={y1} y2={y2} stroke={pink} strokeWidth="1.8" />
-      <line x1={x - 6} x2={x + 6} y1={y1} y2={y1} stroke={pink} strokeWidth="1.8" />
-      <line x1={x - 6} x2={x + 6} y1={y2} y2={y2} stroke={pink} strokeWidth="1.8" />
+      <line
+        x1={x}
+        x2={x}
+        y1={y1}
+        y2={y2}
+        stroke={pink}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+      <line
+        x1={x - 5}
+        x2={x + 5}
+        y1={y1}
+        y2={y1}
+        stroke={pink}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+      <line
+        x1={x - 5}
+        x2={x + 5}
+        y1={y2}
+        y2={y2}
+        stroke={pink}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
       <MeasureText
         x={x + labelOffset}
         y={(y1 + y2) / 2}
@@ -229,8 +262,8 @@ function Cherry({ cx, cy }) {
 
 function TwoTierCake({ top, base, label, portions }) {
   const cakeCenter = 128;
-  const baseWidth = base === "18 cm." ? 112 : base === "22 cm." ? 132 : 154;
-  const topWidth = top === "14 cm." ? 84 : 104;
+  const baseWidth = base === "18 cm" ? 112 : base === "22 cm" ? 132 : 154;
+  const topWidth = top === "14 cm" ? 84 : 104;
   const topHeight = 58;
   const baseHeight = 60;
   const topY = 66;
@@ -241,39 +274,39 @@ function TwoTierCake({ top, base, label, portions }) {
   const baseRight = cakeCenter + baseWidth / 2;
 
   return (
-    <article className="flex h-full flex-col items-center justify-end text-center">
-      <svg
-        viewBox="0 0 320 256"
-        className="mx-auto h-auto w-full max-w-[13.75rem] sm:max-w-[14.85rem]"
-        aria-hidden="true"
-      >
-        <HorizontalMeasure x1={topLeft} x2={topRight} y={34} label={top} />
-        <Cylinder cx={cakeCenter} topY={baseY} width={baseWidth} height={baseHeight} />
-        <Cylinder cx={cakeCenter} topY={topY} width={topWidth} height={topHeight} />
-        <Cherry cx={cakeCenter} cy={topY} />
-        <VerticalMeasure
-          x={topRight + 22}
-          y1={topY}
-          y2={topY + topHeight}
-          label="14 cm."
-          labelOffset={16}
-        />
-        <VerticalMeasure
-          x={baseRight + 22}
-          y1={baseY}
-          y2={baseY + baseHeight}
-          label="14 cm."
-          labelOffset={16}
-        />
-        <HorizontalMeasure
-          x1={baseLeft}
-          x2={baseRight}
-          y={218}
-          label={base}
-          labelPosition="below"
-          labelOffset={16}
-        />
-      </svg>
+    <article className="flex h-full flex-col items-center text-center">
+      <div className="flex w-full justify-center">
+        <svg
+          viewBox="0 0 320 256"
+          className="block h-auto w-full max-w-[13.75rem] sm:max-w-[14.85rem]"
+          aria-hidden="true"
+        >
+          <HorizontalMeasure x1={topLeft} x2={topRight} y={34} label={top} />
+          <Cylinder cx={cakeCenter} topY={baseY} width={baseWidth} height={baseHeight} />
+          <Cylinder cx={cakeCenter} topY={topY} width={topWidth} height={topHeight} />
+          <Cherry cx={cakeCenter} cy={topY} />
+          <VerticalMeasure
+            x={topRight + 18}
+            y1={topY}
+            y2={topY + topHeight}
+            label="14 cm"
+          />
+          <VerticalMeasure
+            x={baseRight + 18}
+            y1={baseY}
+            y2={baseY + baseHeight}
+            label="14 cm"
+          />
+          <HorizontalMeasure
+            x1={baseLeft}
+            x2={baseRight}
+            y={218}
+            label={base}
+            labelPosition="below"
+            labelOffset={17}
+          />
+        </svg>
+      </div>
       <LabelPill>{label}</LabelPill>
       <p className="mt-1.5 min-h-[1.2rem] text-center text-[0.72rem] font-bold uppercase tracking-[0.12em] text-[#1E3264] sm:text-[0.76rem]">
         {portions}
@@ -284,30 +317,37 @@ function TwoTierCake({ top, base, label, portions }) {
 
 function OneTierCake({ diameter, height, name, portions }) {
   const cakeCenter = 96;
-  const width = diameter === "18 cm." ? 92 : 116;
-  const cakeHeight = height === "14 cm." ? 58 : height === "15 cm." ? 65 : 76;
-  const topY = 58;
+  const width = diameter === "18 cm" ? 92 : 116;
+  const cakeHeight = height === "14 cm" ? 58 : height === "15 cm" ? 65 : 76;
+  const cakeBottom = 142;
+  const topY = cakeBottom - cakeHeight;
   const left = cakeCenter - width / 2;
   const right = cakeCenter + width / 2;
 
   return (
-    <article className="flex h-full flex-col items-center justify-end text-center">
-      <svg
-        viewBox="0 0 272 190"
-        className="mx-auto h-auto w-full max-w-[10.6rem] sm:max-w-[11.3rem]"
-        aria-hidden="true"
-      >
-        <HorizontalMeasure x1={left} x2={right} y={30} label={diameter} />
-        <Cylinder cx={cakeCenter} topY={topY} width={width} height={cakeHeight} />
-        <Cherry cx={cakeCenter} cy={topY} />
-        <VerticalMeasure
-          x={right + 18}
-          y1={topY}
-          y2={topY + cakeHeight}
-          label={height}
-          labelOffset={14}
-        />
-      </svg>
+    <article className="flex h-full flex-col items-center text-center">
+      <div className="flex w-full justify-center">
+        <svg
+          viewBox="0 0 272 190"
+          className="block h-auto w-full max-w-[10.6rem] sm:max-w-[11.3rem]"
+          aria-hidden="true"
+        >
+          <HorizontalMeasure
+            x1={left}
+            x2={right}
+            y={topY - 28}
+            label={diameter}
+          />
+          <Cylinder cx={cakeCenter} topY={topY} width={width} height={cakeHeight} />
+          <Cherry cx={cakeCenter} cy={topY} />
+          <VerticalMeasure
+            x={right + 18}
+            y1={topY}
+            y2={topY + cakeHeight}
+            label={height}
+          />
+        </svg>
+      </div>
       <LabelPill>{name}</LabelPill>
       <p className="mt-1.5 min-h-[1.2rem] text-center text-[0.7rem] font-bold uppercase tracking-[0.11em] text-[#1E3264] sm:text-[0.74rem]">
         {portions}
@@ -320,7 +360,7 @@ function GiftCake() {
   return (
     <svg
       viewBox="0 0 132 118"
-      className="mx-auto h-auto w-full max-w-[8.5rem] sm:max-w-[9.5rem]"
+      className="mx-auto h-auto w-full max-w-[7.5rem] sm:max-w-[8rem]"
       aria-hidden="true"
     >
       <g stroke={ink} strokeWidth="3" fill="none" strokeLinejoin="round" strokeLinecap="round">
@@ -334,103 +374,168 @@ function GiftCake() {
   );
 }
 
+function ButtercreamDrop({ x, y, scale = 1, rotate = 0 }) {
+  return (
+    <g transform={`translate(${x} ${y}) rotate(${rotate}) scale(${scale})`}>
+      <path
+        d="M0-8C-1-4-6-1-6 4c0 4 3 6 6 6s6-2 6-6c0-5-5-8-6-12Z"
+        fill={cream}
+        stroke={ink}
+        strokeWidth="2"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
+      <path
+        d="M-2 6C-1 3-1 0 0-3M2 6C1 3 1 0 0-3"
+        fill="none"
+        stroke={ink}
+        strokeWidth="1.1"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </g>
+  );
+}
+
 function MiniRoundCake() {
   return (
     <svg
-      viewBox="0 0 235 162"
-      className="mx-auto h-auto w-full max-w-[10rem] sm:max-w-[11rem]"
+      viewBox="0 0 235 170"
+      className="mx-auto h-auto w-full max-w-[9.25rem] sm:max-w-[9.75rem]"
       aria-hidden="true"
     >
-      <g transform="translate(10, 2) scale(1.28)">
-        <Cylinder cx={60} topY={39} width={60} height={38} />
+      <g transform="translate(-13 -5) scale(1.12)">
         <path
-          d="M30 39c6-8 12 3 18-5s11 4 18-5 11 6 18 0"
+          d="M68 51v53c0 9 84 9 84 0V51"
+          fill={cream}
+          stroke={ink}
+          strokeWidth="2.7"
+          strokeLinejoin="round"
+        />
+        <ellipse
+          cx="110"
+          cy="51"
+          rx="42"
+          ry="11"
+          fill={cream}
+          stroke={ink}
+          strokeWidth="2.7"
+        />
+        <path
+          d="M68 103c0 10 84 10 84 0"
           fill="none"
           stroke={ink}
           strokeWidth="2.2"
           strokeLinecap="round"
-          strokeLinejoin="round"
         />
-        <g fill={pink}>
-          <circle cx="34" cy="31" r="2.6" />
-          <circle cx="60" cy="25" r="2.6" />
-          <circle cx="84" cy="32" r="2.6" />
-        </g>
+
+        <ButtercreamDrop x={73} y={49} scale={0.78} rotate={-18} />
+        <ButtercreamDrop x={81} y={43} scale={0.82} rotate={-12} />
+        <ButtercreamDrop x={93} y={39} scale={0.86} rotate={-6} />
+        <ButtercreamDrop x={106} y={37} scale={0.88} />
+        <ButtercreamDrop x={120} y={38} scale={0.86} rotate={5} />
+        <ButtercreamDrop x={133} y={42} scale={0.82} rotate={11} />
+        <ButtercreamDrop x={145} y={49} scale={0.78} rotate={18} />
+        <ButtercreamDrop x={78} y={55} scale={0.8} rotate={-16} />
+        <ButtercreamDrop x={90} y={58} scale={0.84} rotate={-8} />
+        <ButtercreamDrop x={104} y={60} scale={0.86} />
+        <ButtercreamDrop x={119} y={59} scale={0.84} rotate={7} />
+        <ButtercreamDrop x={133} y={56} scale={0.8} rotate={15} />
       </g>
+
       <HorizontalMeasure
-        x1={48}
-        x2={125}
-        y={118}
-        label="14 cm."
+        x1={63}
+        x2={157}
+        y={134}
+        label="14 cm"
         labelPosition="below"
-        labelOffset={14}
+        labelOffset={16}
       />
       <VerticalMeasure
-        x={143}
+        x={172}
         y1={52}
-        y2={101}
-        label="7 cm."
-        labelOffset={14}
+        y2={113}
+        label="7 cm"
       />
     </svg>
   );
 }
 
 function MiniHeartCake() {
+  const heartTopPath =
+    "M108 45C96 29 70 31 62 49c-11 25 13 45 46 62 33-17 57-37 46-62-8-18-34-20-46-4Z";
+
   return (
     <svg
-      viewBox="0 0 235 162"
-      className="mx-auto h-auto w-full max-w-[10rem] sm:max-w-[11rem]"
+      viewBox="0 0 235 170"
+      className="mx-auto h-auto w-full max-w-[9.25rem] sm:max-w-[9.75rem]"
       aria-hidden="true"
     >
-      <g transform="translate(10, 2) scale(1.28)">
-        <g stroke={ink} strokeWidth="2.4" fill="none" strokeLinejoin="round" strokeLinecap="round">
-          <path
-            d="M60 37c-11-17-35-7-31 13 4 23 31 30 31 30s27-7 31-30c4-20-20-30-31-13Z"
-            fill={cream}
-          />
-          <path d="M29 50v17c0 18 31 28 31 28s31-10 31-28V50" />
-          <path d="M28 49c7-4 11 4 17-3s10 5 16-2 10 5 16-2 11 5 16 1" />
-        </g>
+      <g transform="translate(5 -5) rotate(5 108 88)">
+        <path
+          d="M62 55v28c0 26 46 49 46 49s46-23 46-49V55Z"
+          fill={cream}
+          stroke={ink}
+          strokeWidth="2.7"
+          strokeLinejoin="round"
+        />
+        <path
+          d={heartTopPath}
+          fill={cream}
+          stroke={ink}
+          strokeWidth="2.8"
+          strokeLinejoin="round"
+        />
       </g>
+
       <HorizontalMeasure
-        x1={47}
-        x2={126}
-        y={135}
-        label="14 cm."
+        x1={57}
+        x2={159}
+        y={148}
+        label="14 cm"
         labelPosition="below"
-        labelOffset={14}
+        labelOffset={16}
       />
       <VerticalMeasure
-        x={144}
-        y1={66}
-        y2={110}
-        label="7 cm."
-        labelOffset={14}
+        x={176}
+        y1={55}
+        y2={123}
+        label="7 cm"
       />
     </svg>
   );
 }
 
+function TinyCakeItem({ label, children }) {
+  return (
+    <div className="grid h-full grid-rows-[8.5rem_auto] text-center">
+      <div className="flex items-center justify-center">{children}</div>
+      <p className="mt-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-[#1E3264]">
+        {label}
+      </p>
+    </div>
+  );
+}
+
 function TinyCakeSection() {
   return (
-    <section className="flex min-h-full flex-col items-center justify-center">
-      <SectionPill className="min-w-[9.5rem] !bg-[#F5C3D5] !text-[#4B2673]">
+    <section className="flex flex-col items-center">
+      <SectionPill className="min-w-[9.5rem] !bg-[#EFA6C2] !text-[#4B2673]">
         Tiny cake
       </SectionPill>
       <p className="mt-2 text-center text-[0.64rem] font-bold uppercase tracking-[0.13em] text-[#4B2673] sm:text-[0.68rem]">
         Pequeñas para 6 a 7 porciones
       </p>
-      <div className="mt-4 grid w-full items-end gap-5 sm:grid-cols-3 sm:gap-4">
-        <div className="flex justify-center">
+      <div className="mt-4 grid w-full auto-rows-fr items-stretch gap-7 md:grid-cols-3 md:gap-6">
+        <TinyCakeItem label="Presentación">
           <GiftCake />
-        </div>
-        <div className="flex justify-center">
+        </TinyCakeItem>
+        <TinyCakeItem label="Redonda">
           <MiniRoundCake />
-        </div>
-        <div className="flex justify-center">
+        </TinyCakeItem>
+        <TinyCakeItem label="Corazón">
           <MiniHeartCake />
-        </div>
+        </TinyCakeItem>
       </div>
     </section>
   );
@@ -438,7 +543,7 @@ function TinyCakeSection() {
 
 function HeartCake({ width, portions }) {
   const config =
-    width === "17 cm."
+    width === "17 cm"
       ? {
           shapeTransform: "translate(48 18) scale(.93)",
           measureLeft: 73,
@@ -449,23 +554,24 @@ function HeartCake({ width, portions }) {
           verticalBottom: 140,
         }
       : {
-          shapeTransform: "translate(16 2) scale(1.19)",
+          shapeTransform: "translate(16 -20) scale(1.19)",
           measureLeft: 48,
           measureRight: 210,
-          measureY: 196,
+          measureY: 174,
           measureX: 228,
-          verticalTop: 79,
-          verticalBottom: 158,
+          verticalTop: 57,
+          verticalBottom: 136,
         };
 
   return (
-    <article className="flex h-full flex-col items-center justify-end text-center">
-      <svg
-        viewBox="0 0 332 226"
-        className="mx-auto h-auto w-full max-w-[12.75rem] sm:max-w-[13.85rem]"
-        aria-hidden="true"
-      >
-        <g transform={config.shapeTransform}>
+    <article className="flex h-full flex-col items-center text-center">
+      <div className="flex w-full justify-center">
+        <svg
+          viewBox="0 0 332 226"
+          className="block h-auto w-full max-w-[12.75rem] sm:max-w-[13.85rem]"
+          aria-hidden="true"
+        >
+          <g transform={config.shapeTransform}>
           <path
             d="M95 40C73 9 24 24 27 66c3 50 68 65 68 65s65-15 68-65c3-42-46-57-68-26Z"
             fill={cream}
@@ -482,41 +588,24 @@ function HeartCake({ width, portions }) {
             strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
           />
-          <path
-            d="M24 66c10-7 16 7 25-4s15 7 24-4 15 7 24-5 16 8 25-4 15 7 25 1 15 7 20 3"
-            fill="none"
-            stroke={ink}
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            vectorEffect="non-scaling-stroke"
+          </g>
+          <HorizontalMeasure
+            x1={config.measureLeft}
+            x2={config.measureRight}
+            y={config.measureY}
+            label={width}
+            labelPosition="below"
+            labelOffset={17}
           />
-          <path
-            d="M39 85c8-4 13 4 21-3s13 5 21-2 13 5 21-3 13 5 21-3 12 5 20 1"
-            fill="none"
-            stroke={ink}
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            vectorEffect="non-scaling-stroke"
+          <VerticalMeasure
+            x={config.measureX}
+            y1={config.verticalTop}
+            y2={config.verticalBottom}
+            label="12 cm"
           />
-        </g>
-        <HorizontalMeasure
-          x1={config.measureLeft}
-          x2={config.measureRight}
-          y={config.measureY}
-          label={width}
-          labelPosition="below"
-          labelOffset={15}
-        />
-        <VerticalMeasure
-          x={config.measureX}
-          y1={config.verticalTop}
-          y2={config.verticalBottom}
-          label="12 cm."
-          labelOffset={14}
-        />
-      </svg>
-      <p className="mt-2 min-h-[1.2rem] text-center text-[0.74rem] font-bold uppercase tracking-[0.12em] text-[#1E3264] sm:text-xs">
+        </svg>
+      </div>
+      <p className="mt-3 min-h-[1.2rem] text-center text-[0.74rem] font-bold uppercase tracking-[0.12em] text-[#1E3264] sm:text-xs">
         Corazón {portions}
       </p>
     </article>
@@ -525,7 +614,7 @@ function HeartCake({ width, portions }) {
 
 function Divider() {
   return (
-    <div className="my-4 flex items-center gap-3 text-[#E96B9C] sm:my-5">
+    <div className="my-6 flex items-center gap-4 text-[#E96B9C] sm:my-7">
       <span className="h-px flex-1 bg-[#F0A8BF]" />
       <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" aria-hidden="true">
         <path
@@ -547,24 +636,24 @@ export function SizeGuideContent({ className = "" }) {
       <LogoMark />
       <GuideTitle />
 
-      <div className="relative z-10 mt-4 sm:mt-5">
+      <div className="relative z-10 mt-7">
         <SectionPill>2 pisos</SectionPill>
-        <div className="mt-4 grid items-end gap-5 sm:grid-cols-3 sm:gap-5">
+        <div className="mt-5 grid auto-rows-fr items-stretch gap-8 md:grid-cols-3 md:gap-6">
           <TwoTierCake
-            top="14 cm."
-            base="18 cm."
+            top="14 cm"
+            base="18 cm"
             label="Small"
             portions="25 - 30 porciones"
           />
           <TwoTierCake
-            top="18 cm."
-            base="22 cm."
+            top="18 cm"
+            base="22 cm"
             label="Medium"
             portions="40 - 45 porciones"
           />
           <TwoTierCake
-            top="18 cm."
-            base="26 cm."
+            top="18 cm"
+            base="26 cm"
             label="Large"
             portions="60 - 65 porciones"
           />
@@ -573,25 +662,25 @@ export function SizeGuideContent({ className = "" }) {
         <Divider />
 
         <section>
-          <SectionPill className="!bg-[#F9C7D8] !text-[#4B2673]">
+          <SectionPill className="!bg-[#EFA6C2] !text-[#4B2673]">
             1 piso
           </SectionPill>
-          <div className="mt-4 grid items-end gap-5 sm:grid-cols-3 sm:gap-5">
+          <div className="mt-5 grid auto-rows-fr items-stretch gap-8 md:grid-cols-3 md:gap-6">
             <OneTierCake
-              diameter="18 cm."
-              height="14 cm."
+              diameter="18 cm"
+              height="14 cm"
               name="Small"
               portions="15 porciones"
             />
             <OneTierCake
-              diameter="22 cm."
-              height="15 cm."
+              diameter="22 cm"
+              height="15 cm"
               name="Medium"
               portions="20 porciones"
             />
             <OneTierCake
-              diameter="22 cm."
-              height="18 cm."
+              diameter="22 cm"
+              height="18 cm"
               name="Large"
               portions="30 porciones"
             />
@@ -607,12 +696,12 @@ export function SizeGuideContent({ className = "" }) {
         <Divider />
 
         <section>
-          <SectionPill className="!bg-[#F9C7D8] !text-[#4B2673]">
+          <SectionPill className="!bg-[#EFA6C2] !text-[#4B2673]">
             Corazón
           </SectionPill>
-          <div className="mt-4 grid items-end gap-6 sm:grid-cols-2">
-            <HeartCake width="17 cm." portions="20 porciones" />
-            <HeartCake width="23 cm." portions="30 porciones" />
+          <div className="mt-5 grid auto-rows-fr items-stretch gap-8 sm:grid-cols-2 sm:gap-6">
+            <HeartCake width="17 cm" portions="20 porciones" />
+            <HeartCake width="23 cm" portions="30 porciones" />
           </div>
         </section>
       </div>
@@ -639,7 +728,7 @@ export default function SizeGuideModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[90] flex items-center justify-center bg-ink/60 p-3 sm:p-5"
       role="presentation"
@@ -648,7 +737,7 @@ export default function SizeGuideModal({ isOpen, onClose }) {
       }}
     >
       <section
-        className="relative max-h-[94dvh] w-full max-w-[920px] overflow-y-auto rounded-lg bg-[#FDFAF6] shadow-lift"
+        className="modal-panel-enter relative max-h-[94dvh] w-full max-w-[920px] overflow-y-auto rounded-lg bg-[#FFF7F0] shadow-lift"
         role="dialog"
         aria-modal="true"
         aria-labelledby="size-guide-title"
@@ -663,85 +752,8 @@ export default function SizeGuideModal({ isOpen, onClose }) {
         </button>
 
         <SizeGuideContent />
-
-        {false && (
-        <div className="hidden" aria-hidden="true">
-          <Doodles />
-          <LogoMark />
-          <GuideTitle />
-
-          <div className="relative z-10 mt-4 sm:mt-5">
-            <SectionPill>2 pisos</SectionPill>
-            <div className="mt-3 grid gap-4 sm:grid-cols-3 sm:gap-4">
-              <TwoTierCake
-                top="14 cm."
-                base="18 cm."
-                label="Small"
-                portions="25 - 30 porciones"
-              />
-              <TwoTierCake
-                top="18 cm."
-                base="22 cm."
-                label="Medium"
-                portions="40 - 45 porciones"
-              />
-              <TwoTierCake
-                top="18 cm."
-                base="26 cm."
-                label="Large"
-                portions="60 - 65 porciones"
-              />
-            </div>
-
-            <Divider />
-
-            <section>
-              <SectionPill className="!bg-[#F9C7D8] !text-[#4B2673]">
-                1 piso
-              </SectionPill>
-              <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                <OneTierCake
-                  diameter="18 cm."
-                  height="14 cm."
-                  name="Small"
-                  portions="15 porciones"
-                />
-                <OneTierCake
-                  diameter="22 cm."
-                  height="15 cm."
-                  name="Medium"
-                  portions="20 porciones"
-                />
-                <OneTierCake
-                  diameter="22 cm."
-                  height="18 cm."
-                  name="Large"
-                  portions="30 porciones"
-                />
-              </div>
-            </section>
-
-            <Divider />
-
-            <section>
-              <TinyCakeSection />
-            </section>
-
-            <Divider />
-
-            <section>
-              <SectionPill className="!bg-[#F9C7D8] !text-[#4B2673]">
-                Corazón
-              </SectionPill>
-              <div className="mt-3 grid gap-5 sm:grid-cols-2">
-                <HeartCake width="17 cm." portions="20 porciones" />
-                <HeartCake width="23 cm." portions="30 porciones" />
-              </div>
-            </section>
-          </div>
-        </div>
-        )}
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }

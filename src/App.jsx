@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import CustomOrderModal from "./components/CustomOrderModal";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import WhatsAppFloat from "./components/WhatsAppFloat";
@@ -23,6 +24,7 @@ function getCurrentPath() {
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState(getCurrentPath);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const Page = currentPath.startsWith("/producto/")
     ? ProductPage
     : ROUTES[currentPath] ?? HomePage;
@@ -47,12 +49,24 @@ export default function App() {
       <a className="skip-link" href="#contenido">
         Ir al contenido
       </a>
-      <Header currentPath={currentPath} />
+      <Header
+        currentPath={currentPath}
+        onOpenOrderModal={() => setIsOrderModalOpen(true)}
+      />
       <main id="contenido">
-        <Page currentPath={currentPath} />
+        <div key={currentPath} className="page-enter">
+          <Page
+            currentPath={currentPath}
+            onOpenOrderModal={() => setIsOrderModalOpen(true)}
+          />
+        </div>
       </main>
       <Footer />
       <WhatsAppFloat />
+      <CustomOrderModal
+        isOpen={isOrderModalOpen}
+        onClose={() => setIsOrderModalOpen(false)}
+      />
     </div>
   );
 }

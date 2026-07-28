@@ -1,11 +1,12 @@
 import { Instagram, MessageCircle } from "lucide-react";
 import { getWhatsAppUrl, NAV_LINKS, SITE_CONFIG } from "../data/site";
+import Reveal from "./Reveal";
 
 export default function Footer() {
   return (
     <footer className="bg-ink text-white">
       <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8">
-        <div className="grid gap-10 border-b border-white/15 pb-10 md:grid-cols-[1.2fr_1fr_1fr]">
+        <Reveal className="grid gap-10 border-b border-white/15 pb-10 md:grid-cols-[1.2fr_1fr_1fr]">
           <div>
             <a href="#/" className="font-display text-3xl">
               Bake Me Happy
@@ -59,7 +60,7 @@ export default function Footer() {
               </a>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         <div className="flex flex-col gap-2 pt-7 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
           <p>

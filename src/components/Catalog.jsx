@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { categories, occasionOptions, products } from "../data/products";
 import ProductCard from "./ProductCard";
+import Reveal from "./Reveal";
 import SizeGuideModal from "./SizeGuideModal";
 
 const PRODUCTS_PER_PAGE = 12;
@@ -107,11 +108,11 @@ function PriceRangeFilter({ value, bounds, onChange }) {
 
   return (
     <FilterSection label="Precio">
-      <fieldset className="rounded-[1.6rem] border border-blush/55 bg-white/85 p-5">
+      <fieldset className="rounded-[1.6rem] border border-blush/30 bg-white/85 p-5">
         <div className="relative h-9 px-1">
-          <div className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-[#BFE5DF]" />
+          <div className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-[#87CCC3]" />
           <div
-            className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-plum/45"
+            className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-plum/70"
             style={{ left: `${left}%`, right: `${right}%` }}
           />
           <input
@@ -159,7 +160,7 @@ function CategoryTabs({ value, onChange }) {
           className={`flex min-h-[3.25rem] w-full items-center justify-between rounded-full px-5 text-left text-sm font-semibold transition-colors ${
             value === category
               ? "bg-plum text-white shadow-sm"
-              : "border border-blush/60 bg-white text-ink/68 hover:border-plum/45 hover:text-plum"
+              : "border border-blush/30 bg-white text-ink/68 hover:border-plum/30 hover:text-plum"
           }`}
           onClick={() => onChange(category)}
           aria-pressed={value === category}
@@ -178,7 +179,7 @@ function OccasionSelect({ value, onChange }) {
         <select
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="min-h-[3.25rem] w-full appearance-none rounded-full border border-blush/60 bg-white px-5 pr-12 text-sm font-semibold text-ink outline-none transition-colors focus:border-plum"
+          className="min-h-[3.25rem] w-full appearance-none rounded-full border border-blush/30 bg-white px-5 pr-12 text-sm font-semibold text-ink outline-none transition-colors focus:border-plum/60"
         >
           {ALL_OCCASIONS.map((occasion) => (
             <option key={occasion} value={occasion}>
@@ -205,7 +206,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
     >
       <button
         type="button"
-        className="grid h-11 w-11 place-items-center rounded-full border border-blush/60 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+        className="grid h-11 w-11 place-items-center rounded-full border border-blush/30 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         aria-label="Pagina anterior"
@@ -220,7 +221,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
           className={`h-11 min-w-11 rounded-full px-4 text-sm font-semibold shadow-sm ${
             currentPage === page
               ? "bg-plum text-white"
-              : "border border-blush/60 bg-white text-ink/70"
+              : "border border-blush/30 bg-white text-ink/70"
           }`}
           onClick={() => onPageChange(page)}
           aria-current={currentPage === page ? "page" : undefined}
@@ -231,7 +232,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 
       <button
         type="button"
-        className="grid h-11 w-11 place-items-center rounded-full border border-blush/60 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+        className="grid h-11 w-11 place-items-center rounded-full border border-blush/30 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         aria-label="Pagina siguiente"
@@ -312,9 +313,9 @@ export default function Catalog() {
       id="tienda"
       className="scroll-mt-20 bg-cream pb-20 pt-20 sm:pb-28 lg:pt-28"
     >
-      <div className="border-b border-blush/45 bg-[linear-gradient(135deg,#FFF8F3_0%,#FFEAF1_48%,#F1F2FF_100%)]">
+      <div className="border-b border-blush/30 bg-[linear-gradient(135deg,#FFF4ED_0%,#F8E6EB_48%,#ECEEFC_100%)]">
         <div className={`${storeContainerClass} grid gap-8 py-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end`}>
-          <div className="max-w-3xl">
+          <Reveal className="max-w-3xl" direction="left">
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-plum">
               Tienda Bake Me Happy
             </span>
@@ -326,7 +327,7 @@ export default function Catalog() {
               complementos pensados para armar celebraciones mas bonitas y
               personalizadas.
             </p>
-          </div>
+          </Reveal>
 
           <button
             type="button"
@@ -341,7 +342,11 @@ export default function Catalog() {
 
       <div className={storeContainerClass}>
         <div className="mt-8 grid gap-7 lg:grid-cols-[310px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
-          <aside className="rounded-[1.75rem] border border-blush/45 bg-white/88 p-6 shadow-sm lg:sticky lg:top-24">
+          <Reveal
+            as="aside"
+            direction="left"
+            className="rounded-[1.75rem] border border-blush/30 bg-white/88 p-6 shadow-sm lg:sticky lg:top-24"
+          >
             <div className="flex items-center gap-3.5">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-blush/45 text-plum">
                 <SlidersHorizontal size={18} aria-hidden="true" />
@@ -368,7 +373,7 @@ export default function Catalog() {
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
                     placeholder="Buscar por nombre"
-                    className="min-h-[3.25rem] w-full rounded-full border border-lavender/45 bg-white px-11 py-3 text-sm font-medium text-ink outline-none transition-colors placeholder:text-ink/40 focus:border-plum"
+                    className="min-h-[3.25rem] w-full rounded-full border border-lavender/30 bg-white px-11 py-3 text-sm font-medium text-ink outline-none transition-colors placeholder:text-ink/40 focus:border-plum/60"
                   />
                   {searchTerm && (
                     <button
@@ -398,17 +403,17 @@ export default function Catalog() {
               {hasActiveFilters && (
                 <button
                   type="button"
-                  className="mt-6 min-h-[3.25rem] w-full rounded-full border border-lavender/45 bg-lavender-light px-5 text-sm font-semibold text-ink"
+                  className="mt-6 min-h-[3.25rem] w-full rounded-full border border-lavender/30 bg-lavender-light px-5 text-sm font-semibold text-ink"
                   onClick={clearFilters}
                 >
                   Limpiar filtros
                 </button>
               )}
             </div>
-          </aside>
+          </Reveal>
 
           <div className="min-w-0">
-            <div className="flex flex-col gap-2 border-b border-blush/35 pb-4 text-sm text-ink/62 sm:flex-row sm:items-center sm:justify-between">
+            <Reveal className="flex flex-col gap-2 border-b border-blush/35 pb-4 text-sm text-ink/62 sm:flex-row sm:items-center sm:justify-between">
               <p>
                 Mostrando{" "}
                 <span className="font-semibold text-ink">
@@ -421,12 +426,14 @@ export default function Catalog() {
                 {activeCategory === "Todos" ? "Todos los productos" : activeCategory}
                 {occasion !== DEFAULT_OCCASION ? ` · ${occasion}` : ""}
               </p>
-            </div>
+            </Reveal>
 
             {visibleProducts.length > 0 ? (
               <div className="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-6 sm:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">
-                {visibleProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                {visibleProducts.map((product, index) => (
+                  <Reveal key={product.id} delay={(index % 4) * 55}>
+                    <ProductCard product={product} />
+                  </Reveal>
                 ))}
               </div>
             ) : (

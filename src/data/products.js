@@ -345,7 +345,7 @@ const existingProducts = [
     description:
       "Bizcocho de chocolate relleno con manjar de olla y decorado con fudge de olla.",
     category: "Tortas clasicas",
-    occasions: ["PARA EL", "PARA ELLA"],
+    occasions: ["PARA EL", "PARA ELLA", "GRADUACION", "NIÑOS Y NIÑAS"],
     tags: ["Clasica", "Chocolate", "Hecha con amor"],
     image: chocomanjarImages[0].src,
     images: chocomanjarImages,
@@ -368,7 +368,7 @@ const existingProducts = [
     description:
       "Bizcocho rojo aterciopelado relleno con manjar de olla y decorado con frosting de queso crema.",
     category: "Tortas clasicas",
-    occasions: ["PARA ELLA", "BODAS"],
+    occasions: ["PARA ELLA", "BODAS", "GRADUACION"],
     tags: ["Clasica", "Red Velvet", "Frosting"],
     image: redVelvetImages[0].src,
     images: redVelvetImages,
@@ -391,7 +391,7 @@ const existingProducts = [
     description:
       "Bizcocho de chocolate relleno y decorado con fudge de olla para amantes del cacao.",
     category: "Tortas clasicas",
-    occasions: ["PARA EL", "PARA ELLA"],
+    occasions: ["PARA EL", "PARA ELLA", "GRADUACION", "NIÑOS Y NIÑAS"],
     tags: ["Clasica", "Chocolate", "Fudge"],
     image: fullChocolateImages[0].src,
     images: fullChocolateImages,
@@ -433,7 +433,7 @@ const existingProducts = [
     description:
       "Bizcocho de vainilla humedecido al estilo tres leches con sabor suave y casero.",
     category: "Tortas clasicas",
-    occasions: ["PARA EL", "PARA ELLA"],
+    occasions: ["PARA EL", "PARA ELLA", "GRADUACION"],
     tags: ["Clasica", "Vainilla", "Tres leches"],
     image: productImage,
     images: heroImages,
@@ -452,7 +452,7 @@ const existingProducts = [
     description:
       "Torta clasica con combinacion visual de vainilla y chocolate en capas tipo damero.",
     category: "Tortas clasicas",
-    occasions: ["PARA EL", "PARA ELLA", "NIÑOS Y NIÑAS"],
+    occasions: ["PARA EL", "PARA ELLA", "GRADUACION", "NIÑOS Y NIÑAS"],
     tags: ["Clasica", "Damero", "Vainilla y chocolate"],
     image: productImage,
     images: heroImages,
@@ -475,6 +475,7 @@ const existingProducts = [
     description:
       "Version redonda de tiny cake, ideal para regalar o compartir en un momento especial.",
     category: "Mini tortas",
+    occasions: ["PARA EL", "PARA ELLA", "NIÑOS Y NIÑAS"],
     tags: ["Tiny cake", "Redonda", "Buttercream"],
     image: productImage,
     images: heroImages,
@@ -498,6 +499,7 @@ const existingProducts = [
     description:
       "Queque de vainilla relleno de manjar de olla y decorado con buttercream.",
     category: "Mini tortas",
+    occasions: ["PARA EL", "PARA ELLA"],
     tags: ["Mini torta", "Individual", "Buttercream"],
     image: productImage,
     images: heroImages,
@@ -520,6 +522,7 @@ const existingProducts = [
     description:
       "Version corazon de tiny cake, perfecta para regalos dulces y detalles con un toque especial.",
     category: "Mini tortas",
+    occasions: ["PARA EL", "PARA ELLA"],
     tags: ["Tiny cake", "Corazon", "Buttercream"],
     image: productImage,
     images: heroImages,
@@ -720,6 +723,7 @@ export const occasionOptions = [
   "BABY",
   "GRADUACION",
   "NIÑOS Y NIÑAS",
+  "MINI TORTAS",
 ];
 
 export const cakeFlavors = [

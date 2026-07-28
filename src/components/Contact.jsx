@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import SectionHeading from "./SectionHeading";
 import { getWhatsAppUrl, SITE_CONFIG } from "../data/site";
+import Reveal from "./Reveal";
 
 const contactItems = [
   {
@@ -27,7 +28,7 @@ export default function Contact() {
   return (
     <section id="contacto" className="scroll-mt-20 bg-blush/35 py-16 sm:py-24">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[1fr_0.9fr] lg:gap-16">
-        <div>
+        <Reveal direction="left">
           <SectionHeading
             eyebrow="Hablemos de tu idea"
             title="Hagamos algo especial para tu celebración"
@@ -36,8 +37,12 @@ export default function Contact() {
           />
 
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
-            {contactItems.map(({ icon: Icon, label, value }) => (
-              <div key={label} className="flex gap-3">
+            {contactItems.map(({ icon: Icon, label, value }, index) => (
+              <Reveal
+                key={label}
+                className="flex gap-3"
+                delay={index * 60}
+              >
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-plum">
                   <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
                 </span>
@@ -49,7 +54,7 @@ export default function Contact() {
                     {value}
                   </span>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
 
@@ -62,9 +67,13 @@ export default function Contact() {
             <MessageCircle size={19} aria-hidden="true" />
             Escribir por WhatsApp
           </a>
-        </div>
+        </Reveal>
 
-        <div className="relative min-h-[380px] overflow-hidden rounded-lg bg-lavender-light shadow-soft">
+        <Reveal
+          className="relative min-h-[380px] overflow-hidden rounded-lg bg-lavender-light shadow-soft"
+          direction="right"
+          delay={100}
+        >
           <div className="absolute inset-0 bg-soft-grid bg-[size:28px_28px]" />
           <div className="absolute left-[18%] top-[24%] h-px w-[68%] rotate-12 bg-plum/20" />
           <div className="absolute left-[12%] top-[58%] h-px w-[74%] -rotate-6 bg-plum/20" />
@@ -83,7 +92,7 @@ export default function Contact() {
               Ubicación referencial
             </span>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

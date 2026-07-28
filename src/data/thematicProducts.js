@@ -89,7 +89,7 @@ export const thematicProducts = [
     folder: "Corazón rosa",
     description:
       "Torta en forma de corazón decorada con buttercream y lazos de tela.",
-    occasions: ["PARA ELLA", "BODAS"],
+    occasions: ["PARA EL", "PARA ELLA", "BODAS"],
     prices: [
       "Tiny cake: S/ 110",
       "20 porciones: S/ 200",
@@ -102,7 +102,7 @@ export const thematicProducts = [
     folder: "Maceta con tulipanes",
     description:
       "Torta decorada con buttercream y detalles de masa elástica.",
-    occasions: ["PARA ELLA", "BODAS"],
+    occasions: ["PARA EL", "PARA ELLA", "BODAS"],
     prices: [
       "Tiny cake: S/ 130",
       "15 porciones: S/ 160",
@@ -115,7 +115,7 @@ export const thematicProducts = [
     name: "Corazón con Frambuesas",
     folder: "Corazón con frambuesas",
     description: "Torta decorada con buttercream y frambuesas frescas.",
-    occasions: ["PARA ELLA", "BODAS"],
+    occasions: ["PARA EL", "PARA ELLA", "BODAS"],
     prices: [
       "Tiny cake: S/ 100",
       "20 porciones: S/ 220",
@@ -498,7 +498,7 @@ export const thematicProducts = [
     folder: "Mini romance",
     description:
       "Mini torta decorada con buttercream y corazones elaborados con buttercream.",
-    occasions: ["PARA EL", "PARA ELLA"],
+    occasions: ["PARA EL", "PARA ELLA", "MINI TORTAS"],
     prices: ["Mini torta de 10 cm de diámetro: S/ 30"],
   }),
 ];
