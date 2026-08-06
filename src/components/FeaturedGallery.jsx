@@ -8,6 +8,7 @@ import {
 import { products } from "../data/products";
 import { getProductPriceLabel } from "../utils/productPrice";
 import Reveal from "./Reveal";
+import AssetImage from "./AssetImage";
 
 const featuredProductIds = [101, 102, 103, 104, 105, 106];
 const featuredProducts = featuredProductIds
@@ -119,7 +120,7 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
                     aria-label={`Ver ${product.name}, ${getProductPriceLabel(product)}`}
                   >
                     <span className="block h-full w-full overflow-hidden rounded-full">
-                      <img
+                      <AssetImage
                         src={product.image}
                         alt={`${product.name} de Bake Me Happy`}
                         className="h-full w-full transform-gpu object-cover transition-[transform,filter] duration-500 ease-out group-hover/item:scale-[1.04] group-hover/item:brightness-[1.04] group-hover/item:saturate-[1.08] group-focus-visible/item:scale-[1.04] group-focus-visible/item:brightness-[1.04] group-focus-visible/item:saturate-[1.08]"
@@ -148,7 +149,7 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
               aria-label={`Ver ${centralProduct.name}, ${getProductPriceLabel(centralProduct)}`}
             >
               <span className="block h-full w-full overflow-hidden rounded-[1.3rem] sm:rounded-[1.5rem]">
-                <img
+                <AssetImage
                   src={centralProduct.image}
                   alt={`${centralProduct.name}, torta destacada de Bake Me Happy`}
                   className="h-full w-full transform-gpu object-cover transition-[transform,filter] duration-500 ease-out group-hover/central:scale-[1.04] group-hover/central:brightness-[1.04] group-hover/central:saturate-[1.08] group-focus-visible/central:scale-[1.04] group-focus-visible/central:brightness-[1.04] group-focus-visible/central:saturate-[1.08]"

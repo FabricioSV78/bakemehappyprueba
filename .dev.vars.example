@@ -1,0 +1,2 @@
+# Usa un valor aleatorio de al menos 32 caracteres. No subas .dev.vars a Git.
+UPLOAD_LINK_SECRET=reemplaza-esto-con-un-secreto-largo-y-aleatorio

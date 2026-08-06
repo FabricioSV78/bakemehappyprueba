@@ -1,0 +1,18 @@
+{
+  "name": "Bake Me Happy",
+  "short_name": "Bake Me Happy",
+  "description": "Tortas y postres artesanales personalizados en Trujillo.",
+  "lang": "es-PE",
+  "start_url": "/#/",
+  "display": "standalone",
+  "background_color": "#FFF4ED",
+  "theme_color": "#17366D",
+  "icons": [
+    {
+      "src": "/images/webp/LOGO/logo-principal-header.webp",
+      "sizes": "320x320",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ]
+}

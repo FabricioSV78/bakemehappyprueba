@@ -4,3 +4,10 @@ artifacts/
 vite.stdout.log
 vite.stderr.log
 repomix-output.*
+.wrangler/
+.npm-cache/
+.dev.vars
+.env
+.env.*
+!.dev.vars.example
+!.env.example

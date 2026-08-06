@@ -1,3 +1,5 @@
+import AssetImage from "../AssetImage";
+
 function getProductGallery(product) {
   const gallery = product?.images?.length
     ? product.images
@@ -65,7 +67,7 @@ export default function ProductGallery({ product, activeIndex, onSelect }) {
                     : "opacity-75 hover:opacity-100 hover:shadow-[0_0_0_1px_rgba(145,112,188,0.22)]"
                 }`}
               >
-                <img
+                <AssetImage
                   src={image.src}
                   alt=""
                   className="h-full w-full rounded-[inherit] object-cover"
@@ -84,7 +86,7 @@ export default function ProductGallery({ product, activeIndex, onSelect }) {
         </div>
 
         <div className="relative order-1 aspect-[4/3] w-full max-w-[620px] justify-self-center overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_50%_45%,#fff_0%,#FFF0E8_62%,#F5DDE8_100%)] sm:order-2 sm:rounded-[2.5rem] lg:aspect-square xl:max-w-[660px]">
-          <img
+          <AssetImage
             key={activeImage.src}
             src={activeImage.src}
             alt={activeImage.alt}

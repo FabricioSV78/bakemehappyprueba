@@ -4,17 +4,33 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#17366D",
-        lavender: "#AAB3E5",
-        "lavender-light": "#ECEEFC",
-        blush: "#E49AAF",
-        plum: "#765495",
-        cream: "#FFF4ED",
-        gold: "#BF9040",
+        // Cambio 2: tokens semánticos. Los alias existentes se conservan para
+        // no alterar visualmente componentes previos ni dificultar reversiones.
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        lavender: "rgb(var(--color-lavender) / <alpha-value>)",
+        "lavender-light": "rgb(var(--color-lavender-light) / <alpha-value>)",
+        blush: "rgb(var(--color-blush) / <alpha-value>)",
+        plum: "rgb(var(--color-plum) / <alpha-value>)",
+        cream: "rgb(var(--color-cream) / <alpha-value>)",
+        gold: "rgb(var(--color-gold) / <alpha-value>)",
+        brand: {
+          ink: "rgb(var(--color-ink) / <alpha-value>)",
+          lavender: "rgb(var(--color-lavender) / <alpha-value>)",
+          blush: "rgb(var(--color-blush) / <alpha-value>)",
+          plum: "rgb(var(--color-plum) / <alpha-value>)",
+        },
+        surface: {
+          page: "rgb(var(--color-cream) / <alpha-value>)",
+          soft: "rgb(var(--color-lavender-light) / <alpha-value>)",
+          card: "rgb(var(--color-white) / <alpha-value>)",
+        },
       },
       fontFamily: {
-        sans: ["Poppins", "sans-serif"],
-        display: ["DM Serif Display", "serif"],
+        // Cambio 4: primero se declaran las familias oficiales del manual.
+        // Las siguientes son equivalentes web hasta disponer de sus .woff2.
+        sans: ["BR Omny", "Nunito Sans", "Arial", "sans-serif"],
+        display: ["Super Dream", "Fredoka", "BR Omny", "sans-serif"],
+        accent: ["MindBlue", "Caveat", "cursive"],
       },
       boxShadow: {
         soft: "0 18px 45px rgba(23, 54, 109, 0.10)",

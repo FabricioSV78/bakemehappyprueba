@@ -276,13 +276,13 @@ export default function ProductPage({ currentPath }) {
             data-config-card="true"
             className="min-w-0 self-start rounded-lg border border-blush/30 bg-white shadow-soft"
           >
-            <div className="rounded-t-lg border-b border-blush/30 bg-[linear-gradient(135deg,#FFF4ED_0%,#ECEEFC_100%)] p-4 min-[380px]:p-5 sm:p-7">
+            <div className="brand-sprinkles overflow-hidden rounded-t-lg border-b border-blush/30 bg-[linear-gradient(135deg,#FFF4ED_0%,#ECEEFC_100%)] p-4 min-[380px]:p-5 sm:p-7">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                 <div className="min-w-0">
                   <span className="text-xs font-semibold uppercase tracking-[0.16em] text-plum">
                     {product.category}
                   </span>
-                  <h1 className="mt-1.5 break-words font-display text-[2rem] leading-tight text-ink min-[380px]:text-4xl sm:text-5xl">
+                  <h1 className="relative z-[1] mt-1.5 break-words font-display text-[2rem] font-semibold leading-tight text-ink min-[380px]:text-4xl sm:text-5xl">
                     {product.name}
                   </h1>
                   <p className="mt-2.5 inline-flex items-center gap-2 text-sm font-semibold text-ink/65">

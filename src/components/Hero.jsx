@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, CakeSlice, MessageCircle } from "lucide-react";
+import AssetImage from "./AssetImage";
 
 const HERO_SLIDES = [
   {
     src: "/images/webp/hero 1.webp",
-    srcSet:
-      "/images/webp/hero 1-768.webp 768w, /images/webp/hero 1-1280.webp 1280w, /images/webp/hero 1.webp 1672w",
+    sources: [
+      { src: "/images/webp/hero 1-768.webp", width: 768 },
+      { src: "/images/webp/hero 1-1280.webp", width: 1280 },
+      { src: "/images/webp/hero 1.webp", width: 1672 },
+    ],
     position:
       "object-[86%_top] sm:object-[93%_top] lg:object-[68%_45%]",
     mobileTop: "-7%",
@@ -13,8 +17,11 @@ const HERO_SLIDES = [
   },
   {
     src: "/images/webp/hero 2.webp",
-    srcSet:
-      "/images/webp/hero 2-768.webp 768w, /images/webp/hero 2-1280.webp 1280w, /images/webp/hero 2.webp 1672w",
+    sources: [
+      { src: "/images/webp/hero 2-768.webp", width: 768 },
+      { src: "/images/webp/hero 2-1280.webp", width: 1280 },
+      { src: "/images/webp/hero 2.webp", width: 1672 },
+    ],
     position:
       "object-[83%_50%] sm:object-[90%_34%] lg:object-[68%_50%]",
     mobileTop: "-10%",
@@ -22,8 +29,11 @@ const HERO_SLIDES = [
   },
   {
     src: "/images/webp/hero 3.webp",
-    srcSet:
-      "/images/webp/hero 3-768.webp 768w, /images/webp/hero 3-1280.webp 1280w, /images/webp/hero 3.webp 1672w",
+    sources: [
+      { src: "/images/webp/hero 3-768.webp", width: 768 },
+      { src: "/images/webp/hero 3-1280.webp", width: 1280 },
+      { src: "/images/webp/hero 3.webp", width: 1672 },
+    ],
     position:
       "object-[71%_48%] sm:object-[77%_30%] lg:object-[68%_50%]",
     mobileTop: "-8%",
@@ -67,10 +77,10 @@ export default function Hero({ onOpenOrderModal }) {
     >
       <div className="absolute inset-0 -z-20" aria-hidden="true">
         {HERO_SLIDES.map((slide, index) => (
-          <img
+          <AssetImage
             key={slide.src}
             src={slide.src}
-            srcSet={slide.srcSet}
+            sources={slide.sources}
             sizes="100vw"
             alt=""
             className={`hero-slide-image absolute inset-0 h-full w-full object-cover ${slide.position} transition-[opacity,transform] duration-[1400ms] ease-out motion-reduce:transition-none ${
@@ -91,6 +101,11 @@ export default function Hero({ onOpenOrderModal }) {
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,241,231,0.02)_0%,rgba(255,241,231,0.06)_42%,rgba(255,241,231,0.84)_61%,rgba(255,241,231,0.98)_75%,rgba(255,241,231,0.99)_100%)] lg:bg-[linear-gradient(90deg,rgba(255,241,231,0.98)_0%,rgba(255,241,231,0.90)_31%,rgba(255,241,231,0.52)_53%,rgba(255,241,231,0.08)_78%,rgba(255,241,231,0.02)_100%)]" />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(23,54,109,0.10)_0%,transparent_24%,transparent_76%,rgba(234,134,168,0.20)_100%)]" />
 
+      <div
+        className="brand-sprinkles-panel absolute left-[max(1rem,calc((100vw-80rem)/2))] top-1/2 -z-[5] hidden h-28 w-28 -translate-y-[13rem] rounded-full opacity-60 lg:block"
+        aria-hidden="true"
+      />
+
       <div className="mx-auto flex min-h-[max(42rem,calc(100svh-5rem))] w-full max-w-7xl items-end px-5 pb-12 pt-24 sm:px-8 sm:pb-14 lg:min-h-[max(42rem,calc(100svh-9.375rem))] lg:items-center lg:pb-12 lg:pt-0">
         <div className="w-full min-w-0 max-w-2xl sm:max-w-xl lg:max-w-2xl">
           <div
@@ -101,7 +116,7 @@ export default function Hero({ onOpenOrderModal }) {
             Tu pastelería virtual en Trujillo
           </div>
           <h1
-            className="hero-reveal break-words font-display text-[clamp(2.6rem,12vw,3.5rem)] leading-[0.98] text-ink sm:text-6xl lg:text-7xl"
+            className="hero-reveal break-words font-display text-[clamp(2.6rem,12vw,3.5rem)] font-semibold leading-[0.98] text-ink sm:text-6xl lg:text-7xl"
             style={{ "--hero-delay": "150ms" }}
           >
             Bake Me Happy

@@ -1,4 +1,5 @@
 import { ChevronDown, Minus, Plus } from "lucide-react";
+import AssetImage from "../AssetImage";
 
 function ComplementItems({ options, selectedItems, onQuantityChange }) {
   return (
@@ -22,7 +23,7 @@ function ComplementItems({ options, selectedItems, onQuantityChange }) {
                   isSelected ? "ring-plum/40" : "ring-blush/25"
                 }`}
               >
-                <img
+                <AssetImage
                   src={option.image}
                   alt={option.name}
                   className="h-full w-full object-cover"

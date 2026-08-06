@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowLeft, ArrowRight, CalendarDays, Clock, Minus, Plus } from "lucide-react";
 import {
   formatDisplayDate,
@@ -38,12 +39,15 @@ const CUSTOM_TIME_MINUTES = Array.from({ length: 60 }, (_, index) =>
   String(index).padStart(2, "0"),
 );
 
-function useDismissiblePopover(isOpen, onClose, containerRef) {
+function useDismissiblePopover(isOpen, onClose, containerRef, popoverRef) {
   useEffect(() => {
     if (!isOpen) return undefined;
 
     const handlePointerDown = (event) => {
-      if (!containerRef.current?.contains(event.target)) onClose();
+      const isInsideTrigger = containerRef.current?.contains(event.target);
+      const isInsidePopover = popoverRef.current?.contains(event.target);
+
+      if (!isInsideTrigger && !isInsidePopover) onClose();
     };
     const handleKeyDown = (event) => {
       if (event.key === "Escape") onClose();
@@ -56,7 +60,74 @@ function useDismissiblePopover(isOpen, onClose, containerRef) {
       document.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [containerRef, isOpen, onClose]);
+  }, [containerRef, isOpen, onClose, popoverRef]);
+}
+
+function useFloatingPopoverPosition({
+  align,
+  anchorRef,
+  isOpen,
+  placement,
+  popoverRef,
+}) {
+  const [position, setPosition] = useState({
+    left: 0,
+    top: 0,
+    visibility: "hidden",
+  });
+
+  useLayoutEffect(() => {
+    if (!isOpen) return undefined;
+
+    let animationFrame;
+    const updatePosition = () => {
+      const anchor = anchorRef.current?.getBoundingClientRect();
+      const popover = popoverRef.current?.getBoundingClientRect();
+      if (!anchor || !popover) return;
+
+      const margin = 16;
+      const gap = 10;
+      const maximumLeft = Math.max(margin, window.innerWidth - popover.width - margin);
+      const preferredLeft =
+        align === "right" ? anchor.right - popover.width : anchor.left;
+      const left = Math.min(maximumLeft, Math.max(margin, preferredLeft));
+      const above = anchor.top - popover.height - gap;
+      const below = anchor.bottom + gap;
+      const fitsAbove = above >= margin;
+      const fitsBelow = below + popover.height <= window.innerHeight - margin;
+
+      let top;
+      if (placement === "top" && fitsAbove) {
+        top = above;
+      } else if (placement === "bottom" && fitsBelow) {
+        top = below;
+      } else if (fitsAbove) {
+        top = above;
+      } else if (fitsBelow) {
+        top = below;
+      } else {
+        top = Math.max(margin, (window.innerHeight - popover.height) / 2);
+      }
+
+      setPosition({ left, top, visibility: "visible" });
+    };
+    const scheduleUpdate = () => {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(updatePosition);
+    };
+
+    scheduleUpdate();
+    window.addEventListener("resize", scheduleUpdate);
+    window.addEventListener("scroll", scheduleUpdate, true);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener("resize", scheduleUpdate);
+      window.removeEventListener("scroll", scheduleUpdate, true);
+    };
+  }, [align, anchorRef, isOpen, placement, popoverRef]);
+
+  return position;
 }
 
 export function TextField({
@@ -81,7 +152,12 @@ export function TextField({
   );
 }
 
-function DatePickerField({ value, onChange, label = "Fecha de entrega" }) {
+function DatePickerField({
+  value,
+  onChange,
+  label = "Fecha de entrega",
+  popoverPlacement = "bottom",
+}) {
   const selectedDate = parseLocalDate(value);
   const [isOpen, setIsOpen] = useState(false);
   const [viewDate, setViewDate] = useState(() => {
@@ -89,9 +165,22 @@ function DatePickerField({ value, onChange, label = "Fecha de entrega" }) {
     return new Date(initialDate.getFullYear(), initialDate.getMonth(), 1);
   });
   const containerRef = useRef(null);
+  const popoverRef = useRef(null);
   const todayValue = getLocalDateValue();
+  const popoverPosition = useFloatingPopoverPosition({
+    align: "left",
+    anchorRef: containerRef,
+    isOpen,
+    placement: popoverPlacement,
+    popoverRef,
+  });
 
-  useDismissiblePopover(isOpen, () => setIsOpen(false), containerRef);
+  useDismissiblePopover(
+    isOpen,
+    () => setIsOpen(false),
+    containerRef,
+    popoverRef,
+  );
 
   useEffect(() => {
     const nextSelectedDate = parseLocalDate(value);
@@ -151,9 +240,12 @@ function DatePickerField({ value, onChange, label = "Fecha de entrega" }) {
         </span>
       </button>
 
-      {isOpen && (
+      {isOpen && createPortal(
         <div
-          className="fixed inset-x-4 bottom-4 z-[70] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-blush/25 bg-white p-4 shadow-lift sm:absolute sm:inset-x-auto sm:bottom-auto sm:left-0 sm:top-[calc(100%+0.6rem)] sm:w-[min(20rem,calc(100vw-3rem))]"
+          ref={popoverRef}
+          data-date-time-popover="date"
+          className="fixed z-[160] max-h-[calc(100dvh-2rem)] w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-blush/25 bg-white p-4 shadow-lift"
+          style={popoverPosition}
           role="dialog"
           aria-label="Seleccionar fecha de entrega"
         >
@@ -236,13 +328,19 @@ function DatePickerField({ value, onChange, label = "Fecha de entrega" }) {
               Elegir hoy
             </button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
 }
 
-function TimePickerField({ value, onChange, label = "Hora" }) {
+function TimePickerField({
+  value,
+  onChange,
+  label = "Hora",
+  popoverPlacement = "bottom",
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [customHour, setCustomHour] = useState(() => {
     const [selectedHour] = (value || "").split(":");
@@ -257,8 +355,21 @@ function TimePickerField({ value, onChange, label = "Hora" }) {
       : "00";
   });
   const containerRef = useRef(null);
+  const popoverRef = useRef(null);
+  const popoverPosition = useFloatingPopoverPosition({
+    align: "right",
+    anchorRef: containerRef,
+    isOpen,
+    placement: popoverPlacement,
+    popoverRef,
+  });
 
-  useDismissiblePopover(isOpen, () => setIsOpen(false), containerRef);
+  useDismissiblePopover(
+    isOpen,
+    () => setIsOpen(false),
+    containerRef,
+    popoverRef,
+  );
 
   const selectTime = (timeValue) => {
     onChange(timeValue);
@@ -312,9 +423,12 @@ function TimePickerField({ value, onChange, label = "Hora" }) {
         </span>
       </button>
 
-      {isOpen && (
+      {isOpen && createPortal(
         <div
-          className="fixed inset-x-4 bottom-4 z-[70] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-blush/25 bg-white p-4 shadow-lift sm:absolute sm:inset-x-auto sm:bottom-auto sm:left-auto sm:right-0 sm:top-[calc(100%+0.6rem)] sm:w-[22rem] sm:max-h-[min(34rem,calc(100vh-2rem))]"
+          ref={popoverRef}
+          data-date-time-popover="time"
+          className="fixed z-[160] max-h-[calc(100dvh-2rem)] w-[min(22rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-blush/25 bg-white p-4 shadow-lift"
+          style={popoverPosition}
           role="dialog"
           aria-label="Seleccionar hora de entrega"
         >
@@ -399,17 +513,32 @@ function TimePickerField({ value, onChange, label = "Hora" }) {
               Limpiar hora
             </button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
 }
 
-export function DateTimeFields({ date, time, onDateChange, onTimeChange }) {
+export function DateTimeFields({
+  date,
+  time,
+  onDateChange,
+  onTimeChange,
+  popoverPlacement = "bottom",
+}) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      <DatePickerField value={date} onChange={onDateChange} />
-      <TimePickerField value={time} onChange={onTimeChange} />
+      <DatePickerField
+        value={date}
+        onChange={onDateChange}
+        popoverPlacement={popoverPlacement}
+      />
+      <TimePickerField
+        value={time}
+        onChange={onTimeChange}
+        popoverPlacement={popoverPlacement}
+      />
     </div>
   );
 }

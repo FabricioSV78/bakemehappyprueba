@@ -6,6 +6,7 @@ import {
   WandSparkles,
 } from "lucide-react";
 import Reveal from "./Reveal";
+import AssetImage from "./AssetImage";
 
 const heroImage = "/images/webp/hero 1.webp";
 const celebrationImage = "/images/webp/hero 2.webp";
@@ -57,7 +58,7 @@ function EditorialImage({
       className={`overflow-hidden rounded-lg bg-lavender-light ${className}`}
       direction="scale"
     >
-      <img
+      <AssetImage
         src={src}
         alt={alt}
         className="h-full w-full object-cover"

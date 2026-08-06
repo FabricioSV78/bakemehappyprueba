@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "pages:dev": "npm run build && wrangler pages dev dist",
+    "pages:deploy": "npm run build && wrangler pages deploy dist",
+    "r2:sync": "node scripts/sync-images-to-r2.js",
+    "r2:lifecycle": "wrangler r2 bucket lifecycle add bake-me-happy-private-uploads delete-temporary-uploads temp-uploads/ --expire-days 1",
+    "prepare:brand-assets": "node scripts/prepare-brand-assets.js"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -26,6 +31,7 @@
     "postcss": "^8.4.49",
     "sharp": "^0.35.2",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "wrangler": "^4.119.0"
   }
 }

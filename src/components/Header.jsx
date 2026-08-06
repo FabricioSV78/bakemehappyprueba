@@ -6,6 +6,7 @@ import {
   NAV_LINKS,
   SITE_CONFIG,
 } from "../data/site";
+import BrandLockup from "./BrandLockup";
 
 function HeaderContactLink({
   href,
@@ -90,25 +91,11 @@ export default function Header({ currentPath = "/", onOpenOrderModal }) {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
         <a
           href="#/"
-          className="group flex min-w-0 shrink-0 items-center gap-3"
+          className="group min-w-0 shrink-0"
           aria-label="Bake Me Happy, ir al inicio"
           onClick={() => setIsOpen(false)}
         >
-          <img
-            src="/images/webp/LOGO/logo-principal-header.webp"
-            alt=""
-            className="h-14 w-14 shrink-0 rounded-[1rem] object-cover shadow-sm ring-1 ring-ink/10 transition-transform duration-200 group-hover:-rotate-1 group-hover:scale-[1.02] sm:h-[3.75rem] sm:w-[3.75rem]"
-            width="320"
-            height="320"
-          />
-          <span className="min-w-0">
-            <span className="block truncate font-display text-lg leading-none text-ink sm:text-xl">
-              Bake Me Happy
-            </span>
-            <span className="mt-1.5 block truncate text-[8px] font-semibold uppercase tracking-[0.18em] text-plum sm:text-[9px]">
-              Pasteleria artesanal
-            </span>
-          </span>
+          <BrandLockup className="transition-transform duration-200 group-hover:-rotate-[0.35deg] group-hover:scale-[1.01]" />
         </a>
 
         <nav className="hidden items-center gap-7 lg:flex" aria-label="Principal">
@@ -117,9 +104,9 @@ export default function Header({ currentPath = "/", onOpenOrderModal }) {
               key={link.href}
               href={link.href}
               aria-current={activePath === link.path ? "page" : undefined}
-              className={`text-sm font-medium transition-colors hover:text-plum ${
+              className={`relative py-2 text-sm font-semibold transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-center after:rounded-full after:bg-plum after:transition-transform hover:text-plum ${
                 activePath === link.path ? "text-plum" : "text-ink/75"
-              }`}
+              } ${activePath === link.path ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"}`}
             >
               {link.label}
             </a>
@@ -175,15 +162,17 @@ export default function Header({ currentPath = "/", onOpenOrderModal }) {
               ))}
             </div>
 
-            <nav className="mt-2 flex flex-col" aria-label="Movil">
+            <nav className="mt-2 flex flex-col" aria-label="Móvil">
               {NAV_LINKS.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
                   aria-current={activePath === link.path ? "page" : undefined}
-                  className={`border-b border-lavender/30 py-4 text-base font-medium ${
-                    activePath === link.path ? "text-plum" : "text-ink"
+                  className={`border-b border-lavender/30 py-4 text-base font-semibold ${
+                    activePath === link.path
+                      ? "border-l-4 border-l-plum pl-3 text-plum"
+                      : "text-ink"
                   }`}
                 >
                   {link.label}

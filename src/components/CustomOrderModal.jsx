@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
-  CalendarDays,
   Camera,
   CakeSlice,
-  Clock,
   FileText,
+  LoaderCircle,
   MessageCircle,
   Palette,
   Ruler,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react";
 import { getWhatsAppUrl } from "../data/site";
 import { cakeFlavors, fillingFlavors, sizeGuide } from "../data/products";
+import { DateTimeFields } from "./product-detail/ProductFormFields";
 import { SizeGuideContent } from "./SizeGuideModal";
 
 const INITIAL_FORM = {
@@ -34,14 +34,15 @@ const DELIVERY_OPTIONS = [
   { value: "Delivery previa coordinación", label: "Delivery" },
 ];
 
+const MAX_REFERENCE_FILE_BYTES = 8 * 1024 * 1024;
+const ACCEPTED_REFERENCE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
 function getOptionValue(option) {
   return option?.label ?? option ?? "";
-}
-
-function getLocalToday() {
-  const today = new Date();
-  const timezoneOffset = today.getTimezoneOffset() * 60_000;
-  return new Date(today.getTime() - timezoneOffset).toISOString().slice(0, 10);
 }
 
 function formatDate(date) {
@@ -175,32 +176,64 @@ function FormSection({ step, title, children }) {
   );
 }
 
-function ReferenceUpload({ fileName, onChange }) {
+function formatFileSize(bytes) {
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function ReferenceUpload({ file, onChange, error }) {
   return (
-    <label className="grid cursor-pointer gap-2 rounded-xl border border-dashed border-blush/40 bg-blush/10 p-4">
+    <div className="grid gap-2 rounded-xl border border-dashed border-blush/40 bg-blush/10 p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <FieldLabel icon={Camera} optional>
           Foto de referencia
         </FieldLabel>
-        <span className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border border-blush/30 bg-white px-4 text-sm font-semibold text-ink shadow-sm transition-colors hover:border-plum/35 hover:text-plum">
+        <label
+          htmlFor="custom-order-reference"
+          className="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-full border border-blush/30 bg-white px-4 text-sm font-semibold text-ink shadow-sm transition-colors hover:border-plum/35 hover:text-plum"
+        >
           Elegir imagen
-        </span>
+        </label>
       </div>
       <p className="text-sm leading-5 text-ink/58">
-        Al abrir WhatsApp, adjunta esta misma imagen.
+        JPG, PNG o WebP, máximo 8 MB. La foto se comparte mediante un enlace
+        privado disponible durante 24 horas.
       </p>
       <input
+        id="custom-order-reference"
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         className="sr-only"
-        onChange={(event) => onChange(event.target.files?.[0]?.name ?? "")}
+        onChange={(event) => {
+          onChange(event.target.files?.[0] ?? null);
+          event.target.value = "";
+        }}
       />
-      {fileName && (
-        <p className="truncate text-sm font-semibold text-plum" aria-live="polite">
-          {fileName}
+      {file && (
+        <div
+          className="flex min-w-0 items-center justify-between gap-3"
+          aria-live="polite"
+        >
+          <p className="min-w-0 truncate text-sm font-semibold text-plum">
+            {file.name}{" "}
+            <span className="font-normal text-ink/50">
+              ({formatFileSize(file.size)})
+            </span>
+          </p>
+          <button
+            type="button"
+            className="shrink-0 text-sm font-semibold text-ink/60 underline decoration-blush underline-offset-4 hover:text-plum"
+            onClick={() => onChange(null)}
+          >
+            Quitar
+          </button>
+        </div>
+      )}
+      {error && (
+        <p className="text-sm font-semibold text-red-700" role="alert">
+          {error}
         </p>
       )}
-    </label>
+    </div>
   );
 }
 
@@ -241,13 +274,21 @@ export default function CustomOrderModal({ isOpen, onClose }) {
     flavor: getOptionValue(flavorOptions[0]),
     filling: getOptionValue(fillingOptions[0]),
   });
-  const [referenceFileName, setReferenceFileName] = useState("");
+  const [referenceFile, setReferenceFile] = useState(null);
+  const [uploadError, setUploadError] = useState("");
+  const [scheduleError, setScheduleError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return undefined;
 
     const handleKeyDown = (event) => {
-      if (event.key === "Escape") onClose();
+      if (
+        event.key === "Escape" &&
+        !document.querySelector("[data-date-time-popover]")
+      ) {
+        onClose();
+      }
     };
 
     document.body.style.overflow = "hidden";
@@ -263,7 +304,7 @@ export default function CustomOrderModal({ isOpen, onClose }) {
     setForm((currentForm) => ({ ...currentForm, [field]: value }));
   };
 
-  const whatsappMessage = useMemo(() => {
+  const buildWhatsAppMessage = (temporaryPhotoUrl = "") => {
     const lines = [
       "Hola, quisiera cotizar una torta personalizada desde la web de Bake Me Happy.",
       `Tamaño: ${form.size}.`,
@@ -275,22 +316,99 @@ export default function CustomOrderModal({ isOpen, onClose }) {
       form.date ? `Fecha: ${formatDate(form.date)}.` : null,
       form.time ? `Hora: ${form.time}.` : null,
       `Entrega: ${form.delivery}.`,
-      referenceFileName
-        ? `Foto de referencia: adjuntaré "${referenceFileName}" en WhatsApp.`
+      temporaryPhotoUrl
+        ? `Foto de referencia (enlace disponible por 24 horas): ${temporaryPhotoUrl}`
         : null,
       form.details ? `Notas: ${form.details}.` : null,
     ];
 
     return lines.filter(Boolean).join("\n");
-  }, [form, referenceFileName]);
+  };
 
-  const handleSubmit = (event) => {
+  const handleReferenceChange = (file) => {
+    setUploadError("");
+
+    if (!file) {
+      setReferenceFile(null);
+      return;
+    }
+
+    if (!ACCEPTED_REFERENCE_TYPES.has(file.type)) {
+      setReferenceFile(null);
+      setUploadError("Elige una imagen JPG, PNG o WebP.");
+      return;
+    }
+
+    if (file.size <= 0 || file.size > MAX_REFERENCE_FILE_BYTES) {
+      setReferenceFile(null);
+      setUploadError("La imagen debe pesar menos de 8 MB.");
+      return;
+    }
+
+    setReferenceFile(file);
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    window.open(
-      getWhatsAppUrl(whatsappMessage),
-      "_blank",
-      "noopener,noreferrer",
-    );
+    setUploadError("");
+
+    if (!form.date || !form.time) {
+      setScheduleError("Selecciona la fecha y la hora de entrega.");
+      return;
+    }
+
+    setScheduleError("");
+    setIsSubmitting(true);
+
+    let whatsappWindow = null;
+    if (referenceFile) {
+      whatsappWindow = window.open("about:blank", "bake-me-happy-whatsapp");
+      if (whatsappWindow) {
+        whatsappWindow.opener = null;
+        whatsappWindow.document.title = "Preparando pedido...";
+      }
+    }
+
+    try {
+      let temporaryPhotoUrl = "";
+
+      if (referenceFile) {
+        const uploadData = new FormData();
+        uploadData.append("photo", referenceFile);
+        const response = await fetch("/api/uploads", {
+          method: "POST",
+          body: uploadData,
+          headers: { Accept: "application/json" },
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok || !result.url) {
+          throw new Error(
+            result.error || "No se pudo subir la foto. Inténtalo nuevamente.",
+          );
+        }
+
+        temporaryPhotoUrl = result.url;
+      }
+
+      const whatsappUrl = getWhatsAppUrl(
+        buildWhatsAppMessage(temporaryPhotoUrl),
+      );
+      if (whatsappWindow) {
+        whatsappWindow.location.replace(whatsappUrl);
+      } else if (referenceFile) {
+        window.location.assign(whatsappUrl);
+      } else {
+        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      whatsappWindow?.close();
+      setUploadError(
+        error instanceof Error ? error.message : "No se pudo subir la foto.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -369,8 +487,9 @@ export default function CustomOrderModal({ isOpen, onClose }) {
 
             <FormSection step="2" title="Personaliza el diseño">
               <ReferenceUpload
-                fileName={referenceFileName}
-                onChange={setReferenceFileName}
+                file={referenceFile}
+                onChange={handleReferenceChange}
+                error={uploadError}
               />
 
               <div className="mt-4 grid items-start gap-4 sm:grid-cols-2">
@@ -414,25 +533,24 @@ export default function CustomOrderModal({ isOpen, onClose }) {
             </FormSection>
 
             <FormSection step="3" title="Fecha y entrega">
-              <div className="grid items-start gap-4 sm:grid-cols-2">
-                <TextInput
-                  label="Fecha de entrega"
-                  icon={CalendarDays}
-                  type="date"
-                  value={form.date}
-                  onChange={(value) => updateField("date", value)}
-                  min={getLocalToday()}
-                  required
-                />
-                <TextInput
-                  label="Hora"
-                  icon={Clock}
-                  type="time"
-                  value={form.time}
-                  onChange={(value) => updateField("time", value)}
-                  required
-                />
-              </div>
+              <DateTimeFields
+                date={form.date}
+                time={form.time}
+                popoverPlacement="top"
+                onDateChange={(value) => {
+                  updateField("date", value);
+                  setScheduleError("");
+                }}
+                onTimeChange={(value) => {
+                  updateField("time", value);
+                  setScheduleError("");
+                }}
+              />
+              {scheduleError && (
+                <p className="mt-2 text-sm font-semibold text-red-700" role="alert">
+                  {scheduleError}
+                </p>
+              )}
 
               <div className="mt-4 grid gap-2">
                 <FieldLabel icon={Truck}>Modalidad</FieldLabel>
@@ -443,9 +561,23 @@ export default function CustomOrderModal({ isOpen, onClose }) {
               </div>
             </FormSection>
 
-            <button type="submit" className="button-primary w-full justify-center">
-              <MessageCircle size={19} aria-hidden="true" />
-              Solicitar cotización por WhatsApp
+            <button
+              type="submit"
+              className="button-primary w-full justify-center disabled:cursor-wait disabled:opacity-70"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <LoaderCircle
+                  className="animate-spin"
+                  size={19}
+                  aria-hidden="true"
+                />
+              ) : (
+                <MessageCircle size={19} aria-hidden="true" />
+              )}
+              {isSubmitting
+                ? "Subiendo foto..."
+                : "Solicitar cotización por WhatsApp"}
             </button>
           </form>
         </div>

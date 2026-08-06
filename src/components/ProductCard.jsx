@@ -1,5 +1,6 @@
-import { Eye } from "lucide-react";
+import { CakeSlice, Eye } from "lucide-react";
 import { getProductPriceLabel } from "../utils/productPrice";
+import AssetImage from "./AssetImage";
 
 export default function ProductCard({ product }) {
   const mainPrice = getProductPriceLabel(product);
@@ -8,9 +9,9 @@ export default function ProductCard({ product }) {
     product.tags?.some((tag) => tag.toLowerCase() === "2 pisos");
 
   return (
-    <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-blush/35 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-plum/30 hover:shadow-soft">
+    <article className="brand-product-card flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-blush/35 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-plum/30 hover:shadow-soft">
       <div className="group relative aspect-[6/5] overflow-hidden bg-blush/30">
-        <img
+        <AssetImage
           src={product.image}
           alt={`${product.name} de Bake Me Happy`}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
@@ -35,7 +36,7 @@ export default function ProductCard({ product }) {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col items-center bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF0F5_100%)] px-2.5 py-3 text-center sm:px-4 sm:py-3.5">
-        <h3 className="flex min-h-11 min-w-0 items-center justify-center font-display text-base leading-tight text-ink sm:min-h-12 sm:text-lg">
+        <h3 className="flex min-h-11 min-w-0 items-center justify-center font-display text-base font-semibold leading-tight text-ink sm:min-h-12 sm:text-lg">
           <a
             href={`#/producto/${product.id}`}
             className="transition-colors hover:text-plum"
@@ -44,7 +45,12 @@ export default function ProductCard({ product }) {
           </a>
         </h3>
         <div className="mt-auto flex w-full justify-center border-t border-blush/25 pt-2.5">
-          <span className="inline-flex min-h-8 items-center rounded-full border border-lavender/30 bg-lavender-light px-2.5 text-xs font-semibold text-plum sm:px-3.5 sm:text-sm">
+          <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-lavender/30 bg-lavender-light px-2.5 text-xs font-semibold text-plum sm:px-3.5 sm:text-sm">
+            <CakeSlice
+              className="brand-price-mark shrink-0"
+              size={13}
+              aria-hidden="true"
+            />
             {mainPrice}
           </span>
         </div>

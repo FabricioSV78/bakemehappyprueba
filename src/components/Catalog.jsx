@@ -362,13 +362,13 @@ export default function Catalog() {
       id="tienda"
       className="scroll-mt-20 bg-cream pb-20 pt-20 sm:pb-28 lg:pt-[9.375rem]"
     >
-      <div className="border-b border-blush/30 bg-[linear-gradient(135deg,#FFF4ED_0%,#F8E6EB_48%,#ECEEFC_100%)]">
-        <div className={`${storeContainerClass} grid gap-8 py-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end`}>
+      <div className="brand-sprinkles overflow-hidden border-b border-blush/30 bg-[linear-gradient(135deg,#FFF4ED_0%,#F8E6EB_48%,#ECEEFC_100%)]">
+        <div className={`${storeContainerClass} relative z-[1] grid gap-8 py-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end`}>
           <Reveal className="max-w-3xl" direction="left">
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-plum">
               Tienda Bake Me Happy
             </span>
-            <h1 className="mt-3 max-w-[14ch] break-words font-display text-4xl leading-tight text-ink sm:max-w-full sm:text-5xl">
+            <h1 className="mt-3 max-w-[14ch] break-words font-display text-4xl font-semibold leading-tight text-ink sm:max-w-full sm:text-5xl">
               Tortas y postres artesanales
             </h1>
             <p className="mt-4 max-w-[36ch] break-words text-base leading-7 text-ink/70 sm:max-w-2xl">
