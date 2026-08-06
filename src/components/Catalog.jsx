@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -23,6 +23,23 @@ const DEFAULT_PRICE_MAX = 250;
 const DEFAULT_OCCASION = "Todas";
 const ALL_OCCASIONS = [DEFAULT_OCCASION, ...occasionOptions];
 const storeContainerClass = "mx-auto w-full max-w-[1660px] px-5 sm:px-8 2xl:px-12";
+const CATEGORY_LABELS = {
+  Todos: "Todos",
+  "Tortas clasicas": "Tortas clásicas",
+  "Tortas tematicas": "Tortas temáticas",
+  "Bocaditos tematicos": "Bocaditos temáticos",
+  Complementos: "Complementos",
+};
+const OCCASION_LABELS = {
+  Todas: "Todas las ocasiones",
+  "PARA EL": "Para él",
+  "PARA ELLA": "Para ella",
+  BODAS: "Bodas",
+  BABY: "Baby shower",
+  GRADUACION: "Graduación",
+  "NIÑOS Y NIÑAS": "Niños y niñas",
+  "MINI TORTAS": "Mini tortas",
+};
 
 const filterSectionLabelClass =
   "text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-ink/60";
@@ -30,7 +47,7 @@ const filterSectionLabelClass =
 function FilterSection({ label, children, className = "" }) {
   return (
     <section className={`border-t border-blush/35 pt-6 ${className}`}>
-      <h4 className={filterSectionLabelClass}>{label}</h4>
+      <h3 className={filterSectionLabelClass}>{label}</h3>
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -50,8 +67,19 @@ function normalizeText(value) {
 
 function getProductPrice(product) {
   const source = product.price ?? product.prices?.join(" ") ?? "";
-  const match = source.match(/S\/\s*(\d+)/i);
-  return match ? Number(match[1]) : null;
+  const prices = Array.from(source.matchAll(/S\/\s*(\d+)/gi), (match) =>
+    Number(match[1]),
+  ).filter(Number.isFinite);
+
+  return prices.length ? Math.min(...prices) : null;
+}
+
+function getCategoryLabel(category) {
+  return CATEGORY_LABELS[category] ?? category;
+}
+
+function getOccasionLabel(occasion) {
+  return OCCASION_LABELS[occasion] ?? occasion;
 }
 
 function getCatalogPriceBounds() {
@@ -165,7 +193,7 @@ function CategoryTabs({ value, onChange }) {
           onClick={() => onChange(category)}
           aria-pressed={value === category}
         >
-          {category}
+          {getCategoryLabel(category)}
         </button>
       ))}
     </div>
@@ -180,10 +208,11 @@ function OccasionSelect({ value, onChange }) {
           value={value}
           onChange={(event) => onChange(event.target.value)}
           className="min-h-[3.25rem] w-full appearance-none rounded-full border border-blush/30 bg-white px-5 pr-12 text-sm font-semibold text-ink outline-none transition-colors focus:border-plum/60"
+          aria-label="Filtrar por ocasión"
         >
           {ALL_OCCASIONS.map((occasion) => (
             <option key={occasion} value={occasion}>
-              {occasion === DEFAULT_OCCASION ? "Todas las ocasiones" : occasion}
+              {getOccasionLabel(occasion)}
             </option>
           ))}
         </select>
@@ -201,7 +230,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 
   return (
     <nav
-      aria-label="Paginacion de la tienda"
+      aria-label="Paginación de la tienda"
       className="mt-10 flex flex-wrap items-center justify-center gap-2"
     >
       <button
@@ -209,7 +238,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         className="grid h-11 w-11 place-items-center rounded-full border border-blush/30 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        aria-label="Pagina anterior"
+        aria-label="Página anterior"
       >
         <ChevronLeft size={18} aria-hidden="true" />
       </button>
@@ -235,7 +264,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         className="grid h-11 w-11 place-items-center rounded-full border border-blush/30 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        aria-label="Pagina siguiente"
+        aria-label="Página siguiente"
       >
         <ChevronRight size={18} aria-hidden="true" />
       </button>
@@ -244,12 +273,14 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 }
 
 export default function Catalog() {
+  const resultsRef = useRef(null);
   const priceBounds = useMemo(() => getCatalogPriceBounds(), []);
   const [activeCategory, setActiveCategory] = useState(ALL_CATEGORIES[0]);
   const [priceRange, setPriceRange] = useState(priceBounds);
   const [occasion, setOccasion] = useState(DEFAULT_OCCASION);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(shouldOpenSizeGuideFromHash);
 
   const filteredProducts = useMemo(() => {
@@ -292,6 +323,12 @@ export default function Catalog() {
     priceRange.max !== priceBounds.max ||
     occasion !== DEFAULT_OCCASION ||
     searchTerm.trim();
+  const activeFilterCount = [
+    activeCategory !== "Todos",
+    priceRange.min !== priceBounds.min || priceRange.max !== priceBounds.max,
+    occasion !== DEFAULT_OCCASION,
+    Boolean(searchTerm.trim()),
+  ].filter(Boolean).length;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -308,10 +345,22 @@ export default function Catalog() {
     setSearchTerm("");
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+    });
+  };
+
   return (
     <section
       id="tienda"
-      className="scroll-mt-20 bg-cream pb-20 pt-20 sm:pb-28 lg:pt-28"
+      className="scroll-mt-20 bg-cream pb-20 pt-20 sm:pb-28 lg:pt-[9.375rem]"
     >
       <div className="border-b border-blush/30 bg-[linear-gradient(135deg,#FFF4ED_0%,#F8E6EB_48%,#ECEEFC_100%)]">
         <div className={`${storeContainerClass} grid gap-8 py-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end`}>
@@ -319,12 +368,12 @@ export default function Catalog() {
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-plum">
               Tienda Bake Me Happy
             </span>
-            <h2 className="mt-3 max-w-[14ch] break-words font-display text-4xl leading-tight text-ink sm:max-w-full sm:text-5xl">
+            <h1 className="mt-3 max-w-[14ch] break-words font-display text-4xl leading-tight text-ink sm:max-w-full sm:text-5xl">
               Tortas y postres artesanales
-            </h2>
+            </h1>
             <p className="mt-4 max-w-[36ch] break-words text-base leading-7 text-ink/70 sm:max-w-2xl">
-              Tortas clasicas, tortas tematicas, bocaditos tematicos y
-              complementos pensados para armar celebraciones mas bonitas y
+              Tortas clásicas, tortas temáticas, bocaditos temáticos y
+              complementos pensados para armar celebraciones más bonitas y
               personalizadas.
             </p>
           </Reveal>
@@ -341,28 +390,63 @@ export default function Catalog() {
       </div>
 
       <div className={storeContainerClass}>
-        <div className="mt-8 grid gap-7 lg:grid-cols-[310px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
-          <Reveal
-            as="aside"
-            direction="left"
-            className="rounded-[1.75rem] border border-blush/30 bg-white/88 p-6 shadow-sm lg:sticky lg:top-24"
+        <div className="mt-6 flex items-center gap-3 lg:hidden">
+          <button
+            type="button"
+            className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full border border-plum/25 bg-white px-5 text-sm font-semibold text-ink shadow-sm"
+            onClick={() => setIsMobileFiltersOpen((isOpen) => !isOpen)}
+            aria-expanded={isMobileFiltersOpen}
+            aria-controls="catalog-filters"
           >
-            <div className="flex items-center gap-3.5">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-blush/45 text-plum">
-                <SlidersHorizontal size={18} aria-hidden="true" />
-              </span>
-              <div>
-                <h3 className="font-semibold text-ink">Filtros</h3>
-                <p className="mt-0.5 text-sm text-ink/55 tabular-nums">
-                  {filteredProducts.length} productos
-                </p>
+            <SlidersHorizontal size={18} aria-hidden="true" />
+            Filtros{activeFilterCount ? ` (${activeFilterCount})` : ""}
+          </button>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-lavender/35 bg-lavender-light text-ink"
+              onClick={clearFilters}
+              aria-label="Limpiar todos los filtros"
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+
+        <div className="mt-4 grid gap-7 lg:mt-8 lg:grid-cols-[310px_minmax(0,1fr)] lg:items-start xl:grid-cols-[320px_minmax(0,1fr)]">
+          <aside
+            id="catalog-filters"
+            className={`rounded-[1.75rem] border border-blush/30 bg-white/88 p-5 shadow-sm sm:p-6 lg:sticky lg:top-[10.5rem] lg:block ${
+              isMobileFiltersOpen ? "block" : "hidden"
+            }`}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-blush/45 text-plum">
+                  <SlidersHorizontal size={18} aria-hidden="true" />
+                </span>
+                <div>
+                  <h2 className="font-semibold text-ink">Filtros</h2>
+                  <p className="mt-0.5 text-sm text-ink/55 tabular-nums">
+                    {filteredProducts.length} productos
+                  </p>
+                </div>
               </div>
+              <button
+                type="button"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/60 hover:bg-lavender-light lg:hidden"
+                onClick={() => setIsMobileFiltersOpen(false)}
+                aria-label="Cerrar filtros"
+              >
+                <X size={19} aria-hidden="true" />
+              </button>
             </div>
 
             <div className="mt-6">
               <section className="pb-1">
-                <h4 className={filterSectionLabelClass}>Buscar</h4>
+                <h3 className={filterSectionLabelClass}>Buscar</h3>
                 <label className="relative mt-4 block">
+                  <span className="sr-only">Buscar productos por nombre</span>
                   <Search
                     size={18}
                     className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-plum"
@@ -409,11 +493,25 @@ export default function Catalog() {
                   Limpiar filtros
                 </button>
               )}
-            </div>
-          </Reveal>
 
-          <div className="min-w-0">
-            <Reveal className="flex flex-col gap-2 border-b border-blush/35 pb-4 text-sm text-ink/62 sm:flex-row sm:items-center sm:justify-between">
+              <button
+                type="button"
+                className="button-primary mt-6 w-full lg:hidden"
+                onClick={() => setIsMobileFiltersOpen(false)}
+              >
+                Ver {filteredProducts.length} productos
+              </button>
+            </div>
+          </aside>
+
+          <div
+            ref={resultsRef}
+            className="min-w-0 scroll-mt-24 lg:scroll-mt-[10.5rem]"
+          >
+            <Reveal
+              className="flex flex-col gap-2 border-b border-blush/35 pb-4 text-sm text-ink/62 sm:flex-row sm:items-center sm:justify-between"
+              aria-live="polite"
+            >
               <p>
                 Mostrando{" "}
                 <span className="font-semibold text-ink">
@@ -423,13 +521,17 @@ export default function Catalog() {
                 <span className="font-semibold text-ink">{filteredProducts.length}</span>
               </p>
               <p className="font-semibold text-plum">
-                {activeCategory === "Todos" ? "Todos los productos" : activeCategory}
-                {occasion !== DEFAULT_OCCASION ? ` · ${occasion}` : ""}
+                {activeCategory === "Todos"
+                  ? "Todos los productos"
+                  : getCategoryLabel(activeCategory)}
+                {occasion !== DEFAULT_OCCASION
+                  ? ` · ${getOccasionLabel(occasion)}`
+                  : ""}
               </p>
             </Reveal>
 
             {visibleProducts.length > 0 ? (
-              <div className="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-6 sm:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">
+              <div className="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 min-[420px]:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">
                 {visibleProducts.map((product, index) => (
                   <Reveal key={product.id} delay={(index % 4) * 55}>
                     <ProductCard product={product} />
@@ -453,7 +555,7 @@ export default function Catalog() {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageChange={setCurrentPage}
+              onPageChange={handlePageChange}
             />
 
          

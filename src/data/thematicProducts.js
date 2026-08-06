@@ -58,6 +58,7 @@ function createThematicProduct({
   description,
   occasions,
   prices,
+  tags = [],
 }) {
   const images = buildProductImages(folder, name);
 
@@ -67,7 +68,7 @@ function createThematicProduct({
     description,
     category: "Tortas tematicas",
     occasions,
-    tags: ["Torta tematica", "Buttercream"],
+    tags: ["Torta tematica", "Buttercream", ...tags],
     image: images[0].src,
     images,
     imageFolder: `${THEMATIC_BASE_PATH}/${folder}`,
@@ -500,5 +501,147 @@ export const thematicProducts = [
       "Mini torta decorada con buttercream y corazones elaborados con buttercream.",
     occasions: ["PARA EL", "PARA ELLA", "MINI TORTAS"],
     prices: ["Mini torta de 10 cm de diámetro: S/ 30"],
+  }),
+  createThematicProduct({
+    id: 133,
+    name: "Suit Village",
+    folder: "Suit Village",
+    description:
+      "Torta de 2 pisos decorada con buttercream y detalles en scrapbook y fondant.",
+    occasions: ["PARA EL", "PARA ELLA", "NIÑOS Y NIÑAS"],
+    tags: ["2 pisos", "Fondant", "Scrapbook"],
+    prices: [
+      "15 porciones - Small: S/ 350",
+      "20 porciones - Medium: S/ 450",
+      "30 porciones - Large: S/ 550",
+    ],
+  }),
+  createThematicProduct({
+    id: 134,
+    name: "Minimalista Floreada",
+    folder: "Minimalista floreada",
+    description:
+      "Torta decorada con buttercream y perlitas comestibles.",
+    occasions: ["PARA ELLA", "BODAS", "BABY"],
+    tags: ["Flores", "Perlitas comestibles"],
+    prices: [
+      "Tiny cake: S/ 80",
+      "15 porciones - Small: S/ 100",
+      "20 porciones - Medium: S/ 150",
+      "30 porciones - Large: S/ 200",
+    ],
+  }),
+  createThematicProduct({
+    id: 135,
+    name: "Ingeniería",
+    folder: "Ingeniería",
+    description:
+      "Torta decorada con buttercream y detalles en papel comestible y fondant.",
+    occasions: ["PARA EL", "PARA ELLA", "GRADUACION"],
+    tags: ["Graduación", "Fondant", "Papel comestible"],
+    prices: [
+      "15 porciones - Small: S/ 180",
+      "20 porciones - Medium: S/ 250",
+      "30 porciones - Large: S/ 300",
+    ],
+  }),
+  createThematicProduct({
+    id: 136,
+    name: "Pelota Semiesfera",
+    folder: "Pelota semiesfera",
+    description:
+      "Torta en forma de semiesfera decorada con buttercream y detalles de masa elástica.",
+    occasions: ["PARA EL", "PARA ELLA", "NIÑOS Y NIÑAS"],
+    tags: ["Deportes", "Masa elástica"],
+    prices: [
+      "15 porciones - Small: S/ 180",
+      "20 porciones - Medium: S/ 250",
+    ],
+  }),
+  createThematicProduct({
+    id: 137,
+    name: "Guerreras KPOP Cuadrada",
+    folder: "Guerreras KPOP cuadrada",
+    description:
+      "Torta cuadrada decorada con buttercream y detalles en scrapbook y bolas tipo disco.",
+    occasions: ["PARA ELLA", "NIÑOS Y NIÑAS"],
+    tags: ["KPOP", "Scrapbook", "Cuadrada"],
+    prices: ["30 porciones - Large: S/ 380"],
+  }),
+  createThematicProduct({
+    id: 138,
+    name: "Flores Espatuladas 4",
+    folder: "Flores espatuladas 4",
+    description: "Torta decorada con buttercream y flores espatuladas.",
+    occasions: ["PARA ELLA", "BODAS"],
+    tags: ["Flores espatuladas"],
+    prices: [
+      "Tiny cake: S/ 100",
+      "15 porciones - Small: S/ 140",
+      "20 porciones - Medium: S/ 190",
+      "30 porciones - Large: S/ 250",
+    ],
+  }),
+  createThematicProduct({
+    id: 139,
+    name: "Torta Floreada",
+    folder: "Torta floreada",
+    description:
+      "Torta decorada con buttercream y flores elaboradas en buttercream.",
+    occasions: ["PARA ELLA", "BODAS"],
+    tags: ["Flores"],
+    prices: [
+      "15 porciones - Small: S/ 180",
+      "20 porciones - Medium: S/ 250",
+      "30 porciones - Large: S/ 300",
+    ],
+  }),
+  createThematicProduct({
+    id: 140,
+    name: "Unicornio",
+    folder: "Unicornio",
+    description:
+      "Torta en forma de domo decorada con buttercream y detalles de masa elástica.",
+    occasions: ["PARA ELLA", "BABY", "NIÑOS Y NIÑAS"],
+    tags: ["Unicornio", "Masa elástica"],
+    prices: [
+      "15 porciones - Small: S/ 150",
+      "20 porciones - Medium: S/ 200",
+      "30 porciones - Large: S/ 250",
+    ],
+  }),
+  createThematicProduct({
+    id: 141,
+    name: "Corazón de Mamá",
+    folder: "Corazón de Mamá",
+    description:
+      "Torta en forma de corazón decorada con buttercream y corona.",
+    occasions: ["PARA ELLA"],
+    tags: ["Día de la Madre", "Corazón"],
+    prices: ["20 porciones: S/ 250", "30 porciones: S/ 300"],
+  }),
+  createThematicProduct({
+    id: 142,
+    name: "Vintage Maria",
+    folder: "Vintage Maria",
+    description:
+      "Torta en forma de corazón decorada con buttercream y detalles mangueados con buttercream.",
+    occasions: ["PARA ELLA", "BODAS"],
+    tags: ["Vintage", "Corazón"],
+    prices: ["20 porciones: S/ 280", "30 porciones: S/ 320"],
+  }),
+  createThematicProduct({
+    id: 143,
+    name: "Alianza Lima",
+    folder: "Alianza Lima",
+    description:
+      "Torta decorada con buttercream y detalles en fondant.",
+    occasions: ["PARA EL", "NIÑOS Y NIÑAS"],
+    tags: ["Fútbol", "Fondant"],
+    prices: [
+      "15 porciones - Small: S/ 200",
+      "20 porciones - Medium: S/ 250",
+      "30 porciones - Large: S/ 300",
+    ],
   }),
 ];

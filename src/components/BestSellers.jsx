@@ -13,7 +13,7 @@ export default function BestSellers() {
   return (
     <section
       id="mas-vendido"
-      className="relative overflow-hidden border-y border-blush/25 bg-[linear-gradient(180deg,#FFFAF7_0%,#F8E8EC_54%,#EFF0FC_100%)] py-20 sm:py-24"
+      className="relative overflow-hidden border-y border-blush/25 bg-[linear-gradient(180deg,#FFFAF7_0%,#F8E8EC_54%,#EFF0FC_100%)] py-16 sm:py-24"
       aria-labelledby="best-sellers-title"
     >
       <div
@@ -32,13 +32,13 @@ export default function BestSellers() {
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <div className="flex flex-col items-center">
           <SectionHeading
-            eyebrow="Lo mas vendido"
+            eyebrow="Lo más vendido"
             title="Las tortas favoritas para celebrar"
-            description="Las preferidas de nuestros clientes, encuentralas en sus diferentes tamaños y sabores"
+            description="Conoce las preferidas de nuestros clientes y elige entre diferentes tamaños y sabores."
           />
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-10 grid gap-4 min-[420px]:grid-cols-2 sm:gap-6 md:mt-12 xl:grid-cols-4">
           {bestSellerProducts.map((product, index) => (
             <Reveal
               key={product.id}

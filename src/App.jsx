@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import CustomOrderModal from "./components/CustomOrderModal";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import WhatsAppFloat from "./components/WhatsAppFloat";
-import AboutPage from "./pages/AboutPage";
-import CatalogPage from "./pages/CatalogPage";
-import HomePage from "./pages/HomePage";
-import OrderPage from "./pages/OrderPage";
-import ProductPage from "./pages/ProductPage";
+
+const HomePage = lazy(() => import("./pages/HomePage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const CatalogPage = lazy(() => import("./pages/CatalogPage"));
+const OrderPage = lazy(() => import("./pages/OrderPage"));
+const ProductPage = lazy(() => import("./pages/ProductPage"));
 
 const ROUTES = {
   "/": HomePage,
@@ -20,6 +21,21 @@ const ROUTES = {
 function getCurrentPath() {
   const hash = window.location.hash;
   return hash.startsWith("#/") ? hash.slice(1).split("?")[0] : "/";
+}
+
+function PageLoadingFallback() {
+  return (
+    <div
+      className="grid min-h-[55vh] place-items-center bg-cream px-5 pt-28 lg:pt-40"
+      role="status"
+      aria-live="polite"
+    >
+      <span className="inline-flex items-center gap-3 text-sm font-semibold text-plum">
+        <span className="h-5 w-5 animate-spin rounded-full border-2 border-lavender border-t-plum" />
+        Cargando contenido...
+      </span>
+    </div>
+  );
 }
 
 export default function App() {
@@ -55,10 +71,12 @@ export default function App() {
       />
       <main id="contenido">
         <div key={currentPath} className="page-enter">
-          <Page
-            currentPath={currentPath}
-            onOpenOrderModal={() => setIsOrderModalOpen(true)}
-          />
+          <Suspense fallback={<PageLoadingFallback />}>
+            <Page
+              currentPath={currentPath}
+              onOpenOrderModal={() => setIsOrderModalOpen(true)}
+            />
+          </Suspense>
         </div>
       </main>
       <Footer />

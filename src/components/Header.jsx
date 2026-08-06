@@ -147,64 +147,63 @@ export default function Header({ currentPath = "/", onOpenOrderModal }) {
         </button>
       </div>
 
-      <div
-        id="mobile-navigation"
-        className={`overflow-hidden border-t border-blush/25 bg-[linear-gradient(180deg,rgba(255,248,244,0.99)_0%,rgba(255,255,255,0.97)_100%)] shadow-[0_18px_36px_rgba(23,54,109,0.09)] transition-all duration-300 lg:hidden ${
-          isOpen ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
-        }`}
-      >
-        <div className="mx-auto max-w-7xl px-5 py-4 sm:px-8">
-          <div className="grid gap-3 border-b border-lavender/30 pb-4">
-            <HeaderContactLink
-              href={getWhatsAppUrl()}
-              icon={MessageCircle}
-              label="WhatsApp"
-              value={SITE_CONFIG.whatsappDisplay}
-              onClick={() => setIsOpen(false)}
-              external
-            />
-
-            {contactPhones.map((phone) => (
+      {isOpen && (
+        <div
+          id="mobile-navigation"
+          className="overflow-hidden border-t border-blush/25 bg-[linear-gradient(180deg,rgba(255,248,244,0.99)_0%,rgba(255,255,255,0.97)_100%)] shadow-[0_18px_36px_rgba(23,54,109,0.09)] lg:hidden"
+        >
+          <div className="mx-auto max-w-7xl px-5 py-4 sm:px-8">
+            <div className="grid gap-3 border-b border-lavender/30 pb-4">
               <HeaderContactLink
-                key={`${phone.label}-${phone.number}-mobile`}
-                href={getPhoneUrl(phone.number)}
-                icon={Phone}
-                label={phone.label}
-                value={phone.display}
+                href={getWhatsAppUrl()}
+                icon={MessageCircle}
+                label="WhatsApp"
+                value={SITE_CONFIG.whatsappDisplay}
                 onClick={() => setIsOpen(false)}
+                external
               />
-            ))}
-          </div>
 
-          <nav className="mt-2 flex flex-col" aria-label="Movil">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-                aria-current={activePath === link.path ? "page" : undefined}
-                className={`border-b border-lavender/30 py-4 text-base font-medium ${
-                  activePath === link.path ? "text-plum" : "text-ink"
-                }`}
+              {contactPhones.map((phone) => (
+                <HeaderContactLink
+                  key={`${phone.label}-${phone.number}-mobile`}
+                  href={getPhoneUrl(phone.number)}
+                  icon={Phone}
+                  label={phone.label}
+                  value={phone.display}
+                  onClick={() => setIsOpen(false)}
+                />
+              ))}
+            </div>
+
+            <nav className="mt-2 flex flex-col" aria-label="Movil">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                  aria-current={activePath === link.path ? "page" : undefined}
+                  className={`border-b border-lavender/30 py-4 text-base font-medium ${
+                    activePath === link.path ? "text-plum" : "text-ink"
+                  }`}
+                >
+                  {link.label}
+                </a>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  onOpenOrderModal();
+                }}
+                className="button-primary mt-5"
               >
-                {link.label}
-              </a>
-            ))}
-            <button
-              type="button"
-              onClick={() => {
-                setIsOpen(false);
-                onOpenOrderModal();
-              }}
-              className="button-primary mt-5"
-            >
-              <MessageCircle size={18} aria-hidden="true" />
-              Hacer un pedido
-            </button>
-          </nav>
+                <MessageCircle size={18} aria-hidden="true" />
+                Hacer un pedido
+              </button>
+            </nav>
+          </div>
         </div>
-      </div>
-
+      )}
     </header>
   );
 }

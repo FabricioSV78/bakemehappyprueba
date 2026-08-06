@@ -21,7 +21,7 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
   return (
     <section
       id="galeria"
-      className="section-space relative scroll-mt-20 overflow-hidden border-y border-blush/25 bg-[linear-gradient(135deg,#FFF4ED_0%,#FFFAF7_48%,#EFF0FC_100%)]"
+      className="section-space relative hidden scroll-mt-20 overflow-hidden border-y border-blush/25 bg-[linear-gradient(135deg,#FFF4ED_0%,#FFFAF7_48%,#EFF0FC_100%)] lg:block"
       aria-labelledby="featured-cakes-title"
     >
       <div
@@ -86,7 +86,7 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
         </Reveal>
 
         <Reveal
-          className="featured-orbit relative mx-auto aspect-square w-full max-w-[23rem] sm:max-w-[34rem] lg:max-w-[42rem]"
+          className="featured-orbit relative mx-auto aspect-square w-full max-w-[42rem]"
           direction="scale"
           delay={100}
           role="group"

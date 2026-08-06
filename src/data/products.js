@@ -429,22 +429,35 @@ const existingProducts = [
   },
   {
     id: 11,
-    name: "Torta Tres Leches Vainilla",
+    name: "Torta 3 Leches de Vainilla con Fresas",
     description:
-      "Bizcocho de vainilla humedecido al estilo tres leches con sabor suave y casero.",
+      "Torta 3 leches de vainilla decorada con chantilly y fresas frescas.",
     category: "Tortas clasicas",
-    occasions: ["PARA EL", "PARA ELLA", "GRADUACION"],
-    tags: ["Clasica", "Vainilla", "Tres leches"],
+    occasions: [
+      "PARA EL",
+      "PARA ELLA",
+      "GRADUACION",
+      "NIÑOS Y NIÑAS",
+    ],
+    tags: ["Clasica", "Vainilla", "Tres leches", "Fresas"],
     image: productImage,
-    images: heroImages,
+    images: heroImages.map((image, index) => ({
+      ...image,
+      alt:
+        index === 0
+          ? "Torta 3 Leches de Vainilla con Fresas de Bake Me Happy"
+          : "Imagen referencial de Torta 3 Leches de Vainilla con Fresas",
+    })),
+    imageFolder: `${classicBasePath}/torta 3 leches vainilla`,
+    hasProductImages: false,
     imagePosition: "center",
-    servings: "22 cm y 28 cm",
+    servings: "22 cm, 28 cm y 30 cm",
     details:
-      "Una version clasica y suave para compartir en familia. Su bizcocho de vainilla humedecido ofrece una textura ligera y muy agradable al paladar.",
+      "Torta 3 leches de vainilla decorada con chantilly y fresas frescas.",
     flavors: ["Vainilla"],
-    fillings: ["Tres leches"],
-    includes: ["Textura suave", "Sabor tradicional", "Elaboracion artesanal"],
-    prices: ["22 cm: S/ 80", "28 cm: S/ 150"],
+    fillings: ["Tres leches", "Fresas frescas"],
+    includes: ["Decoración con chantilly", "Fresas frescas"],
+    prices: ["22 cm: S/ 100", "28 cm: S/ 190", "30 cm: S/ 220"],
   },
   {
     id: 12,

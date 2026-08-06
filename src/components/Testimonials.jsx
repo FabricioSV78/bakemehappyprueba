@@ -64,6 +64,9 @@ export default function Testimonials() {
   const viewportRef = useRef(null);
   const hasMeasuredRef = useRef(false);
   const animationFrameRef = useRef(null);
+  const [prefersReducedMotion] = useState(() =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
   const [slideWidth, setSlideWidth] = useState(0);
   const [trackIndex, setTrackIndex] = useState(0);
   const [transitionEnabled, setTransitionEnabled] = useState(false);
@@ -99,7 +102,7 @@ export default function Testimonials() {
 
       window.cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = window.requestAnimationFrame(() => {
-        setTransitionEnabled(true);
+        setTransitionEnabled(!prefersReducedMotion);
       });
     };
 
@@ -111,10 +114,10 @@ export default function Testimonials() {
       resizeObserver.disconnect();
       window.cancelAnimationFrame(animationFrameRef.current);
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   useEffect(() => {
-    if (!slideWidth) return undefined;
+    if (!slideWidth || prefersReducedMotion) return undefined;
 
     const interval = window.setInterval(() => {
       setTransitionEnabled(true);
@@ -122,7 +125,7 @@ export default function Testimonials() {
     }, CAROUSEL_INTERVAL);
 
     return () => window.clearInterval(interval);
-  }, [slideWidth]);
+  }, [prefersReducedMotion, slideWidth]);
 
   const moveCarousel = (direction) => {
     setTransitionEnabled(true);
@@ -174,7 +177,7 @@ export default function Testimonials() {
                 className="flex items-stretch gap-6"
                 style={{
                   transform: `translate3d(${-trackIndex * (slideWidth + CAROUSEL_GAP)}px, 0, 0)`,
-                  transition: transitionEnabled
+                  transition: transitionEnabled && !prefersReducedMotion
                     ? "transform 650ms cubic-bezier(0.22, 1, 0.36, 1)"
                     : "none",
                 }}
