@@ -198,6 +198,7 @@ export default function HowToOrder() {
             eyebrow="Fácil, claro y a tu medida"
             title="Cómo hago mi pedido"
             description="Un proceso guiado para que elijas, personalices y confirmes tu torta sin enredos."
+            as="h1"
           />
         </div>
 

@@ -339,46 +339,84 @@
   }
 }
 
-@keyframes featured-orbit-position {
+@keyframes featured-orbit-rotation {
   0%,
   16% {
-    left: 50%;
-    top: 12%;
+    transform: rotate(0deg);
   }
 
   20%,
   36% {
-    left: 86.14%;
-    top: 38.26%;
+    transform: rotate(72deg);
   }
 
   40%,
   56% {
-    left: 72.34%;
-    top: 80.74%;
+    transform: rotate(144deg);
   }
 
   60%,
   76% {
-    left: 27.66%;
-    top: 80.74%;
+    transform: rotate(216deg);
   }
 
   80%,
   96% {
-    left: 13.86%;
-    top: 38.26%;
+    transform: rotate(288deg);
   }
 
   100% {
-    left: 50%;
-    top: 12%;
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes featured-orbit-counter-rotation {
+  0%,
+  16% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  20%,
+  36% {
+    transform: translate(-50%, -50%) rotate(-72deg);
+  }
+
+  40%,
+  56% {
+    transform: translate(-50%, -50%) rotate(-144deg);
+  }
+
+  60%,
+  76% {
+    transform: translate(-50%, -50%) rotate(-216deg);
+  }
+
+  80%,
+  96% {
+    transform: translate(-50%, -50%) rotate(-288deg);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) rotate(-360deg);
   }
 }
 
 .featured-orbit-item {
-  animation: featured-orbit-position 25s ease-in-out infinite;
+  inset: 0;
+  pointer-events: none;
+  animation: featured-orbit-rotation 25s ease-in-out infinite;
   animation-delay: calc(var(--orbit-index) * -5s);
+  will-change: transform;
+}
+
+.featured-orbit-item > div {
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  pointer-events: auto;
+  animation: featured-orbit-counter-rotation 25s ease-in-out infinite;
+  animation-delay: calc(var(--orbit-index) * -5s);
+  will-change: transform;
 }
 
 .featured-orbit-label {
@@ -387,7 +425,9 @@
 }
 
 .featured-orbit:hover .featured-orbit-item,
-.featured-orbit:focus-within .featured-orbit-item {
+.featured-orbit:hover .featured-orbit-item > div,
+.featured-orbit:focus-within .featured-orbit-item,
+.featured-orbit:focus-within .featured-orbit-item > div {
   animation-play-state: paused;
 }
 
@@ -418,7 +458,12 @@
     transition: none;
   }
 
-  .featured-orbit-item {
+  .featured-orbit-item,
+  .featured-orbit-item > div {
     animation: none;
+  }
+
+  .featured-orbit-item > div {
+    transform: translate(-50%, -50%);
   }
 }

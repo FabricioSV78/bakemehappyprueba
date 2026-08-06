@@ -3,8 +3,8 @@ import CustomOrderModal from "./components/CustomOrderModal";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import WhatsAppFloat from "./components/WhatsAppFloat";
+import HomePage from "./pages/HomePage";
 
-const HomePage = lazy(() => import("./pages/HomePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const CatalogPage = lazy(() => import("./pages/CatalogPage"));
 const OrderPage = lazy(() => import("./pages/OrderPage"));

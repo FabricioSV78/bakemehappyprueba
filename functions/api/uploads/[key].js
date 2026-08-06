@@ -63,10 +63,22 @@ async function handleDownload(context) {
   return new Response(object.body, { headers });
 }
 
-export function onRequest(context) {
+export async function onRequest(context) {
   if (context.request.method !== "GET") {
     return jsonResponse({ error: "Método no permitido." }, 405);
   }
 
-  return handleDownload(context);
+  try {
+    return await handleDownload(context);
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: "temporary_upload_download_failed",
+      path: new URL(context.request.url).pathname,
+      message: error instanceof Error ? error.message : String(error),
+    }));
+    return jsonResponse(
+      { error: "No se pudo recuperar la imagen. Inténtalo nuevamente." },
+      500,
+    );
+  }
 }

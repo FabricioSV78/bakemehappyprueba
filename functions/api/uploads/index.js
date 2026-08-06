@@ -84,10 +84,22 @@ async function handleUpload(context) {
   );
 }
 
-export function onRequest(context) {
+export async function onRequest(context) {
   if (context.request.method !== "POST") {
     return jsonResponse({ error: "Método no permitido." }, 405);
   }
 
-  return handleUpload(context);
+  try {
+    return await handleUpload(context);
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: "temporary_upload_failed",
+      path: new URL(context.request.url).pathname,
+      message: error instanceof Error ? error.message : String(error),
+    }));
+    return jsonResponse(
+      { error: "No se pudo procesar la imagen. Inténtalo nuevamente." },
+      500,
+    );
+  }
 }

@@ -90,8 +90,8 @@ export default function Hero({ onOpenOrderModal }) {
               "--hero-mobile-top": slide.mobileTop,
               "--hero-mobile-height": slide.mobileHeight,
             }}
-            fetchPriority={index === 0 ? "high" : "auto"}
-            loading="eager"
+            fetchPriority={index === 0 ? "high" : "low"}
+            loading={index === 0 ? "eager" : "lazy"}
             decoding="async"
             onLoad={() => markSlideAsLoaded(index)}
           />

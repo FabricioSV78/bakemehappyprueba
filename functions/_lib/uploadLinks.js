@@ -11,17 +11,15 @@ function bytesToBase64Url(bytes) {
     .replace(/=+$/, "");
 }
 
-function safeEqual(left, right) {
+async function safeEqual(left, right) {
   if (typeof left !== "string" || typeof right !== "string") return false;
 
-  let mismatch = left.length ^ right.length;
-  const length = Math.max(left.length, right.length);
+  const [leftHash, rightHash] = await Promise.all([
+    crypto.subtle.digest("SHA-256", encoder.encode(left)),
+    crypto.subtle.digest("SHA-256", encoder.encode(right)),
+  ]);
 
-  for (let index = 0; index < length; index += 1) {
-    mismatch |= (left.charCodeAt(index) || 0) ^ (right.charCodeAt(index) || 0);
-  }
-
-  return mismatch === 0;
+  return crypto.subtle.timingSafeEqual(leftHash, rightHash);
 }
 
 export function jsonResponse(data, status = 200) {
@@ -35,12 +33,20 @@ export function jsonResponse(data, status = 200) {
 }
 
 export function getUploadConfig(env) {
+  const defaultMaxBytes = 8 * 1024 * 1024;
+  const defaultTtlSeconds = 86400;
   const parsedLimit = Number.parseInt(env.MAX_UPLOAD_BYTES ?? "8388608", 10);
   const parsedTtl = Number.parseInt(env.UPLOAD_LINK_TTL_SECONDS ?? "86400", 10);
+  const configuredLimit = Number.isFinite(parsedLimit) && parsedLimit > 0
+    ? parsedLimit
+    : defaultMaxBytes;
+  const configuredTtl = Number.isFinite(parsedTtl) && parsedTtl > 0
+    ? parsedTtl
+    : defaultTtlSeconds;
 
   return {
-    maxBytes: Number.isFinite(parsedLimit) ? parsedLimit : 8 * 1024 * 1024,
-    ttlSeconds: Number.isFinite(parsedTtl) ? Math.min(parsedTtl, 86400) : 86400,
+    maxBytes: Math.min(configuredLimit, defaultMaxBytes),
+    ttlSeconds: Math.min(Math.max(configuredTtl, 60), defaultTtlSeconds),
   };
 }
 

@@ -1,0 +1,11 @@
+# Bake Me Happy
+
+Bake Me Happy es una pastelería artesanal de Trujillo, Perú, especializada en tortas temáticas, tortas clásicas y pedidos personalizados.
+
+## Secciones principales
+
+- [Inicio](https://bakemehappyprueba.pages.dev/)
+- [Quiénes somos](https://bakemehappyprueba.pages.dev/#/quienes-somos)
+- [Tienda](https://bakemehappyprueba.pages.dev/#/tienda)
+- [Cómo hago mi pedido](https://bakemehappyprueba.pages.dev/#/pedido)
+

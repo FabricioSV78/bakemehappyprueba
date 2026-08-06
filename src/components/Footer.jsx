@@ -22,7 +22,6 @@ export default function Footer() {
             <a
               href="#/"
               className="inline-flex rounded-lg"
-              aria-label="Bake Me Happy, volver al inicio"
             >
               <BrandLockup size="footer" inverted />
             </a>

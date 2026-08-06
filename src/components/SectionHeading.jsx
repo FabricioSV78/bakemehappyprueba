@@ -6,7 +6,9 @@ export default function SectionHeading({
   description,
   align = "center",
   light = false,
+  as = "h2",
 }) {
+  const TitleTag = as;
   const alignment =
     align === "left" ? "items-start text-left" : "items-center text-center";
   const titleMeasure = align === "left" ? "max-w-full" : "max-w-[13ch] sm:max-w-full";
@@ -24,13 +26,13 @@ export default function SectionHeading({
       >
         {eyebrow}
       </span>
-      <h2
+      <TitleTag
         className={`w-full min-w-0 break-words font-display text-3xl leading-tight sm:text-5xl ${titleMeasure} ${
           light ? "text-white" : "text-ink"
         }`}
       >
         {title}
-      </h2>
+      </TitleTag>
       {description && (
         <p
           className={`mt-5 w-full min-w-0 break-words text-base leading-7 sm:text-lg ${descriptionMeasure} ${

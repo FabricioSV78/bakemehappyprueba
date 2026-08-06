@@ -110,7 +110,7 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
             {orbitProducts.map((product, index) => (
               <article
                 key={product.id}
-                className="featured-orbit-item absolute -translate-x-1/2 -translate-y-1/2"
+                className="featured-orbit-item absolute"
                 style={{ "--orbit-index": index }}
               >
                 <div>

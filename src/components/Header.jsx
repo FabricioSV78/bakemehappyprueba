@@ -92,7 +92,6 @@ export default function Header({ currentPath = "/", onOpenOrderModal }) {
         <a
           href="#/"
           className="group min-w-0 shrink-0"
-          aria-label="Bake Me Happy, ir al inicio"
           onClick={() => setIsOpen(false)}
         >
           <BrandLockup className="transition-transform duration-200 group-hover:-rotate-[0.35deg] group-hover:scale-[1.01]" />
