@@ -11,6 +11,7 @@ import AssetImage from "./AssetImage";
 const heroImage = "/images/webp/hero 1.webp";
 const celebrationImage = "/images/webp/hero 2.webp";
 const birthdayImage = "/images/webp/hero 3.webp";
+const SHOW_PRODUCTION_PROCESS = false;
 
 const processSteps = [
   {
@@ -68,6 +69,22 @@ function EditorialImage({
         width={width}
         height={height}
       />
+    </Reveal>
+  );
+}
+
+function AboutActions({ className = "" }) {
+  return (
+    <Reveal
+      className={`flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center ${className}`}
+    >
+      <a href="#/tienda" className="button-primary">
+        Ver nuestras tortas
+        <ArrowRight size={18} aria-hidden="true" />
+      </a>
+      <a href="#/pedido" className="button-secondary">
+        Conocer cómo hacer un pedido
+      </a>
     </Reveal>
   );
 }
@@ -159,71 +176,72 @@ export default function About() {
               imagePosition="72% 46%"
             />
           </div>
+
+          {!SHOW_PRODUCTION_PROCESS && (
+            <AboutActions className="mt-10 sm:mt-12" />
+          )}
         </div>
       </section>
 
-      <section className="bg-[#FFF4ED] py-14 sm:py-20" aria-labelledby="process-title">
-        <div className="mx-auto max-w-5xl px-4 min-[380px]:px-5 sm:px-8">
-          <div className="grid items-start gap-10 lg:grid-cols-[0.75fr_1fr] lg:gap-14">
-            <Reveal direction="left">
-              <h2 id="process-title" className="font-display text-4xl leading-tight text-ink sm:text-5xl">
-                Proceso de elaboración
-              </h2>
-              <p className="mt-4 max-w-md text-[0.95rem] leading-7 text-ink/72 sm:text-base sm:leading-8">
-                Trabajamos cada pedido con un flujo claro para que el diseño,
-                sabor y entrega estén bien coordinados desde el inicio.
-              </p>
-            </Reveal>
+      {SHOW_PRODUCTION_PROCESS && (
+        <section
+          className="bg-[#FFF4ED] py-14 sm:py-20"
+          aria-labelledby="process-title"
+        >
+          <div className="mx-auto max-w-5xl px-4 min-[380px]:px-5 sm:px-8">
+            <div className="grid items-start gap-10 lg:grid-cols-[0.75fr_1fr] lg:gap-14">
+              <Reveal direction="left">
+                <h2 id="process-title" className="font-display text-4xl leading-tight text-ink sm:text-5xl">
+                  Proceso de elaboración
+                </h2>
+                <p className="mt-4 max-w-md text-[0.95rem] leading-7 text-ink/72 sm:text-base sm:leading-8">
+                  Trabajamos cada pedido con un flujo claro para que el diseño,
+                  sabor y entrega estén bien coordinados desde el inicio.
+                </p>
+              </Reveal>
 
-            <div className="grid gap-5 sm:grid-cols-2" role="list">
-              {processSteps.map(
-                ({ icon: Icon, title, text, image, imagePosition }, index) => (
-                  <Reveal
-                    as="article"
-                    key={title}
-                    delay={index * 65}
-                    className="grid grid-cols-1 gap-4 border-b border-blush/25 pb-5 min-[420px]:grid-cols-[5.75rem_minmax(0,1fr)] sm:last:border-b sm:[&:nth-last-child(-n+2)]:border-b-0 last:border-b-0"
-                    role="listitem"
-                  >
-                    <EditorialImage
-                      src={image}
-                      alt=""
-                      className="aspect-[16/9] w-full min-[420px]:aspect-square"
-                      imagePosition={imagePosition}
-                      width="160"
-                      height="160"
-                    />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-plum shadow-sm">
-                          <Icon size={16} strokeWidth={1.8} aria-hidden="true" />
-                        </span>
-                        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-plum">
-                          Paso {index + 1}
-                        </span>
+              <div className="grid gap-5 sm:grid-cols-2" role="list">
+                {processSteps.map(
+                  ({ icon: Icon, title, text, image, imagePosition }, index) => (
+                    <Reveal
+                      as="article"
+                      key={title}
+                      delay={index * 65}
+                      className="grid grid-cols-1 gap-4 border-b border-blush/25 pb-5 min-[420px]:grid-cols-[5.75rem_minmax(0,1fr)] sm:last:border-b sm:[&:nth-last-child(-n+2)]:border-b-0 last:border-b-0"
+                      role="listitem"
+                    >
+                      <EditorialImage
+                        src={image}
+                        alt=""
+                        className="aspect-[16/9] w-full min-[420px]:aspect-square"
+                        imagePosition={imagePosition}
+                        width="160"
+                        height="160"
+                      />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-plum shadow-sm">
+                            <Icon size={16} strokeWidth={1.8} aria-hidden="true" />
+                          </span>
+                          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-plum">
+                            Paso {index + 1}
+                          </span>
+                        </div>
+                        <h3 className="mt-3 text-base font-semibold leading-snug text-ink">
+                          {title}
+                        </h3>
+                        <p className="mt-2 text-sm leading-6 text-ink/66">{text}</p>
                       </div>
-                      <h3 className="mt-3 text-base font-semibold leading-snug text-ink">
-                        {title}
-                      </h3>
-                      <p className="mt-2 text-sm leading-6 text-ink/66">{text}</p>
-                    </div>
-                  </Reveal>
-                ),
-              )}
+                    </Reveal>
+                  ),
+                )}
+              </div>
             </div>
-          </div>
 
-          <Reveal className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:mt-12 sm:flex-row sm:items-center">
-            <a href="#/tienda" className="button-primary">
-              Ver nuestras tortas
-              <ArrowRight size={18} aria-hidden="true" />
-            </a>
-            <a href="#/pedido" className="button-secondary">
-              Conocer cómo hacer un pedido
-            </a>
-          </Reveal>
-        </div>
-      </section>
+            <AboutActions className="mt-10 sm:mt-12" />
+          </div>
+        </section>
+      )}
     </div>
   );
 }
