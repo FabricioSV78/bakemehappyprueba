@@ -61,7 +61,7 @@ export default function ProductGallery({ product, activeIndex, onSelect }) {
                 onClick={() => onSelect(index)}
                 aria-label={`Ver imagen ${index + 1} de ${product.name}`}
                 aria-pressed={isSelected}
-                className={`relative aspect-[4/3] min-h-11 min-w-0 w-full overflow-hidden rounded-xl bg-white/70 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum focus-visible:ring-offset-2 sm:aspect-square sm:rounded-[1.4rem] ${
+                className={`relative aspect-[701/561] min-h-11 min-w-0 w-full overflow-hidden rounded-xl bg-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum focus-visible:ring-offset-2 sm:rounded-[1.4rem] ${
                   isSelected
                     ? "shadow-[0_0_0_2px_rgba(145,112,188,0.45)]"
                     : "opacity-75 hover:opacity-100 hover:shadow-[0_0_0_1px_rgba(145,112,188,0.22)]"
@@ -70,33 +70,33 @@ export default function ProductGallery({ product, activeIndex, onSelect }) {
                 <AssetImage
                   src={image.src}
                   alt=""
-                  className="h-full w-full rounded-[inherit] object-cover"
+                  className="block h-full w-full rounded-[inherit] object-contain"
                   style={{
                     objectPosition:
                       image.position ?? product.imagePosition ?? "center",
                   }}
                   loading="lazy"
                   decoding="async"
-                  width="176"
-                  height="140"
+                  width="1402"
+                  height="1122"
                 />
               </button>
             );
           })}
         </div>
 
-        <div className="relative order-1 aspect-[4/3] w-full max-w-[620px] justify-self-center overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_50%_45%,#fff_0%,#FFF0E8_62%,#F5DDE8_100%)] sm:order-2 sm:rounded-[2.5rem] lg:aspect-square xl:max-w-[660px]">
+        <div className="relative order-1 aspect-[701/561] w-full max-w-[620px] justify-self-center overflow-hidden rounded-3xl bg-white sm:order-2 sm:rounded-[2.5rem] xl:max-w-[660px]">
           <AssetImage
             key={activeImage.src}
             src={activeImage.src}
             alt={activeImage.alt}
-            className="h-full w-full rounded-[inherit] object-cover"
+            className="block h-full w-full rounded-[inherit] object-contain"
             style={{
               objectPosition:
                 activeImage.position ?? product.imagePosition ?? "center",
             }}
-            width="900"
-            height="720"
+            width="1402"
+            height="1122"
           />
         </div>
       </div>

@@ -1,4 +1,9 @@
 import { thematicProducts } from "./thematicProducts.js";
+import {
+  cakeImagesWithFallback,
+  hasNumberedCakeImages,
+  numberedCakeImages,
+} from "./productImages.js";
 
 const heroImages = [
   {
@@ -19,28 +24,6 @@ const heroImages = [
 ];
 
 const productImage = heroImages[0].src;
-
-function numberedCakeImages(folderPath, productName) {
-  return [1, 2, 3].map((imageNumber) => ({
-    src: `${folderPath}/${imageNumber}.webp`,
-    alt:
-      imageNumber === 1
-        ? `${productName} de Bake Me Happy`
-        : `Vista ${imageNumber} de ${productName}`,
-    position: "center",
-  }));
-}
-
-function namedCakeImages(folderPath, filePrefix, productName) {
-  return [1, 2, 3].map((imageNumber) => ({
-    src: `${folderPath}/${filePrefix}${imageNumber}.webp`,
-    alt:
-      imageNumber === 1
-        ? `${productName} de Bake Me Happy`
-        : `Vista ${imageNumber} de ${productName}`,
-    position: "center",
-  }));
-}
 
 const personalizedBasePath = "/images/webp/TORTAS/tortas personalizadas";
 const classicBasePath = "/images/webp/TORTAS/tortas clasicas";
@@ -87,18 +70,37 @@ const christmasTeddyImages = numberedCakeImages(
   `${personalizedBasePath}/personalizada 10`,
   "Christmas Teddy Cake",
 );
-const chocomanjarImages = namedCakeImages(
-  `${classicBasePath}/torta chocomanjar`,
-  "T-Chocomanjar",
+function classicCakeImages(folder, productName) {
+  return cakeImagesWithFallback(
+    `${classicBasePath}/${folder}`,
+    productName,
+    heroImages,
+  );
+}
+
+const chocomanjarImages = classicCakeImages(
+  "torta chocomanjar",
   "Torta de Chocomanjar",
 );
-const redVelvetImages = numberedCakeImages(
-  `${classicBasePath}/torta red velvet`,
+const redVelvetImages = classicCakeImages(
+  "torta red velvet",
   "Torta Red Velvet",
 );
-const fullChocolateImages = numberedCakeImages(
-  `${classicBasePath}/torta full chocolate`,
+const fullChocolateImages = classicCakeImages(
+  "torta full chocolate",
   "Torta Full Chocolate",
+);
+const carrotCakeImages = classicCakeImages(
+  "torta de zanahoria",
+  "Torta de Zanahoria",
+);
+const vanillaThreeMilkImages = classicCakeImages(
+  "torta 3 leches vainilla",
+  "Torta 3 Leches de Vainilla con Fresas",
+);
+const checkerboardCakeImages = classicCakeImages(
+  "torta damero",
+  "Torta Damero",
 );
 
 const existingProducts = [
@@ -412,9 +414,13 @@ const existingProducts = [
     category: "Tortas clasicas",
     occasions: ["PARA EL", "PARA ELLA"],
     tags: ["Clasica", "Zanahoria", "Pecanas"],
-    image: productImage,
-    images: heroImages,
-    imagePosition: "center",
+    image: carrotCakeImages[0].src,
+    images: carrotCakeImages,
+    imageFolder: `${classicBasePath}/torta de zanahoria`,
+    hasProductImages: hasNumberedCakeImages(
+      `${classicBasePath}/torta de zanahoria`,
+    ),
+    imagePosition: carrotCakeImages[0].position,
     servings: "22 cm y 28 cm",
     details:
       "Torta casera de zanahoria con pecanas, de miga humeda y sabor especiado suave. Ideal para quienes prefieren una opcion clasica distinta al chocolate.",
@@ -440,17 +446,13 @@ const existingProducts = [
       "NIÑOS Y NIÑAS",
     ],
     tags: ["Clasica", "Vainilla", "Tres leches", "Fresas"],
-    image: productImage,
-    images: heroImages.map((image, index) => ({
-      ...image,
-      alt:
-        index === 0
-          ? "Torta 3 Leches de Vainilla con Fresas de Bake Me Happy"
-          : "Imagen referencial de Torta 3 Leches de Vainilla con Fresas",
-    })),
+    image: vanillaThreeMilkImages[0].src,
+    images: vanillaThreeMilkImages,
     imageFolder: `${classicBasePath}/torta 3 leches vainilla`,
-    hasProductImages: false,
-    imagePosition: "center",
+    hasProductImages: hasNumberedCakeImages(
+      `${classicBasePath}/torta 3 leches vainilla`,
+    ),
+    imagePosition: vanillaThreeMilkImages[0].position,
     servings: "22 cm, 28 cm y 30 cm",
     details:
       "Torta 3 leches de vainilla decorada con chantilly y fresas frescas.",
@@ -467,9 +469,13 @@ const existingProducts = [
     category: "Tortas clasicas",
     occasions: ["PARA EL", "PARA ELLA", "GRADUACION", "NIÑOS Y NIÑAS"],
     tags: ["Clasica", "Damero", "Vainilla y chocolate"],
-    image: productImage,
-    images: heroImages,
-    imagePosition: "center",
+    image: checkerboardCakeImages[0].src,
+    images: checkerboardCakeImages,
+    imageFolder: `${classicBasePath}/torta damero`,
+    hasProductImages: hasNumberedCakeImages(
+      `${classicBasePath}/torta damero`,
+    ),
+    imagePosition: checkerboardCakeImages[0].position,
     servings: "22 cm y 28 cm",
     details:
       "Una torta de presentacion llamativa y sabor clasico, combinando vainilla y chocolate en un formato tradicional que encanta por dentro y por fuera.",

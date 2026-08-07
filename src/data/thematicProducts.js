@@ -1,3 +1,8 @@
+import {
+  cakeImagesWithFallback,
+  hasNumberedCakeImages,
+} from "./productImages.js";
+
 const THEMATIC_BASE_PATH = "/images/webp/TORTAS/tortas tematicas";
 
 const fallbackImages = [
@@ -15,40 +20,9 @@ const fallbackImages = [
   },
 ];
 
-const foldersWithImages = new Set([
-  "Camino de mariposas",
-  "Camino de mariposas 2",
-  "Corazón con frambuesas",
-  "Corazón rosa",
-  "Flores espatuladas",
-  "Lazo borgoña",
-  "Maceta con tulipanes",
-  "Mi mascota favorita",
-  "Mini Blanca Nieves",
-  "Osito 3D",
-]);
-
 function buildProductImages(folder, productName) {
   const imageFolder = `${THEMATIC_BASE_PATH}/${folder}`;
-
-  if (!foldersWithImages.has(folder)) {
-    return fallbackImages.map((image, index) => ({
-      ...image,
-      alt:
-        index === 0
-          ? `${productName} de Bake Me Happy`
-          : `Imagen referencial de ${productName}`,
-    }));
-  }
-
-  return [1, 2, 3].map((imageNumber) => ({
-    src: `${imageFolder}/${imageNumber}.webp`,
-    alt:
-      imageNumber === 1
-        ? `${productName} de Bake Me Happy`
-        : `Vista ${imageNumber} de ${productName}`,
-    position: "center",
-  }));
+  return cakeImagesWithFallback(imageFolder, productName, fallbackImages);
 }
 
 function createThematicProduct({
@@ -72,7 +46,9 @@ function createThematicProduct({
     image: images[0].src,
     images,
     imageFolder: `${THEMATIC_BASE_PATH}/${folder}`,
-    hasProductImages: foldersWithImages.has(folder),
+    hasProductImages: hasNumberedCakeImages(
+      `${THEMATIC_BASE_PATH}/${folder}`,
+    ),
     imagePosition: images[0].position,
     servings: prices.map((price) => price.split(":")[0]).join(", "),
     details: description,
