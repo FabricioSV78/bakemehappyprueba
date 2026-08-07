@@ -4,18 +4,19 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/prepare-product-images.js",
+    "predev": "node scripts/prepare-product-images.js && node scripts/generate-asset-versions.js",
     "dev": "vite",
-    "prebuild": "node scripts/prepare-product-images.js",
+    "prebuild": "node scripts/prepare-product-images.js && node scripts/generate-asset-versions.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "pages:dev": "npm run build && wrangler pages dev dist",
-    "pages:deploy": "npm run build && wrangler pages deploy dist",
-    "r2:sync": "node scripts/prepare-product-images.js && node scripts/sync-images-to-r2.js",
+    "pages:deploy": "npm run r2:sync && npm run build && wrangler pages deploy dist",
+    "r2:sync": "node scripts/prepare-product-images.js && node scripts/generate-asset-versions.js && node scripts/sync-images-to-r2.js",
     "r2:lifecycle": "wrangler r2 bucket lifecycle add bake-me-happy-private-uploads delete-temporary-uploads temp-uploads/ --expire-days 1",
     "prepare:brand-assets": "node scripts/prepare-brand-assets.js",
-    "prepare:product-images": "node scripts/prepare-product-images.js"
+    "prepare:product-images": "node scripts/prepare-product-images.js",
+    "prepare:asset-versions": "node scripts/generate-asset-versions.js"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

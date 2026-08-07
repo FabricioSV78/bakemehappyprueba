@@ -1,4 +1,5 @@
-import { readdir } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -40,10 +41,21 @@ async function findImages(directory) {
   return files.flat();
 }
 
-function uploadImage(filePath, index, total) {
+function insertVersionInFileName(filePath, version) {
+  const extension = path.extname(filePath);
+  return `${filePath.slice(0, -extension.length)}.${version}${extension}`;
+}
+
+async function uploadImage(filePath, index, total) {
   const extension = path.extname(filePath).toLowerCase();
   const objectKey = path.relative(publicDirectory, filePath).split(path.sep).join("/");
-  const objectPath = `${bucketName}/${objectKey}`;
+  const contents = await readFile(filePath);
+  const version = createHash("sha256")
+    .update(contents)
+    .digest("hex")
+    .slice(0, 12);
+  const versionedObjectKey = insertVersionInFileName(objectKey, version);
+  const objectPath = `${bucketName}/${versionedObjectKey}`;
   const args = [
     wranglerCli,
     "r2",
@@ -54,11 +66,13 @@ function uploadImage(filePath, index, total) {
     filePath,
     "--content-type",
     supportedTypes.get(extension),
+    "--cache-control",
+    "public, max-age=31536000, immutable",
     "--remote",
     "--force",
   ];
 
-  process.stdout.write(`[${index + 1}/${total}] ${objectKey}\n`);
+  process.stdout.write(`[${index + 1}/${total}] ${versionedObjectKey}\n`);
 
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, args, {
