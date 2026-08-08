@@ -95,6 +95,7 @@ export default function ProductGallery({ product, activeIndex, onSelect }) {
               objectPosition:
                 activeImage.position ?? product.imagePosition ?? "center",
             }}
+            fetchPriority="high"
             width="1402"
             height="1122"
           />

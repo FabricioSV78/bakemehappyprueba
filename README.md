@@ -35,6 +35,14 @@ npm run build
 La compilación genera `dist`, que es el directorio configurado para Cloudflare
 Pages en `wrangler.jsonc`.
 
+Antes de compilar, el proyecto convierte las fotografías numeradas a WebP y
+calcula una versión basada en el contenido. Cada carpeta de producto se
+administra únicamente con `1`, `2` y `3`: puedes conservar el PNG/JPG original
+y su único WebP correspondiente. No se generan copias por resolución.
+
+Los PNG originales se conservan localmente como fuente, pero se excluyen de
+`dist`; por eso no aumentan el peso del despliegue.
+
 ## Despliegue en Cloudflare Pages y R2
 
 La arquitectura usa dos buckets distintos:
@@ -62,8 +70,11 @@ No habilites acceso público ni `r2.dev` en `bake-me-happy-private-uploads`.
 npm run r2:sync
 ```
 
-El comando sube `public/images` con claves `images/...` y no elimina los
-archivos locales. En Cloudflare Pages, agrega como variable de compilación:
+El comando sube solamente los formatos utilizados por la web y sobrescribe la
+misma clave cuando una imagen cambia, por ejemplo `1.webp`. El hash se agrega
+como parámetro de la URL (`1.webp?v=...`) para invalidar la caché sin acumular
+copias en el bucket. No elimina los archivos locales. En Cloudflare Pages,
+agrega como variable de compilación:
 
 ```text
 VITE_R2_PUBLIC_URL=https://assets.tudominio.com
@@ -71,6 +82,13 @@ VITE_R2_PUBLIC_URL=https://assets.tudominio.com
 
 Si la variable no existe, o una imagen remota falla, el sitio usa la copia de
 `public/images` automáticamente.
+
+No ejecutes `r2:sync` mientras R2 esté desactivado. El flujo normal con Pages y
+Git solo necesita `git push`; Cloudflare ejecutará `npm run build`.
+
+Cuando actives R2, sincroniza antes de cada publicación que agregue o cambie
+imágenes. El comando `pages:deploy:r2` automatiza el orden correcto y evita que
+una página nueva apunte a objetos que todavía no existen en el bucket.
 
 ### 3. Configurar las fotos temporales
 
@@ -111,4 +129,11 @@ También se puede desplegar manualmente con:
 
 ```bash
 npm run pages:deploy
+```
+
+Cuando el bucket público R2 esté activo, utiliza el flujo atómico que primero
+sincroniza las nuevas claves y luego publica Pages:
+
+```bash
+npm run pages:deploy:r2
 ```

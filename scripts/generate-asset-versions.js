@@ -22,6 +22,10 @@ const supportedExtensions = new Set([
   ".svg",
   ".webp",
 ]);
+const sourceExtensions = new Set([".jpeg", ".jpg", ".png"]);
+const retainedSourceAssets = new Set([
+  "/images/webp/LOGO/Logo principal.png",
+]);
 
 async function findAssets(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -44,14 +48,31 @@ async function getContentVersion(filePath) {
   return createHash("sha256").update(contents).digest("hex").slice(0, 12);
 }
 
+function toPublicPath(filePath) {
+  return `/${path.relative(publicDirectory, filePath).split(path.sep).join("/")}`;
+}
+
+function isDeployableAsset(filePath) {
+  const publicPath = toPublicPath(filePath);
+  const extension = path.extname(filePath).toLowerCase();
+
+  return !sourceExtensions.has(extension) || retainedSourceAssets.has(publicPath);
+}
+
+async function getAssetRecord(filePath) {
+  return {
+    path: toPublicPath(filePath),
+    version: await getContentVersion(filePath),
+  };
+}
+
 async function main() {
-  const assetPaths = await findAssets(imagesDirectory);
-  const versionEntries = await Promise.all(
-    assetPaths.map(async (filePath) => [
-      `/${path.relative(publicDirectory, filePath).split(path.sep).join("/")}`,
-      await getContentVersion(filePath),
-    ]),
-  );
+  const assetPaths = (await findAssets(imagesDirectory)).filter(isDeployableAsset);
+  const assetRecords = await Promise.all(assetPaths.map(getAssetRecord));
+  const versionEntries = assetRecords.map((asset) => [
+    asset.path,
+    asset.version,
+  ]);
   const versions = Object.fromEntries(
     versionEntries.sort(([left], [right]) => left.localeCompare(right, "es")),
   );
@@ -64,7 +85,7 @@ async function main() {
 
   await writeFile(outputPath, contents, "utf8");
   process.stdout.write(
-    `${versionEntries.length} recurso(s) versionado(s) por contenido.\n`,
+    `${versionEntries.length} recurso(s) optimizado(s) y versionado(s).\n`,
   );
 }
 

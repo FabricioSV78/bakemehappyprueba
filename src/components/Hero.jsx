@@ -5,11 +5,6 @@ import AssetImage from "./AssetImage";
 const HERO_SLIDES = [
   {
     src: "/images/webp/hero 1.webp",
-    sources: [
-      { src: "/images/webp/hero 1-768.webp", width: 768 },
-      { src: "/images/webp/hero 1-1280.webp", width: 1280 },
-      { src: "/images/webp/hero 1.webp", width: 1672 },
-    ],
     position:
       "object-[86%_top] sm:object-[93%_top] lg:object-[68%_45%]",
     mobileTop: "-7%",
@@ -17,11 +12,6 @@ const HERO_SLIDES = [
   },
   {
     src: "/images/webp/hero 2.webp",
-    sources: [
-      { src: "/images/webp/hero 2-768.webp", width: 768 },
-      { src: "/images/webp/hero 2-1280.webp", width: 1280 },
-      { src: "/images/webp/hero 2.webp", width: 1672 },
-    ],
     position:
       "object-[83%_50%] sm:object-[90%_34%] lg:object-[68%_50%]",
     mobileTop: "-10%",
@@ -29,11 +19,6 @@ const HERO_SLIDES = [
   },
   {
     src: "/images/webp/hero 3.webp",
-    sources: [
-      { src: "/images/webp/hero 3-768.webp", width: 768 },
-      { src: "/images/webp/hero 3-1280.webp", width: 1280 },
-      { src: "/images/webp/hero 3.webp", width: 1672 },
-    ],
     position:
       "object-[71%_48%] sm:object-[77%_30%] lg:object-[68%_50%]",
     mobileTop: "-8%",
@@ -45,11 +30,13 @@ const SLIDE_INTERVAL_MS = 5000;
 
 export default function Hero({ onOpenOrderModal }) {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [firstSlideReady, setFirstSlideReady] = useState(false);
   const [slidesReady, setSlidesReady] = useState(false);
   const loadedSlidesRef = useRef(new Set());
 
   const markSlideAsLoaded = (index) => {
     loadedSlidesRef.current.add(index);
+    if (index === 0) setFirstSlideReady(true);
     if (loadedSlidesRef.current.size === HERO_SLIDES.length) {
       setSlidesReady(true);
     }
@@ -76,26 +63,30 @@ export default function Hero({ onOpenOrderModal }) {
       className="relative isolate mt-20 flex min-h-[max(42rem,calc(100svh-5rem))] overflow-hidden bg-[#F2DEE6] lg:mt-[9.375rem] lg:min-h-[max(42rem,calc(100svh-9.375rem))]"
     >
       <div className="absolute inset-0 -z-20" aria-hidden="true">
-        {HERO_SLIDES.map((slide, index) => (
-          <AssetImage
-            key={slide.src}
-            src={slide.src}
-            sources={slide.sources}
-            sizes="100vw"
-            alt=""
-            className={`hero-slide-image absolute inset-0 h-full w-full object-cover ${slide.position} transition-[opacity,transform] duration-[1400ms] ease-out motion-reduce:transition-none ${
-              index === activeSlide ? "scale-100 opacity-100" : "scale-[1.018] opacity-0"
-            }`}
-            style={{
-              "--hero-mobile-top": slide.mobileTop,
-              "--hero-mobile-height": slide.mobileHeight,
-            }}
-            fetchPriority={index === 0 ? "high" : "low"}
-            loading={index === 0 ? "eager" : "lazy"}
-            decoding="async"
-            onLoad={() => markSlideAsLoaded(index)}
-          />
-        ))}
+        {HERO_SLIDES.map((slide, index) => {
+          if (index > 0 && !firstSlideReady) return null;
+
+          return (
+            <AssetImage
+              key={slide.src}
+              src={slide.src}
+              alt=""
+              className={`hero-slide-image absolute inset-0 h-full w-full object-cover ${slide.position} transition-[opacity,transform] duration-[1400ms] ease-out motion-reduce:transition-none ${
+                index === activeSlide
+                  ? "scale-100 opacity-100"
+                  : "scale-[1.018] opacity-0"
+              }`}
+              style={{
+                "--hero-mobile-top": slide.mobileTop,
+                "--hero-mobile-height": slide.mobileHeight,
+              }}
+              fetchPriority={index === 0 ? "high" : "low"}
+              loading={index === 0 ? "eager" : "lazy"}
+              decoding="async"
+              onLoad={() => markSlideAsLoaded(index)}
+            />
+          );
+        })}
       </div>
 
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(255,241,231,0.02)_0%,rgba(255,241,231,0.06)_42%,rgba(255,241,231,0.84)_61%,rgba(255,241,231,0.98)_75%,rgba(255,241,231,0.99)_100%)] lg:bg-[linear-gradient(90deg,rgba(255,241,231,0.98)_0%,rgba(255,241,231,0.90)_31%,rgba(255,241,231,0.52)_53%,rgba(255,241,231,0.08)_78%,rgba(255,241,231,0.02)_100%)]" />

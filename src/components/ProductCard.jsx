@@ -2,7 +2,7 @@ import { CakeSlice, Eye } from "lucide-react";
 import { getProductPriceLabel } from "../utils/productPrice";
 import AssetImage from "./AssetImage";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, priority = false }) {
   const mainPrice = getProductPriceLabel(product);
   const showTwoTierTag =
     product.category === "Tortas tematicas" &&
@@ -16,7 +16,8 @@ export default function ProductCard({ product }) {
           alt={`${product.name} de Bake Me Happy`}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
           style={{ objectPosition: product.imagePosition }}
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
           decoding="async"
           width="560"
           height="448"

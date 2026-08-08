@@ -1,4 +1,5 @@
-import { access, readdir, stat, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { access, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -17,6 +18,12 @@ const manifestPath = path.join(
   "src",
   "data",
   "productImageFolders.generated.js",
+);
+const buildStatePath = path.join(
+  projectDirectory,
+  "src",
+  "data",
+  "productImageBuildState.generated.json",
 );
 const numberedSourceImage = /^[123]\.(?:jpe?g|png)$/i;
 const expectedGalleryFiles = ["1.webp", "2.webp", "3.webp"];
@@ -41,13 +48,28 @@ async function sourceIsNewer(sourcePath, targetPath) {
   return sourceStats.mtimeMs > targetStats.mtimeMs;
 }
 
-async function findSourceImages(directory) {
+async function getFileHash(filePath) {
+  const contents = await readFile(filePath);
+  return createHash("sha256").update(contents).digest("hex");
+}
+
+async function loadBuildState() {
+  try {
+    return JSON.parse(await readFile(buildStatePath, "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+async function findImages(directory, pattern) {
+  if (!(await pathExists(directory))) return [];
+
   const entries = await readdir(directory, { withFileTypes: true });
   const sources = await Promise.all(
     entries.map(async (entry) => {
       const fullPath = path.join(directory, entry.name);
-      if (entry.isDirectory()) return findSourceImages(fullPath);
-      return numberedSourceImage.test(entry.name) ? [fullPath] : [];
+      if (entry.isDirectory()) return findImages(fullPath, pattern);
+      return pattern.test(entry.name) ? [fullPath] : [];
     }),
   );
 
@@ -91,37 +113,65 @@ async function writeProductImageManifest() {
   return publicPaths.length;
 }
 
-async function main() {
-  const sources = await findSourceImages(cakesDirectory);
+async function prepareBaseImages(previousBuildState, nextBuildState) {
+  const sources = await findImages(cakesDirectory, numberedSourceImage);
   let convertedImages = 0;
 
   for (const sourcePath of sources) {
     const targetPath = sourcePath.replace(/\.(?:jpe?g|png)$/i, ".webp");
-    if (!(await sourceIsNewer(sourcePath, targetPath))) continue;
+    const stateKey = `source:${path
+      .relative(projectDirectory, sourcePath)
+      .split(path.sep)
+      .join("/")}`;
+    const sourceHash = await getFileHash(sourcePath);
+    const targetExists = await pathExists(targetPath);
+    const sourceChanged =
+      !targetExists ||
+      (previousBuildState[stateKey]
+        ? previousBuildState[stateKey] !== sourceHash
+        : await sourceIsNewer(sourcePath, targetPath));
 
-    await sharp(sourcePath)
-      .rotate()
-      .webp({ quality: 84, effort: 4 })
-      .toFile(targetPath);
-    convertedImages += 1;
-    process.stdout.write(
-      `Imagen preparada: ${path.relative(projectDirectory, targetPath)}\n`,
-    );
+    if (sourceChanged) {
+      await sharp(sourcePath)
+        .rotate()
+        .webp({ quality: 84, effort: 4 })
+        .toFile(targetPath);
+      convertedImages += 1;
+      process.stdout.write(
+        `Imagen preparada: ${path.relative(projectDirectory, targetPath)}\n`,
+      );
+    }
+
+    nextBuildState[stateKey] = sourceHash;
   }
 
+  return convertedImages;
+}
+
+async function main() {
+  const previousBuildState = await loadBuildState();
+  const nextBuildState = {};
+  const convertedImages = await prepareBaseImages(
+    previousBuildState,
+    nextBuildState,
+  );
   const galleryCount = await writeProductImageManifest();
+
+  await writeFile(
+    buildStatePath,
+    `${JSON.stringify(nextBuildState, null, 2)}\n`,
+    "utf8",
+  );
 
   process.stdout.write(
     convertedImages > 0
       ? `${convertedImages} imagen(es) convertida(s) a WebP.\n`
-      : "Las imágenes numeradas ya están preparadas.\n",
+      : "Las imagenes numeradas ya estan preparadas.\n",
   );
-  process.stdout.write(
-    `${galleryCount} galería(s) completa(s) detectada(s).\n`,
-  );
+  process.stdout.write(`${galleryCount} galeria(s) completa(s) detectada(s).\n`);
 }
 
 main().catch((error) => {
-  process.stderr.write(`No se pudieron preparar las imágenes: ${error.message}\n`);
+  process.stderr.write(`No se pudieron preparar las imagenes: ${error.message}\n`);
   process.exitCode = 1;
 });

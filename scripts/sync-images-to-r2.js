@@ -1,8 +1,8 @@
-import { createHash } from "node:crypto";
-import { readFile, readdir } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { assetVersions } from "../src/data/assetVersions.generated.js";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectDirectory = path.resolve(scriptDirectory, "..");
@@ -32,30 +32,23 @@ async function findImages(directory) {
     entries.map(async (entry) => {
       const fullPath = path.join(directory, entry.name);
       if (entry.isDirectory()) return findImages(fullPath);
-      return supportedTypes.has(path.extname(entry.name).toLowerCase())
-        ? [fullPath]
-        : [];
+      if (!supportedTypes.has(path.extname(entry.name).toLowerCase())) return [];
+
+      const publicPath = `/${path
+        .relative(publicDirectory, fullPath)
+        .split(path.sep)
+        .join("/")}`;
+      return assetVersions[publicPath] ? [fullPath] : [];
     }),
   );
 
   return files.flat();
 }
 
-function insertVersionInFileName(filePath, version) {
-  const extension = path.extname(filePath);
-  return `${filePath.slice(0, -extension.length)}.${version}${extension}`;
-}
-
 async function uploadImage(filePath, index, total) {
   const extension = path.extname(filePath).toLowerCase();
   const objectKey = path.relative(publicDirectory, filePath).split(path.sep).join("/");
-  const contents = await readFile(filePath);
-  const version = createHash("sha256")
-    .update(contents)
-    .digest("hex")
-    .slice(0, 12);
-  const versionedObjectKey = insertVersionInFileName(objectKey, version);
-  const objectPath = `${bucketName}/${versionedObjectKey}`;
+  const objectPath = `${bucketName}/${objectKey}`;
   const args = [
     wranglerCli,
     "r2",
@@ -72,7 +65,7 @@ async function uploadImage(filePath, index, total) {
     "--force",
   ];
 
-  process.stdout.write(`[${index + 1}/${total}] ${versionedObjectKey}\n`);
+  process.stdout.write(`[${index + 1}/${total}] ${objectKey}\n`);
 
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, args, {
@@ -90,7 +83,8 @@ async function uploadImage(filePath, index, total) {
 }
 
 async function main() {
-  const images = await findImages(imagesDirectory);
+  const images = (await findImages(imagesDirectory))
+    .sort((left, right) => left.localeCompare(right, "es"));
 
   if (images.length === 0) {
     process.stdout.write("No se encontraron imágenes para sincronizar.\n");

@@ -534,7 +534,7 @@ export default function Catalog() {
               <div className="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 min-[420px]:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">
                 {visibleProducts.map((product, index) => (
                   <Reveal key={product.id} delay={(index % 4) * 55}>
-                    <ProductCard product={product} />
+                    <ProductCard product={product} priority={index < 2} />
                   </Reveal>
                 ))}
               </div>

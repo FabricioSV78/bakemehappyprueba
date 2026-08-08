@@ -28,18 +28,15 @@ function appendVersionQuery(source, version) {
   return fragment ? `${versionedUrl}#${fragment}` : versionedUrl;
 }
 
-function insertVersionInFileName(source, version) {
-  if (!version) return source;
-
-  const extensionIndex = source.lastIndexOf(".");
-  if (extensionIndex <= source.lastIndexOf("/")) return source;
-
-  return `${source.slice(0, extensionIndex)}.${version}${source.slice(extensionIndex)}`;
-}
-
 export function getLocalAssetUrl(source) {
   const localUrl = typeof source === "string" ? source : "";
-  return appendVersionQuery(localUrl, getAssetVersion(localUrl));
+  const version = getAssetVersion(localUrl);
+
+  if (!localUrl.startsWith("/") || localUrl.startsWith("//")) {
+    return appendVersionQuery(localUrl, version);
+  }
+
+  return appendVersionQuery(encodeAssetPath(localUrl), version);
 }
 
 export function getAssetUrl(source) {
@@ -51,18 +48,9 @@ export function getAssetUrl(source) {
     !localUrl.startsWith("/") ||
     localUrl.startsWith("//")
   ) {
-    return appendVersionQuery(localUrl, version);
+    return getLocalAssetUrl(localUrl);
   }
 
-  const versionedPath = insertVersionInFileName(localUrl, version);
-  return `${normalizeBaseUrl(configuredR2BaseUrl)}${encodeAssetPath(versionedPath)}`;
-}
-
-export function buildAssetSrcSet(sources, useR2 = R2_ASSETS_ENABLED) {
-  return sources
-    .map(({ src, width }) => {
-      const url = useR2 ? getAssetUrl(src) : getLocalAssetUrl(src);
-      return `${url} ${width}w`;
-    })
-    .join(", ");
+  const remoteUrl = `${normalizeBaseUrl(configuredR2BaseUrl)}${encodeAssetPath(localUrl)}`;
+  return appendVersionQuery(remoteUrl, version);
 }

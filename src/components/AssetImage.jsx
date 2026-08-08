@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  buildAssetSrcSet,
   getAssetUrl,
   getLocalAssetUrl,
   R2_ASSETS_ENABLED,
@@ -12,7 +11,6 @@ import {
  */
 export default function AssetImage({
   src,
-  sources,
   onError,
   ...imageProps
 }) {
@@ -20,10 +18,6 @@ export default function AssetImage({
   const remoteSource = getAssetUrl(src);
   const [resolvedSource, setResolvedSource] = useState(remoteSource);
   const isUsingR2 = R2_ASSETS_ENABLED && resolvedSource === remoteSource;
-  const resolvedSrcSet = useMemo(() => {
-    if (!sources?.length) return undefined;
-    return buildAssetSrcSet(sources, isUsingR2);
-  }, [isUsingR2, sources]);
 
   useEffect(() => {
     setResolvedSource(remoteSource);
@@ -44,7 +38,6 @@ export default function AssetImage({
     <img
       {...imageProps}
       src={resolvedSource}
-      srcSet={resolvedSrcSet}
       onError={handleError}
       data-asset-source={isUsingR2 ? "r2" : "local"}
     />

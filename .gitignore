@@ -11,3 +11,5 @@ repomix-output.*
 .env.*
 !.dev.vars.example
 !.env.example
+
+/src/data/productImageBuildState.generated.json
