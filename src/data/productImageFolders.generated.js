@@ -1,5 +1,6 @@
 // Archivo generado por scripts/prepare-product-images.js.
 export const productImageFolders = [
+  "/images/webp/BOCADITOS/bocaditos tematicos/Cupcakes de Mariposas",
   "/images/webp/TORTAS/tortas clasicas/torta 3 leches vainilla",
   "/images/webp/TORTAS/tortas clasicas/torta chocomanjar",
   "/images/webp/TORTAS/tortas clasicas/torta de zanahoria",
@@ -12,13 +13,17 @@ export const productImageFolders = [
   "/images/webp/TORTAS/tortas tematicas/Camino de mariposas 2",
   "/images/webp/TORTAS/tortas tematicas/Castillo de Bowser",
   "/images/webp/TORTAS/tortas tematicas/Corazón con frambuesas",
+  "/images/webp/TORTAS/tortas tematicas/Corazón de Mamá",
   "/images/webp/TORTAS/tortas tematicas/Corazón rosa",
   "/images/webp/TORTAS/tortas tematicas/Corazon vintage",
   "/images/webp/TORTAS/tortas tematicas/Floral deluxe",
   "/images/webp/TORTAS/tortas tematicas/Flores espatuladas",
   "/images/webp/TORTAS/tortas tematicas/Flores espatuladas 2",
   "/images/webp/TORTAS/tortas tematicas/Flores espatuladas 3",
+  "/images/webp/TORTAS/tortas tematicas/Flores espatuladas 4",
   "/images/webp/TORTAS/tortas tematicas/Flores espatuladas para compartir",
+  "/images/webp/TORTAS/tortas tematicas/Guerreras KPOP cuadrada",
+  "/images/webp/TORTAS/tortas tematicas/Ingeniería",
   "/images/webp/TORTAS/tortas tematicas/Jardin Vintage",
   "/images/webp/TORTAS/tortas tematicas/Lazo borgoña",
   "/images/webp/TORTAS/tortas tematicas/Maceta con tulipanes",
@@ -29,6 +34,7 @@ export const productImageFolders = [
   "/images/webp/TORTAS/tortas tematicas/Minimalista floreada",
   "/images/webp/TORTAS/tortas tematicas/Osito 3D",
   "/images/webp/TORTAS/tortas tematicas/Osito marrón",
+  "/images/webp/TORTAS/tortas tematicas/Pelota semiesfera",
   "/images/webp/TORTAS/tortas tematicas/Pequeño conductor",
   "/images/webp/TORTAS/tortas tematicas/Pretty Kity",
   "/images/webp/TORTAS/tortas tematicas/Rosa drip",
@@ -36,6 +42,8 @@ export const productImageFolders = [
   "/images/webp/TORTAS/tortas tematicas/Spiderman",
   "/images/webp/TORTAS/tortas tematicas/Suit Village",
   "/images/webp/TORTAS/tortas tematicas/Tiny friends",
+  "/images/webp/TORTAS/tortas tematicas/Torta floreada",
+  "/images/webp/TORTAS/tortas tematicas/Unicornio",
   "/images/webp/TORTAS/tortas tematicas/Vintage love",
   "/images/webp/TORTAS/tortas tematicas/Vintage raspberries"
 ];

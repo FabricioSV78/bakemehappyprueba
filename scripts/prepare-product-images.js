@@ -7,11 +7,10 @@ import sharp from "sharp";
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectDirectory = path.resolve(scriptDirectory, "..");
 const publicDirectory = path.join(projectDirectory, "public");
-const cakesDirectory = path.join(
+const productImagesDirectory = path.join(
   publicDirectory,
   "images",
   "webp",
-  "TORTAS",
 );
 const manifestPath = path.join(
   projectDirectory,
@@ -77,6 +76,8 @@ async function findImages(directory, pattern) {
 }
 
 async function findCompleteGalleryFolders(directory) {
+  if (!(await pathExists(directory))) return [];
+
   const entries = await readdir(directory, { withFileTypes: true });
   const fileNames = new Set(
     entries.filter((entry) => entry.isFile()).map((entry) => entry.name),
@@ -96,7 +97,9 @@ async function findCompleteGalleryFolders(directory) {
 }
 
 async function writeProductImageManifest() {
-  const galleryFolders = await findCompleteGalleryFolders(cakesDirectory);
+  const galleryFolders = await findCompleteGalleryFolders(
+    productImagesDirectory,
+  );
   const publicPaths = galleryFolders
     .map(
       (folderPath) =>
@@ -114,7 +117,7 @@ async function writeProductImageManifest() {
 }
 
 async function prepareBaseImages(previousBuildState, nextBuildState) {
-  const sources = await findImages(cakesDirectory, numberedSourceImage);
+  const sources = await findImages(productImagesDirectory, numberedSourceImage);
   let convertedImages = 0;
 
   for (const sourcePath of sources) {

@@ -29,6 +29,7 @@ const personalizedBasePath = "/images/webp/TORTAS/tortas personalizadas";
 const classicBasePath = "/images/webp/TORTAS/tortas clasicas";
 const themedBitesBasePath =
   "/images/webp/BOCADITOS/bocaditos tematicos";
+const complementsBasePath = "/images/webp/COMPLEMENTOS";
 
 const butterflyImages = numberedCakeImages(
   `${personalizedBasePath}/personalizada 1`,
@@ -78,6 +79,14 @@ function classicCakeImages(folder, productName) {
   );
 }
 
+function productGalleryImages(basePath, folder, productName) {
+  return cakeImagesWithFallback(
+    `${basePath}/${folder}`,
+    productName,
+    heroImages,
+  );
+}
+
 const chocomanjarImages = classicCakeImages(
   "torta chocomanjar",
   "Torta de Chocomanjar",
@@ -101,6 +110,41 @@ const vanillaThreeMilkImages = classicCakeImages(
 const checkerboardCakeImages = classicCakeImages(
   "torta damero",
   "Torta Damero",
+);
+const themedCupcakesImages = productGalleryImages(
+  themedBitesBasePath,
+  "Cup Cakes Tematicos",
+  "Cup Cakes Tematicos",
+);
+const themedChocolatePopsImages = productGalleryImages(
+  themedBitesBasePath,
+  "Choco Paletas Tematicas",
+  "Choco Paletas Tematicas",
+);
+const themedKpopsImages = productGalleryImages(
+  themedBitesBasePath,
+  "Kpops Tematicos",
+  "Kpops Tematicos",
+);
+const butterflyCupcakesImages = productGalleryImages(
+  themedBitesBasePath,
+  "Cupcakes de Mariposas",
+  "Cupcakes de Mariposas",
+);
+const questionMarkCandleImages = productGalleryImages(
+  complementsBasePath,
+  "Vela de Signo de Interrogacion",
+  "Vela de Signo de Interrogacion",
+);
+const spiralCandlesImages = productGalleryImages(
+  complementsBasePath,
+  "Velas Espiral",
+  "Velas Espiral",
+);
+const happyBirthdayTopperImages = productGalleryImages(
+  complementsBasePath,
+  "Topper Happy Birthday",
+  "Topper Happy Birthday",
 );
 
 const existingProducts = [
@@ -567,9 +611,13 @@ const existingProducts = [
     category: "Bocaditos tematicos",
     occasions: ["BODAS", "BABY", "GRADUACION", "NIÑOS Y NIÑAS"],
     tags: ["Cup cakes", "Tematica", "Eventos"],
-    image: heroImages[1].src,
-    images: heroImages,
-    imagePosition: "center",
+    image: themedCupcakesImages[0].src,
+    images: themedCupcakesImages,
+    imageFolder: `${themedBitesBasePath}/Cup Cakes Tematicos`,
+    hasProductImages: hasNumberedCakeImages(
+      `${themedBitesBasePath}/Cup Cakes Tematicos`,
+    ),
+    imagePosition: themedCupcakesImages[0].position,
     servings: "Pack de 6, 12 o 24 unidades",
     details:
       "Cup cakes personalizados con buttercream y decoracion coordinada segun tu tematica, paleta de color o tipo de celebracion.",
@@ -594,9 +642,13 @@ const existingProducts = [
     category: "Bocaditos tematicos",
     occasions: ["BABY", "GRADUACION", "NIÑOS Y NIÑAS"],
     tags: ["Choco paletas", "Chocolate", "Tematica"],
-    image: heroImages[2].src,
-    images: heroImages,
-    imagePosition: "center",
+    image: themedChocolatePopsImages[0].src,
+    images: themedChocolatePopsImages,
+    imageFolder: `${themedBitesBasePath}/Choco Paletas Tematicas`,
+    hasProductImages: hasNumberedCakeImages(
+      `${themedBitesBasePath}/Choco Paletas Tematicas`,
+    ),
+    imagePosition: themedChocolatePopsImages[0].position,
     servings: "Pack de 6, 12 o 24 unidades",
     details:
       "Choco paletas con decoracion personalizada, ideales para complementar tortas, cajitas sorpresa o detalles de celebracion.",
@@ -620,9 +672,13 @@ const existingProducts = [
     category: "Bocaditos tematicos",
     occasions: ["BABY", "GRADUACION", "NIÑOS Y NIÑAS"],
     tags: ["Kpops", "Tematica", "Mesa dulce"],
-    image: productImage,
-    images: heroImages,
-    imagePosition: "center",
+    image: themedKpopsImages[0].src,
+    images: themedKpopsImages,
+    imageFolder: `${themedBitesBasePath}/Kpops Tematicos`,
+    hasProductImages: hasNumberedCakeImages(
+      `${themedBitesBasePath}/Kpops Tematicos`,
+    ),
+    imagePosition: themedKpopsImages[0].position,
     servings: "Pack de 6, 12 o 24 unidades",
     details:
       "Bocaditos tematicos listos para mesas dulces o packs de regalo, trabajados con colores y detalles coordinados segun referencia.",
@@ -647,17 +703,13 @@ const existingProducts = [
     category: "Bocaditos tematicos",
     occasions: ["PARA ELLA", "BABY", "NIÑOS Y NIÑAS"],
     tags: ["Cupcakes", "Mariposas", "Buttercream"],
-    image: heroImages[1].src,
-    images: heroImages.map((image, index) => ({
-      ...image,
-      alt:
-        index === 0
-          ? "Cupcakes de Mariposas de Bake Me Happy"
-          : "Imagen referencial de Cupcakes de Mariposas",
-    })),
+    image: butterflyCupcakesImages[0].src,
+    images: butterflyCupcakesImages,
     imageFolder: `${themedBitesBasePath}/Cupcakes de Mariposas`,
-    hasProductImages: false,
-    imagePosition: "center",
+    hasProductImages: hasNumberedCakeImages(
+      `${themedBitesBasePath}/Cupcakes de Mariposas`,
+    ),
+    imagePosition: butterflyCupcakesImages[0].position,
     servings: "Pack de 6 o 12 cupcakes",
     details:
       "Cupcakes decorados con buttercream y mariposas comestibles. Disponibles únicamente en sabores vainilla y chocolate.",
@@ -676,9 +728,13 @@ const existingProducts = [
     category: "Complementos",
     occasions: ["PARA EL", "PARA ELLA", "BABY", "NIÑOS Y NIÑAS"],
     tags: ["Vela", "Complemento", "Cumpleanos"],
-    image: heroImages[1].src,
-    images: heroImages,
-    imagePosition: "center",
+    image: questionMarkCandleImages[0].src,
+    images: questionMarkCandleImages,
+    imageFolder: `${complementsBasePath}/Vela de Signo de Interrogacion`,
+    hasProductImages: hasNumberedCakeImages(
+      `${complementsBasePath}/Vela de Signo de Interrogacion`,
+    ),
+    imagePosition: questionMarkCandleImages[0].position,
     servings: "1 unidad",
     details:
       "Complemento ideal para tortas de cumpleanos o revelaciones. Se coordina segun disponibilidad y combinacion de colores.",
@@ -693,9 +749,13 @@ const existingProducts = [
     category: "Complementos",
     occasions: ["PARA EL", "PARA ELLA", "BABY", "NIÑOS Y NIÑAS"],
     tags: ["Velas", "Complemento", "Fiesta"],
-    image: heroImages[2].src,
-    images: heroImages,
-    imagePosition: "center",
+    image: spiralCandlesImages[0].src,
+    images: spiralCandlesImages,
+    imageFolder: `${complementsBasePath}/Velas Espiral`,
+    hasProductImages: hasNumberedCakeImages(
+      `${complementsBasePath}/Velas Espiral`,
+    ),
+    imagePosition: spiralCandlesImages[0].position,
     servings: "Set de 6 unidades",
     details:
       "Velas decorativas de estilo espiral para complementar tortas clasicas o tematicas con un acabado alegre.",
@@ -710,9 +770,13 @@ const existingProducts = [
     category: "Complementos",
     occasions: ["PARA EL", "PARA ELLA", "BODAS", "BABY", "GRADUACION", "NIÑOS Y NIÑAS"],
     tags: ["Topper", "Complemento", "Happy Birthday"],
-    image: productImage,
-    images: heroImages,
-    imagePosition: "center",
+    image: happyBirthdayTopperImages[0].src,
+    images: happyBirthdayTopperImages,
+    imageFolder: `${complementsBasePath}/Topper Happy Birthday`,
+    hasProductImages: hasNumberedCakeImages(
+      `${complementsBasePath}/Topper Happy Birthday`,
+    ),
+    imagePosition: happyBirthdayTopperImages[0].position,
     servings: "1 unidad",
     details:
       "Topper clasico de Happy Birthday para sumar un detalle visual rapido y elegante a la decoracion final.",

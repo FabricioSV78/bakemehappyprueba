@@ -58,6 +58,17 @@ function shouldOpenSizeGuideFromHash() {
   return window.location.hash.includes("guia-tamanos");
 }
 
+function getInitialCategoryFromHash() {
+  if (typeof window === "undefined") return ALL_CATEGORIES[0];
+
+  const queryString = window.location.hash.split("?")[1] ?? "";
+  const requestedCategory = new URLSearchParams(queryString).get("categoria");
+
+  return ALL_CATEGORIES.includes(requestedCategory)
+    ? requestedCategory
+    : ALL_CATEGORIES[0];
+}
+
 function normalizeText(value) {
   return value
     .toLowerCase()
@@ -275,7 +286,9 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 export default function Catalog() {
   const resultsRef = useRef(null);
   const priceBounds = useMemo(() => getCatalogPriceBounds(), []);
-  const [activeCategory, setActiveCategory] = useState(ALL_CATEGORIES[0]);
+  const [activeCategory, setActiveCategory] = useState(
+    getInitialCategoryFromHash,
+  );
   const [priceRange, setPriceRange] = useState(priceBounds);
   const [occasion, setOccasion] = useState(DEFAULT_OCCASION);
   const [searchTerm, setSearchTerm] = useState("");

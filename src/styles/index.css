@@ -341,28 +341,23 @@
 
 @keyframes featured-orbit-rotation {
   0%,
-  16% {
+  20% {
     transform: rotate(0deg);
   }
 
-  20%,
-  36% {
-    transform: rotate(72deg);
+  25%,
+  45% {
+    transform: rotate(90deg);
   }
 
-  40%,
-  56% {
-    transform: rotate(144deg);
+  50%,
+  70% {
+    transform: rotate(180deg);
   }
 
-  60%,
-  76% {
-    transform: rotate(216deg);
-  }
-
-  80%,
-  96% {
-    transform: rotate(288deg);
+  75%,
+  95% {
+    transform: rotate(270deg);
   }
 
   100% {
@@ -372,28 +367,23 @@
 
 @keyframes featured-orbit-counter-rotation {
   0%,
-  16% {
+  20% {
     transform: translate(-50%, -50%) rotate(0deg);
   }
 
-  20%,
-  36% {
-    transform: translate(-50%, -50%) rotate(-72deg);
+  25%,
+  45% {
+    transform: translate(-50%, -50%) rotate(-90deg);
   }
 
-  40%,
-  56% {
-    transform: translate(-50%, -50%) rotate(-144deg);
+  50%,
+  70% {
+    transform: translate(-50%, -50%) rotate(-180deg);
   }
 
-  60%,
-  76% {
-    transform: translate(-50%, -50%) rotate(-216deg);
-  }
-
-  80%,
-  96% {
-    transform: translate(-50%, -50%) rotate(-288deg);
+  75%,
+  95% {
+    transform: translate(-50%, -50%) rotate(-270deg);
   }
 
   100% {
@@ -404,8 +394,8 @@
 .featured-orbit-item {
   inset: 0;
   pointer-events: none;
-  animation: featured-orbit-rotation 25s ease-in-out infinite;
-  animation-delay: calc(var(--orbit-index) * -5s);
+  animation: featured-orbit-rotation 24s ease-in-out infinite;
+  animation-delay: calc(var(--orbit-index) * -6s);
   will-change: transform;
 }
 
@@ -414,8 +404,8 @@
   left: 50%;
   top: 12%;
   pointer-events: auto;
-  animation: featured-orbit-counter-rotation 25s ease-in-out infinite;
-  animation-delay: calc(var(--orbit-index) * -5s);
+  animation: featured-orbit-counter-rotation 24s ease-in-out infinite;
+  animation-delay: calc(var(--orbit-index) * -6s);
   will-change: transform;
 }
 
