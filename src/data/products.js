@@ -27,9 +27,15 @@ const productImage = heroImages[0].src;
 
 const personalizedBasePath = "/images/webp/TORTAS/tortas personalizadas";
 const classicBasePath = "/images/webp/TORTAS/tortas clasicas";
-const themedBitesBasePath =
-  "/images/webp/BOCADITOS/bocaditos tematicos";
 const complementsBasePath = "/images/webp/COMPLEMENTOS";
+const complementOccasions = [
+  "PARA EL",
+  "PARA ELLA",
+  "BODAS",
+  "BABY",
+  "GRADUACION",
+  "NIÑOS Y NIÑAS",
+];
 
 const butterflyImages = numberedCakeImages(
   `${personalizedBasePath}/personalizada 1`,
@@ -111,40 +117,50 @@ const checkerboardCakeImages = classicCakeImages(
   "torta damero",
   "Torta Damero",
 );
-const themedCupcakesImages = productGalleryImages(
-  themedBitesBasePath,
-  "Cup Cakes Tematicos",
-  "Cup Cakes Tematicos",
-);
-const themedChocolatePopsImages = productGalleryImages(
-  themedBitesBasePath,
-  "Choco Paletas Tematicas",
-  "Choco Paletas Tematicas",
-);
-const themedKpopsImages = productGalleryImages(
-  themedBitesBasePath,
-  "Kpops Tematicos",
-  "Kpops Tematicos",
-);
 const butterflyCupcakesImages = productGalleryImages(
-  themedBitesBasePath,
+  complementsBasePath,
   "Cupcakes de Mariposas",
   "Cupcakes de Mariposas",
 );
-const questionMarkCandleImages = productGalleryImages(
+const happyPackImages = productGalleryImages(
   complementsBasePath,
-  "Vela de Signo de Interrogacion",
-  "Vela de Signo de Interrogacion",
+  "Pack Happy",
+  "Pack Happy",
 );
-const spiralCandlesImages = productGalleryImages(
+const simpleCupcakesImages = productGalleryImages(
   complementsBasePath,
-  "Velas Espiral",
-  "Velas Espiral",
+  "Cupcakes Simples",
+  "Cupcakes Simples",
 );
-const happyBirthdayTopperImages = productGalleryImages(
+const fondantCupcakesImages = productGalleryImages(
   complementsBasePath,
-  "Topper Happy Birthday",
-  "Topper Happy Birthday",
+  "Cupcakes con Fondant",
+  "Cupcakes con Fondant",
+);
+const strawberryCupcakesImages = productGalleryImages(
+  complementsBasePath,
+  "Cupcakes con Fresas",
+  "Cupcakes con Fresas",
+);
+const simpleCakePopsImages = productGalleryImages(
+  complementsBasePath,
+  "Cake Pops Simples",
+  "Cake Pops Simples",
+);
+const complexCakePopsImages = productGalleryImages(
+  complementsBasePath,
+  "Cake Pops Complejos",
+  "Cake Pops Complejos",
+);
+const simplePopsiclesImages = productGalleryImages(
+  complementsBasePath,
+  "Paletas Simples",
+  "Paletas Simples",
+);
+const complexPopsiclesImages = productGalleryImages(
+  complementsBasePath,
+  "Paletas Complejas",
+  "Paletas Complejas",
 );
 
 const existingProducts = [
@@ -604,110 +620,19 @@ const existingProducts = [
     price: "S/ 30 c/u",
   },
   {
-    id: 20,
-    name: "Cup Cakes Tematicos",
-    description:
-      "Cup cakes decorados para mesas dulces, box sorpresa y celebraciones tematicas.",
-    category: "Bocaditos tematicos",
-    occasions: ["BODAS", "BABY", "GRADUACION", "NIÑOS Y NIÑAS"],
-    tags: ["Cup cakes", "Tematica", "Eventos"],
-    image: themedCupcakesImages[0].src,
-    images: themedCupcakesImages,
-    imageFolder: `${themedBitesBasePath}/Cup Cakes Tematicos`,
-    hasProductImages: hasNumberedCakeImages(
-      `${themedBitesBasePath}/Cup Cakes Tematicos`,
-    ),
-    imagePosition: themedCupcakesImages[0].position,
-    servings: "Pack de 6, 12 o 24 unidades",
-    details:
-      "Cup cakes personalizados con buttercream y decoracion coordinada segun tu tematica, paleta de color o tipo de celebracion.",
-    flavors: ["Vainilla", "Chocolate", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: [
-      "Decoracion tematica",
-      "Color coordinado",
-      "Presentacion lista para entregar",
-    ],
-    prices: [
-      "Pack de 6: S/ 45",
-      "Pack de 12: S/ 85",
-      "Pack de 24: S/ 160",
-    ],
-  },
-  {
-    id: 21,
-    name: "Choco Paletas Tematicas",
-    description:
-      "Paletas de chocolate decoradas para recuerdos, regalos y mesas dulces.",
-    category: "Bocaditos tematicos",
-    occasions: ["BABY", "GRADUACION", "NIÑOS Y NIÑAS"],
-    tags: ["Choco paletas", "Chocolate", "Tematica"],
-    image: themedChocolatePopsImages[0].src,
-    images: themedChocolatePopsImages,
-    imageFolder: `${themedBitesBasePath}/Choco Paletas Tematicas`,
-    hasProductImages: hasNumberedCakeImages(
-      `${themedBitesBasePath}/Choco Paletas Tematicas`,
-    ),
-    imagePosition: themedChocolatePopsImages[0].position,
-    servings: "Pack de 6, 12 o 24 unidades",
-    details:
-      "Choco paletas con decoracion personalizada, ideales para complementar tortas, cajitas sorpresa o detalles de celebracion.",
-    flavors: ["Chocolate blanco", "Chocolate de leche", "Chocolate mixto"],
-    includes: [
-      "Decoracion tematica",
-      "Cobertura personalizada",
-      "Empaque coordinado",
-    ],
-    prices: [
-      "Pack de 6: S/ 30",
-      "Pack de 12: S/ 55",
-      "Pack de 24: S/ 100",
-    ],
-  },
-  {
-    id: 22,
-    name: "Kpops Tematicos",
-    description:
-      "Kpops decorados para cumpleanos, regalos y celebraciones con estilo.",
-    category: "Bocaditos tematicos",
-    occasions: ["BABY", "GRADUACION", "NIÑOS Y NIÑAS"],
-    tags: ["Kpops", "Tematica", "Mesa dulce"],
-    image: themedKpopsImages[0].src,
-    images: themedKpopsImages,
-    imageFolder: `${themedBitesBasePath}/Kpops Tematicos`,
-    hasProductImages: hasNumberedCakeImages(
-      `${themedBitesBasePath}/Kpops Tematicos`,
-    ),
-    imagePosition: themedKpopsImages[0].position,
-    servings: "Pack de 6, 12 o 24 unidades",
-    details:
-      "Bocaditos tematicos listos para mesas dulces o packs de regalo, trabajados con colores y detalles coordinados segun referencia.",
-    flavors: ["Vainilla", "Chocolate"],
-    fillings: ["Cobertura de chocolate"],
-    includes: [
-      "Decoracion tematica",
-      "Presentacion coordinada",
-      "Acabado artesanal",
-    ],
-    prices: [
-      "Pack de 6: S/ 36",
-      "Pack de 12: S/ 68",
-      "Pack de 24: S/ 128",
-    ],
-  },
-  {
     id: 26,
     name: "Cupcakes de Mariposas",
     description:
       "Cupcakes decorados con buttercream y mariposas comestibles.",
-    category: "Bocaditos tematicos",
+    category: "Complementos",
+    orderMode: "pack",
     occasions: ["PARA ELLA", "BABY", "NIÑOS Y NIÑAS"],
     tags: ["Cupcakes", "Mariposas", "Buttercream"],
     image: butterflyCupcakesImages[0].src,
     images: butterflyCupcakesImages,
-    imageFolder: `${themedBitesBasePath}/Cupcakes de Mariposas`,
+    imageFolder: `${complementsBasePath}/Cupcakes de Mariposas`,
     hasProductImages: hasNumberedCakeImages(
-      `${themedBitesBasePath}/Cupcakes de Mariposas`,
+      `${complementsBasePath}/Cupcakes de Mariposas`,
     ),
     imagePosition: butterflyCupcakesImages[0].position,
     servings: "Pack de 6 o 12 cupcakes",
@@ -715,73 +640,225 @@ const existingProducts = [
       "Cupcakes decorados con buttercream y mariposas comestibles. Disponibles únicamente en sabores vainilla y chocolate.",
     flavors: ["Vainilla", "Chocolate"],
     includes: ["Decoración en buttercream", "Mariposas comestibles"],
+    price: "Desde S/ 45",
     prices: [
       "Pack de 6 cupcakes: S/ 45",
       "Pack de 12 cupcakes: S/ 90",
     ],
   },
   {
-    id: 23,
-    name: "Vela de Signo de Interrogacion",
+    id: 27,
+    name: "Pack Happy",
     description:
-      "Vela decorativa para revelar sorpresa o sumar un detalle divertido al pastel.",
+      "Pack surtido con cupcakes, cake pops y paletas para compartir en celebraciones.",
     category: "Complementos",
-    occasions: ["PARA EL", "PARA ELLA", "BABY", "NIÑOS Y NIÑAS"],
-    tags: ["Vela", "Complemento", "Cumpleanos"],
-    image: questionMarkCandleImages[0].src,
-    images: questionMarkCandleImages,
-    imageFolder: `${complementsBasePath}/Vela de Signo de Interrogacion`,
+    orderMode: "pack",
+    occasions: complementOccasions,
+    tags: ["Pack surtido", "Cupcakes", "Cake pops", "Paletas"],
+    image: happyPackImages[0].src,
+    images: happyPackImages,
+    imageFolder: `${complementsBasePath}/Pack Happy`,
     hasProductImages: hasNumberedCakeImages(
-      `${complementsBasePath}/Vela de Signo de Interrogacion`,
+      `${complementsBasePath}/Pack Happy`,
     ),
-    imagePosition: questionMarkCandleImages[0].position,
-    servings: "1 unidad",
+    imagePosition: happyPackImages[0].position,
+    servings: "Pack de 18 unidades",
     details:
-      "Complemento ideal para tortas de cumpleanos o revelaciones. Se coordina segun disponibilidad y combinacion de colores.",
-    includes: ["Lista para colocar", "Coordinacion por color", "Detalle decorativo"],
-    price: "S/ 8",
+      "Una selección práctica para mesas dulces y celebraciones: 6 cupcakes simples, 6 cake pops simples y 6 paletas simples, con acabados coordinados.",
+    includes: [
+      "6 cupcakes simples",
+      "6 cake pops simples",
+      "6 paletas simples",
+    ],
+    price: "S/ 130",
   },
   {
-    id: 24,
-    name: "Velas Espiral",
+    id: 28,
+    name: "Cupcakes Simples",
     description:
-      "Juego de velas espiral para darle un acabado mas festivo a la torta.",
+      "Cupcakes con buttercream y grageas para complementar una celebración.",
     category: "Complementos",
-    occasions: ["PARA EL", "PARA ELLA", "BABY", "NIÑOS Y NIÑAS"],
-    tags: ["Velas", "Complemento", "Fiesta"],
-    image: spiralCandlesImages[0].src,
-    images: spiralCandlesImages,
-    imageFolder: `${complementsBasePath}/Velas Espiral`,
+    orderMode: "pack",
+    occasions: complementOccasions,
+    tags: ["Cupcakes", "Buttercream", "Grageas"],
+    image: simpleCupcakesImages[0].src,
+    images: simpleCupcakesImages,
+    imageFolder: `${complementsBasePath}/Cupcakes Simples`,
     hasProductImages: hasNumberedCakeImages(
-      `${complementsBasePath}/Velas Espiral`,
+      `${complementsBasePath}/Cupcakes Simples`,
     ),
-    imagePosition: spiralCandlesImages[0].position,
-    servings: "Set de 6 unidades",
+    imagePosition: simpleCupcakesImages[0].position,
+    servings: "Pack de 6 cupcakes",
     details:
-      "Velas decorativas de estilo espiral para complementar tortas clasicas o tematicas con un acabado alegre.",
-    includes: ["Set decorativo", "Facil de colocar", "Detalle final para celebracion"],
-    price: "S/ 6",
+      "Pack de 6 cupcakes decorados con buttercream y grageas, en colores coordinados con la celebración.",
+    includes: [
+      "6 cupcakes",
+      "Decoración con buttercream",
+      "Grageas y colores coordinados",
+    ],
+    price: "S/ 45",
   },
   {
-    id: 25,
-    name: "Topper Happy Birthday",
+    id: 29,
+    name: "Cupcakes con Fondant",
     description:
-      "Topper decorativo para completar la presentacion del pedido.",
+      "Cupcakes con buttercream y detalles personalizados en fondant.",
     category: "Complementos",
-    occasions: ["PARA EL", "PARA ELLA", "BODAS", "BABY", "GRADUACION", "NIÑOS Y NIÑAS"],
-    tags: ["Topper", "Complemento", "Happy Birthday"],
-    image: happyBirthdayTopperImages[0].src,
-    images: happyBirthdayTopperImages,
-    imageFolder: `${complementsBasePath}/Topper Happy Birthday`,
+    orderMode: "pack",
+    occasions: complementOccasions,
+    tags: ["Cupcakes", "Buttercream", "Fondant"],
+    image: fondantCupcakesImages[0].src,
+    images: fondantCupcakesImages,
+    imageFolder: `${complementsBasePath}/Cupcakes con Fondant`,
     hasProductImages: hasNumberedCakeImages(
-      `${complementsBasePath}/Topper Happy Birthday`,
+      `${complementsBasePath}/Cupcakes con Fondant`,
     ),
-    imagePosition: happyBirthdayTopperImages[0].position,
-    servings: "1 unidad",
+    imagePosition: fondantCupcakesImages[0].position,
+    servings: "Pack de 6 cupcakes",
     details:
-      "Topper clasico de Happy Birthday para sumar un detalle visual rapido y elegante a la decoracion final.",
-    includes: ["Listo para usar", "Detalle decorativo", "Compatible con varias tortas"],
-    price: "S/ 15",
+      "Pack de 6 cupcakes con buttercream y fondant. Puedes elegir detalles simples o una decoración más compleja según el diseño.",
+    includes: [
+      "6 cupcakes",
+      "Decoración con buttercream",
+      "Detalles personalizados en fondant",
+    ],
+    price: "Desde S/ 60",
+    prices: [
+      "Detalles simples - Pack de 6: S/ 60",
+      "Detalles complejos - Pack de 6: S/ 75",
+    ],
+  },
+  {
+    id: 30,
+    name: "Cupcakes con Fresas",
+    description:
+      "Cupcakes con buttercream, fresas frescas o mini macarons.",
+    category: "Complementos",
+    orderMode: "pack",
+    occasions: complementOccasions,
+    tags: ["Cupcakes", "Fresas", "Mini macarons"],
+    image: strawberryCupcakesImages[0].src,
+    images: strawberryCupcakesImages,
+    imageFolder: `${complementsBasePath}/Cupcakes con Fresas`,
+    hasProductImages: hasNumberedCakeImages(
+      `${complementsBasePath}/Cupcakes con Fresas`,
+    ),
+    imagePosition: strawberryCupcakesImages[0].position,
+    servings: "Pack de 6 cupcakes",
+    details:
+      "Pack de 6 cupcakes decorados con buttercream y una terminación a elección entre fresas frescas o mini macarons.",
+    selectionLabel: "Decoración",
+    flavors: ["Fresas frescas", "Mini macarons"],
+    includes: [
+      "6 cupcakes",
+      "Decoración con buttercream",
+      "Fresas frescas o mini macarons",
+    ],
+    price: "S/ 70",
+  },
+  {
+    id: 31,
+    name: "Cake Pops Simples",
+    description:
+      "Cake pops con líneas, grageas o pequeños detalles en fondant.",
+    category: "Complementos",
+    orderMode: "pack",
+    occasions: complementOccasions,
+    tags: ["Cake pops", "Grageas", "Fondant"],
+    image: simpleCakePopsImages[0].src,
+    images: simpleCakePopsImages,
+    imageFolder: `${complementsBasePath}/Cake Pops Simples`,
+    hasProductImages: hasNumberedCakeImages(
+      `${complementsBasePath}/Cake Pops Simples`,
+    ),
+    imagePosition: simpleCakePopsImages[0].position,
+    servings: "Pack de 6 cake pops",
+    details:
+      "Pack de 6 cake pops decorados con líneas, grageas o detalles pequeños en fondant, coordinados con la celebración.",
+    includes: [
+      "6 cake pops",
+      "Cobertura decorada",
+      "Líneas, grageas o detalles pequeños en fondant",
+    ],
+    price: "S/ 45",
+  },
+  {
+    id: 32,
+    name: "Cake Pops Complejos",
+    description:
+      "Cake pops personalizados con detalles complejos en fondant.",
+    category: "Complementos",
+    orderMode: "pack",
+    occasions: complementOccasions,
+    tags: ["Cake pops", "Fondant", "Personalizados"],
+    image: complexCakePopsImages[0].src,
+    images: complexCakePopsImages,
+    imageFolder: `${complementsBasePath}/Cake Pops Complejos`,
+    hasProductImages: hasNumberedCakeImages(
+      `${complementsBasePath}/Cake Pops Complejos`,
+    ),
+    imagePosition: complexCakePopsImages[0].position,
+    servings: "Pack de 6 cake pops",
+    details:
+      "Pack de 6 cake pops trabajados con detalles más complejos en fondant, pensados para diseños temáticos y personalizados.",
+    includes: [
+      "6 cake pops",
+      "Cobertura decorada",
+      "Detalles complejos en fondant",
+    ],
+    price: "S/ 60",
+  },
+  {
+    id: 33,
+    name: "Paletas Simples",
+    description:
+      "Paletas con líneas de chocolate, grageas o detalles simples en fondant.",
+    category: "Complementos",
+    orderMode: "pack",
+    occasions: complementOccasions,
+    tags: ["Paletas", "Chocolate", "Grageas"],
+    image: simplePopsiclesImages[0].src,
+    images: simplePopsiclesImages,
+    imageFolder: `${complementsBasePath}/Paletas Simples`,
+    hasProductImages: hasNumberedCakeImages(
+      `${complementsBasePath}/Paletas Simples`,
+    ),
+    imagePosition: simplePopsiclesImages[0].position,
+    servings: "Pack de 6 paletas",
+    details:
+      "Pack de 6 paletas decoradas con líneas de chocolate, grageas o detalles simples en fondant.",
+    includes: [
+      "6 paletas",
+      "Cobertura de chocolate",
+      "Grageas o detalles simples en fondant",
+    ],
+    price: "S/ 45",
+  },
+  {
+    id: 34,
+    name: "Paletas Complejas",
+    description:
+      "Paletas personalizadas con personajes o detalles complejos en fondant.",
+    category: "Complementos",
+    orderMode: "pack",
+    occasions: complementOccasions,
+    tags: ["Paletas", "Personajes", "Fondant"],
+    image: complexPopsiclesImages[0].src,
+    images: complexPopsiclesImages,
+    imageFolder: `${complementsBasePath}/Paletas Complejas`,
+    hasProductImages: hasNumberedCakeImages(
+      `${complementsBasePath}/Paletas Complejas`,
+    ),
+    imagePosition: complexPopsiclesImages[0].position,
+    servings: "Pack de 6 paletas",
+    details:
+      "Pack de 6 paletas decoradas con personajes o detalles complejos en fondant, adaptados a la temática elegida.",
+    includes: [
+      "6 paletas",
+      "Cobertura de chocolate",
+      "Personajes o detalles complejos en fondant",
+    ],
+    price: "S/ 75",
   },
 ];
 
@@ -795,7 +872,6 @@ export const products = [
 export const categories = [
   "Tortas clasicas",
   "Tortas tematicas",
-  "Bocaditos tematicos",
   "Complementos",
 ];
 

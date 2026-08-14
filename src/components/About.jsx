@@ -162,7 +162,7 @@ export default function About() {
                 </p>
                 <p>
                   Con el tiempo, las recomendaciones dieron forma al negocio.
-                  Hoy elaboramos tortas clásicas, tortas temáticas y bocaditos
+                  Hoy elaboramos tortas clásicas, tortas temáticas y complementos
                   personalizados, manteniendo una atención cercana y una
                   estética dulce, limpia y artesanal.
                 </p>

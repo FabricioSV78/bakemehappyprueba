@@ -1,11 +1,21 @@
 // Archivo generado por scripts/prepare-product-images.js.
 export const productImageFolders = [
-  "/images/webp/BOCADITOS/bocaditos tematicos/Cupcakes de Mariposas",
+  "/images/webp/COMPLEMENTOS/Cake Pops Complejos",
+  "/images/webp/COMPLEMENTOS/Cake Pops Simples",
+  "/images/webp/COMPLEMENTOS/Cupcakes con Fondant",
+  "/images/webp/COMPLEMENTOS/Cupcakes con Fresas",
+  "/images/webp/COMPLEMENTOS/Cupcakes de Mariposas",
+  "/images/webp/COMPLEMENTOS/Cupcakes Simples",
+  "/images/webp/COMPLEMENTOS/Pack Happy",
+  "/images/webp/COMPLEMENTOS/Paletas Complejas",
+  "/images/webp/COMPLEMENTOS/Paletas Simples",
   "/images/webp/TORTAS/tortas clasicas/torta 3 leches vainilla",
   "/images/webp/TORTAS/tortas clasicas/torta chocomanjar",
+  "/images/webp/TORTAS/tortas clasicas/torta damero",
   "/images/webp/TORTAS/tortas clasicas/torta de zanahoria",
   "/images/webp/TORTAS/tortas clasicas/torta full chocolate",
   "/images/webp/TORTAS/tortas clasicas/torta red velvet",
+  "/images/webp/TORTAS/tortas tematicas/Alianza Lima",
   "/images/webp/TORTAS/tortas tematicas/Black and white",
   "/images/webp/TORTAS/tortas tematicas/Botanical garden",
   "/images/webp/TORTAS/tortas tematicas/Caballeros del zodiaco",
@@ -29,6 +39,7 @@ export const productImageFolders = [
   "/images/webp/TORTAS/tortas tematicas/Maceta con tulipanes",
   "/images/webp/TORTAS/tortas tematicas/Mi mascota favorita",
   "/images/webp/TORTAS/tortas tematicas/Mini Blanca Nieves",
+  "/images/webp/TORTAS/tortas tematicas/Mini romance",
   "/images/webp/TORTAS/tortas tematicas/Minimal blue",
   "/images/webp/TORTAS/tortas tematicas/Minimal grey",
   "/images/webp/TORTAS/tortas tematicas/Minimalista floreada",
@@ -45,5 +56,6 @@ export const productImageFolders = [
   "/images/webp/TORTAS/tortas tematicas/Torta floreada",
   "/images/webp/TORTAS/tortas tematicas/Unicornio",
   "/images/webp/TORTAS/tortas tematicas/Vintage love",
+  "/images/webp/TORTAS/tortas tematicas/Vintage Maria",
   "/images/webp/TORTAS/tortas tematicas/Vintage raspberries"
 ];

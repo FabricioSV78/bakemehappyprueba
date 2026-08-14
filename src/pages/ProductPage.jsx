@@ -39,8 +39,8 @@ import {
   isClassicCake,
   isComplement,
   isMiniCake,
+  isPackComplement,
   isPersonalizedCake,
-  isThemedBite,
 } from "../utils/productDetail";
 import SizeGuideModal from "../components/SizeGuideModal";
 
@@ -57,9 +57,11 @@ export default function ProductPage({ currentPath }) {
   const classicCake = isClassicCake(product);
   const personalizedCake = isPersonalizedCake(product);
   const miniCake = isMiniCake(product);
-  const biteProduct = isThemedBite(product);
+  const packComplement = isPackComplement(product);
   const complementProduct = isComplement(product);
-  const quantityProduct = miniCake || biteProduct || complementProduct;
+  const simpleComplement = complementProduct && !packComplement;
+  const quantityProduct = miniCake || complementProduct;
+  const flavorSelectionLabel = product?.selectionLabel ?? "Sabor";
 
   const sizeOptions = useMemo(() => getSizeOptions(product), [product]);
   const flavorOptions = useMemo(() => {
@@ -74,9 +76,14 @@ export default function ProductPage({ currentPath }) {
     () => getComplementOptions(productId),
     [productId],
   );
-  const hasFlavorSelection = !classicCake && !complementProduct && flavorOptions.length > 0;
+  const hasFlavorSelection =
+    !classicCake &&
+    (!complementProduct || packComplement) &&
+    flavorOptions.length > 0;
   const hasFillingSelection =
-    !classicCake && !complementProduct && fillingOptions.length > 0;
+    !classicCake &&
+    (!complementProduct || packComplement) &&
+    fillingOptions.length > 0;
   const showComplementAddOns =
     (classicCake || personalizedCake || miniCake) && complementOptions.length > 0;
   const showGiftCandleOption = classicCake || personalizedCake || miniCake;
@@ -173,7 +180,7 @@ export default function ProductPage({ currentPath }) {
   const finalPriceTitle =
     quantityProduct || personalizedCake ? "Total estimado" : "Total";
   const startingPriceLabel = getStartingPriceLabel(product);
-  const preparationTime = getPreparationTime(product);
+  const preparationTime = getPreparationTime();
 
   function updateComplementQuantity(complementId, nextQuantity) {
     const normalizedQuantity = Math.max(
@@ -203,7 +210,9 @@ export default function ProductPage({ currentPath }) {
     quantityProduct
       ? `Cantidad: ${miniCake ? formatQuantityLabel(quantity) : quantity}.`
       : null,
-    quantityProduct && selectedFlavor ? `Sabor: ${selectedFlavor}.` : null,
+    quantityProduct && selectedFlavor
+      ? `${flavorSelectionLabel}: ${selectedFlavor}.`
+      : null,
     quantityProduct && selectedFilling ? `Relleno: ${selectedFilling}.` : null,
     miniCake ? "Acabado: Buttercream." : null,
     miniCake ? "Diseño: modelos disponibles según coordinación." : null,
@@ -367,7 +376,7 @@ export default function ProductPage({ currentPath }) {
                 <div className="mt-5 space-y-5">
                   {quantityProduct ? (
                     <>
-                      {!biteProduct && (
+                      {!packComplement && (
                         <div className="rounded-lg border border-blush/30 bg-blush/10 p-4">
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <div>
@@ -392,7 +401,7 @@ export default function ProductPage({ currentPath }) {
                         </div>
                       )}
 
-                      {biteProduct ? (
+                      {packComplement ? (
                         <div className="grid gap-y-4">
                           <div className="grid items-start gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
                             <label className={FORM_FIELD_STACK_CLASS}>
@@ -423,7 +432,7 @@ export default function ProductPage({ currentPath }) {
                           </div>
                           {hasFlavorSelection && (
                             <SelectField
-                              label="Sabor"
+                              label={flavorSelectionLabel}
                               name="flavor"
                               options={flavorOptions}
                               value={selectedFlavor}
@@ -450,34 +459,36 @@ export default function ProductPage({ currentPath }) {
                         </>
                       )}
 
-                      {(hasFlavorSelection || hasFillingSelection) && !miniCake && !biteProduct && (
-                        <div
-                          className={`grid items-start gap-4 ${
-                            hasFlavorSelection && hasFillingSelection
-                              ? "sm:grid-cols-2"
-                              : "sm:grid-cols-1"
-                          }`}
-                        >
-                          {hasFlavorSelection && (
-                            <SelectField
-                              label="Sabor"
-                              name="flavor"
-                              options={flavorOptions}
-                              value={selectedFlavor}
-                              onChange={setSelectedFlavor}
-                            />
-                          )}
-                          {hasFillingSelection && (
-                            <SelectField
-                              label="Relleno"
-                              name="filling"
-                              options={fillingOptions}
-                              value={selectedFilling}
-                              onChange={setSelectedFilling}
-                            />
-                          )}
-                        </div>
-                      )}
+                      {(hasFlavorSelection || hasFillingSelection) &&
+                        !miniCake &&
+                        !packComplement && (
+                          <div
+                            className={`grid items-start gap-4 ${
+                              hasFlavorSelection && hasFillingSelection
+                                ? "sm:grid-cols-2"
+                                : "sm:grid-cols-1"
+                            }`}
+                          >
+                            {hasFlavorSelection && (
+                              <SelectField
+                                label="Sabor"
+                                name="flavor"
+                                options={flavorOptions}
+                                value={selectedFlavor}
+                                onChange={setSelectedFlavor}
+                              />
+                            )}
+                            {hasFillingSelection && (
+                              <SelectField
+                                label="Relleno"
+                                name="filling"
+                                options={fillingOptions}
+                                value={selectedFilling}
+                                onChange={setSelectedFilling}
+                              />
+                            )}
+                          </div>
+                        )}
                     </>
                   ) : (
                     personalizedCake ? (
@@ -590,7 +601,7 @@ export default function ProductPage({ currentPath }) {
                           onChange={setGiftCandle}
                         />
                       )}
-                      {!complementProduct && !biteProduct && (
+                      {!complementProduct && !packComplement && (
                         <div className="grid gap-4 sm:grid-cols-2">
                           <TextField
                             label="Tematica"
@@ -607,11 +618,11 @@ export default function ProductPage({ currentPath }) {
                         </div>
                       )}
                       <TextField
-                        label={complementProduct ? "Detalle (opcional)" : "Mensaje (opcional)"}
+                        label={simpleComplement ? "Detalle (opcional)" : "Mensaje (opcional)"}
                         value={message}
                         onChange={setMessage}
                         placeholder={
-                          complementProduct
+                          simpleComplement
                             ? "Ej. incluir con torta principal"
                             : "Ej. Feliz cumple, Valeria"
                         }
@@ -622,7 +633,7 @@ export default function ProductPage({ currentPath }) {
                         onChange={setAdditionalInfo}
                         rows={3}
                         placeholder={
-                          complementProduct
+                          simpleComplement
                             ? "Ej. combinar con otro pedido"
                             : "Ej. empaque para regalo o alguna indicación importante"
                         }

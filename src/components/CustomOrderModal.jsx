@@ -195,8 +195,7 @@ function ReferenceUpload({ file, onChange, error }) {
         </label>
       </div>
       <p className="text-sm leading-5 text-ink/58">
-        JPG, PNG o WebP, máximo 8 MB. La foto se comparte mediante un enlace
-        privado disponible durante 24 horas.
+        JPG, PNG o WebP (máx. 8 MB). Enlace privado por 24 horas.
       </p>
       <input
         id="custom-order-reference"
@@ -577,7 +576,7 @@ export default function CustomOrderModal({ isOpen, onClose }) {
               )}
               {isSubmitting
                 ? "Subiendo foto..."
-                : "Solicitar cotización por WhatsApp"}
+                : "Solicitar cotización"}
             </button>
           </form>
         </div>

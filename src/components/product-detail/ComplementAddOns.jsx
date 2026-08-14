@@ -1,4 +1,5 @@
 import { ChevronDown, Minus, Plus } from "lucide-react";
+import { getProductPriceLabel } from "../../utils/productPrice";
 import AssetImage from "../AssetImage";
 
 function ComplementItems({ options, selectedItems, onQuantityChange }) {
@@ -42,7 +43,9 @@ function ComplementItems({ options, selectedItems, onQuantityChange }) {
                 >
                   {option.name}
                 </p>
-                <p className="mt-0.5 text-sm text-ink/58">{option.price}</p>
+                <p className="mt-0.5 text-sm text-ink/58">
+                  {getProductPriceLabel(option)}
+                </p>
               </div>
             </div>
 
@@ -96,7 +99,7 @@ export default function ComplementAddOns({
       >
         <h2 className="text-base font-semibold text-ink">Complementos</h2>
         <p className="text-sm leading-6 text-ink/58">
-          Agrega velitas o topper a tu pedido.
+          Agrega una opción dulce adicional a tu pedido.
         </p>
         <ComplementItems
           options={options}
@@ -124,7 +127,7 @@ export default function ComplementAddOns({
                       ? "complemento agregado"
                       : "complementos agregados"
                   }`
-                : "Velitas y toppers para completar tu pedido"}
+                : "Opciones dulces para completar tu pedido"}
             </span>
           </span>
           <span className="flex shrink-0 items-center gap-2">

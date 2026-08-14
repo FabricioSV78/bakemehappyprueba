@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -17,9 +17,8 @@ const ALL_CATEGORIES = ["Todos", ...categories];
 const catalogProducts = products.filter((product) =>
   categories.includes(product.category),
 );
-const PRICE_STEP = 5;
-const DEFAULT_PRICE_MIN = 5;
-const DEFAULT_PRICE_MAX = 250;
+const PRICE_STEP = 1;
+const FALLBACK_PRICE_BOUNDS = { min: 0, max: 100 };
 const DEFAULT_OCCASION = "Todas";
 const ALL_OCCASIONS = [DEFAULT_OCCASION, ...occasionOptions];
 const storeContainerClass = "mx-auto w-full max-w-[1660px] px-5 sm:px-8 2xl:px-12";
@@ -27,7 +26,6 @@ const CATEGORY_LABELS = {
   Todos: "Todos",
   "Tortas clasicas": "Tortas clásicas",
   "Tortas tematicas": "Tortas temáticas",
-  "Bocaditos tematicos": "Bocaditos temáticos",
   Complementos: "Complementos",
 };
 const OCCASION_LABELS = {
@@ -76,13 +74,11 @@ function normalizeText(value) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-function getProductPrice(product) {
+function getProductPrices(product) {
   const source = product.price ?? product.prices?.join(" ") ?? "";
-  const prices = Array.from(source.matchAll(/S\/\s*(\d+)/gi), (match) =>
+  return Array.from(source.matchAll(/S\/\s*(\d+)/gi), (match) =>
     Number(match[1]),
   ).filter(Number.isFinite);
-
-  return prices.length ? Math.min(...prices) : null;
 }
 
 function getCategoryLabel(category) {
@@ -94,18 +90,13 @@ function getOccasionLabel(occasion) {
 }
 
 function getCatalogPriceBounds() {
-  const prices = catalogProducts
-    .map((product) => getProductPrice(product))
-    .filter((price) => price !== null);
-  const minPrice = Math.min(...prices, DEFAULT_PRICE_MIN);
-  const maxPrice = Math.max(...prices, DEFAULT_PRICE_MAX);
+  const prices = catalogProducts.flatMap(getProductPrices);
+
+  if (!prices.length) return FALLBACK_PRICE_BOUNDS;
 
   return {
-    min: Math.max(
-      DEFAULT_PRICE_MIN,
-      Math.floor(minPrice / PRICE_STEP) * PRICE_STEP,
-    ),
-    max: Math.ceil(maxPrice / PRICE_STEP) * PRICE_STEP,
+    min: Math.min(...prices),
+    max: Math.max(...prices),
   };
 }
 
@@ -114,13 +105,15 @@ function formatPrice(value) {
 }
 
 function matchesPrice(product, priceRange, priceBounds) {
-  const price = getProductPrice(product);
+  const prices = getProductPrices(product);
 
-  if (price === null) {
+  if (!prices.length) {
     return priceRange.min === priceBounds.min && priceRange.max === priceBounds.max;
   }
 
-  return price >= priceRange.min && price <= priceRange.max;
+  return prices.some(
+    (price) => price >= priceRange.min && price <= priceRange.max,
+  );
 }
 
 function matchesOccasion(product, occasionLabel) {
@@ -130,7 +123,7 @@ function matchesOccasion(product, occasionLabel) {
   );
 }
 
-function PriceRangeFilter({ value, bounds, onChange }) {
+function PriceRangeFilter({ value, bounds, onChange, anchorRef }) {
   const rangeSize = Math.max(bounds.max - bounds.min, PRICE_STEP);
   const left = ((value.min - bounds.min) / rangeSize) * 100;
   const right = 100 - ((value.max - bounds.min) / rangeSize) * 100;
@@ -147,7 +140,10 @@ function PriceRangeFilter({ value, bounds, onChange }) {
 
   return (
     <FilterSection label="Precio">
-      <fieldset className="rounded-[1.6rem] border border-blush/30 bg-white/85 p-5">
+      <fieldset
+        ref={anchorRef}
+        className="rounded-[1.6rem] border border-blush/30 bg-white/85 p-5"
+      >
         <div className="relative h-9 px-1">
           <div className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-[#87CCC3]" />
           <div
@@ -285,6 +281,8 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 
 export default function Catalog() {
   const resultsRef = useRef(null);
+  const priceFilterRef = useRef(null);
+  const pendingPriceFilterTopRef = useRef(null);
   const priceBounds = useMemo(() => getCatalogPriceBounds(), []);
   const [activeCategory, setActiveCategory] = useState(
     getInitialCategoryFromHash,
@@ -345,7 +343,23 @@ export default function Catalog() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeCategory, occasion, priceRange, searchTerm]);
+  }, [activeCategory, occasion, searchTerm]);
+
+  useLayoutEffect(() => {
+    const previousTop = pendingPriceFilterTopRef.current;
+    const priceFilter = priceFilterRef.current;
+
+    if (previousTop === null || !priceFilter) return;
+
+    const currentTop = priceFilter.getBoundingClientRect().top;
+    const positionDifference = currentTop - previousTop;
+
+    if (Math.abs(positionDifference) > 0.5) {
+      window.scrollBy(0, positionDifference);
+    }
+
+    pendingPriceFilterTopRef.current = null;
+  }, [priceRange]);
 
   useEffect(() => {
     setCurrentPage((page) => Math.min(page, totalPages));
@@ -356,6 +370,13 @@ export default function Catalog() {
     setPriceRange(priceBounds);
     setOccasion(DEFAULT_OCCASION);
     setSearchTerm("");
+  };
+
+  const handlePriceRangeChange = (nextPriceRange) => {
+    pendingPriceFilterTopRef.current =
+      priceFilterRef.current?.getBoundingClientRect().top ?? null;
+    setCurrentPage(1);
+    setPriceRange(nextPriceRange);
   };
 
   const handlePageChange = (page) => {
@@ -385,9 +406,8 @@ export default function Catalog() {
               Tortas y postres artesanales
             </h1>
             <p className="mt-4 max-w-[36ch] break-words text-base leading-7 text-ink/70 sm:max-w-2xl">
-              Tortas clásicas, tortas temáticas, bocaditos temáticos y
-              complementos pensados para armar celebraciones más bonitas y
-              personalizadas.
+              Tortas clásicas, tortas temáticas y complementos pensados para
+              armar celebraciones más bonitas y personalizadas.
             </p>
           </Reveal>
 
@@ -492,7 +512,8 @@ export default function Catalog() {
               <PriceRangeFilter
                 value={priceRange}
                 bounds={priceBounds}
-                onChange={setPriceRange}
+                onChange={handlePriceRangeChange}
+                anchorRef={priceFilterRef}
               />
 
               <OccasionSelect value={occasion} onChange={setOccasion} />
@@ -519,7 +540,7 @@ export default function Catalog() {
 
           <div
             ref={resultsRef}
-            className="min-w-0 scroll-mt-24 lg:scroll-mt-[10.5rem]"
+            className="min-w-0 scroll-mt-24 [overflow-anchor:none] lg:scroll-mt-[10.5rem]"
           >
             <Reveal
               className="flex flex-col gap-2 border-b border-blush/35 pb-4 text-sm text-ink/62 sm:flex-row sm:items-center sm:justify-between"

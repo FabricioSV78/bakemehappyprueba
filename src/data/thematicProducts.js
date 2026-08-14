@@ -52,7 +52,6 @@ function createThematicProduct({
     imagePosition: images[0].position,
     servings: prices.map((price) => price.split(":")[0]).join(", "),
     details: description,
-    preparationTime: "24 horas",
     flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
     fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
     prices,

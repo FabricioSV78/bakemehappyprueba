@@ -11,26 +11,19 @@ import Reveal from "./Reveal";
 import AssetImage from "./AssetImage";
 
 const CLASSIC_CAKE_CATEGORY = "Tortas clasicas";
-const CENTRAL_CLASSIC_CAKE_ID = 11;
 
 const classicCakes = products.filter(
   (product) =>
     product.category === CLASSIC_CAKE_CATEGORY &&
     product.hasProductImages !== false,
-);
-const centralClassicCake =
-  classicCakes.find((product) => product.id === CENTRAL_CLASSIC_CAKE_ID) ??
-  classicCakes[0];
-const orbitClassicCakes = classicCakes
-  .filter((product) => product.id !== centralClassicCake?.id)
-  .slice(0, 4);
+).slice(0, 6);
 
 function getShortCakeName(productName) {
   return productName.replace(/^Torta (de )?/i, "");
 }
 
 export default function FeaturedGallery({ onOpenOrderModal }) {
-  if (!centralClassicCake) return null;
+  if (classicCakes.length === 0) return null;
 
   return (
     <section
@@ -101,107 +94,67 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
         </Reveal>
 
         <Reveal
-          className="featured-orbit relative mx-auto aspect-square w-full max-w-[42rem]"
+          className="classic-collage-reveal relative mx-auto h-[34rem] w-full max-w-[44rem] xl:h-[39rem]"
           direction="scale"
           delay={100}
           role="group"
-          aria-label="Galería circular de tortas clásicas"
+          aria-label="Collage de tortas clásicas"
         >
           <div
-            className="pointer-events-none absolute inset-[5%] rounded-full border border-dashed border-plum/30"
+            className="pointer-events-none absolute -bottom-8 -right-8 h-56 w-56 rounded-full bg-lavender/15 blur-2xl"
             aria-hidden="true"
           />
           <div
-            className="pointer-events-none absolute inset-[17%] rounded-full border border-blush/30"
-            aria-hidden="true"
-          />
-          <div
-            className="pointer-events-none absolute inset-[9%] rounded-full bg-white/30 shadow-[inset_0_0_55px_rgba(158,168,238,0.42)]"
+            className="pointer-events-none absolute -left-8 -top-8 h-48 w-48 rounded-full bg-blush/20 blur-2xl"
             aria-hidden="true"
           />
 
-          <div className="absolute inset-0">
-            {orbitClassicCakes.map((product, index) => (
+          <div className="classic-cake-collage relative z-10 h-full">
+            {classicCakes.map((product, index) => (
               <article
                 key={product.id}
-                className="featured-orbit-item absolute"
-                style={{ "--orbit-index": index }}
+                className={`classic-cake-tile classic-cake-tile-${index + 1}`}
+                style={{ "--collage-delay": `${100 + index * 90}ms` }}
               >
-                <div>
-                  <a
-                    href={`#/producto/${product.id}`}
-                    className="group/item relative block h-36 w-36 rounded-full border-[5px] border-white bg-white shadow-soft transition-[border-color,box-shadow] duration-300 hover:border-blush/55 hover:shadow-[0_18px_40px_rgba(23,54,109,0.18)] focus-visible:border-blush/55 focus-visible:shadow-[0_18px_40px_rgba(23,54,109,0.18)] xl:h-40 xl:w-40"
-                    aria-label={`Ver ${product.name}, ${getProductPriceLabel(product)}`}
-                  >
-                    <span className="block h-full w-full overflow-hidden rounded-full bg-white">
-                      <AssetImage
-                        src={product.image}
-                        alt={`${product.name} de Bake Me Happy`}
-                        className="h-full w-full transform-gpu object-contain transition-[transform,filter] duration-500 ease-out group-hover/item:scale-[1.04] group-hover/item:brightness-[1.04] group-hover/item:saturate-[1.08] group-focus-visible/item:scale-[1.04] group-focus-visible/item:brightness-[1.04] group-focus-visible/item:saturate-[1.08]"
-                        style={{ objectPosition: product.imagePosition }}
-                        loading="lazy"
-                        decoding="async"
-                        width="224"
-                        height="224"
-                      />
+                <a
+                  href={`#/producto/${product.id}`}
+                  className="group/tile flex h-full min-h-0 flex-col overflow-hidden rounded-[1.5rem] border border-blush/30 bg-white shadow-soft transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-blush/65 hover:shadow-lift focus-visible:-translate-y-1 focus-visible:border-blush/65 focus-visible:shadow-lift"
+                  aria-label={`Ver ${product.name}, ${getProductPriceLabel(product)}`}
+                >
+                  <span className="min-h-0 flex-1 overflow-hidden bg-white">
+                    <AssetImage
+                      src={product.image}
+                      alt={`${product.name} de Bake Me Happy`}
+                      className="h-full w-full transform-gpu object-contain transition-[transform,filter] duration-500 ease-out group-hover/tile:scale-[1.035] group-hover/tile:brightness-[1.025] group-hover/tile:saturate-[1.06] group-focus-visible/tile:scale-[1.035]"
+                      style={{ objectPosition: product.imagePosition }}
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(min-width: 1280px) 220px, 18vw"
+                      width="416"
+                      height="416"
+                    />
+                  </span>
+                  <span className="flex min-h-[4.25rem] shrink-0 flex-col items-center justify-center border-t border-blush/20 bg-[linear-gradient(135deg,#FFFAF7_0%,#FFF4F7_100%)] px-2.5 py-2 text-center xl:min-h-[4.75rem] xl:px-3">
+                    <span className="text-[11px] font-bold leading-[1.2] text-ink xl:text-xs">
+                      {getShortCakeName(product.name)}
                     </span>
-                    <span className="featured-orbit-label absolute left-1/2 top-[calc(100%-0.65rem)] z-10 flex w-[9rem] -translate-x-1/2 flex-col items-center justify-center rounded-xl border border-blush/25 bg-white/95 px-2.5 py-1 text-center shadow-sm xl:top-[calc(100%-0.4rem)] xl:w-[10rem] xl:py-1.5">
-                      <span className="block max-w-full truncate text-[11px] font-bold leading-tight text-ink xl:text-xs">
-                        {getShortCakeName(product.name)}
-                      </span>
-                      <span className="mt-0.5 hidden whitespace-nowrap text-[11px] font-semibold leading-tight text-plum xl:block">
-                        {getProductPriceLabel(product)}
-                      </span>
+                    <span className="mt-1 whitespace-nowrap rounded-full border border-lavender/35 bg-lavender-light/70 px-2.5 py-0.5 text-[10px] font-semibold leading-tight text-plum xl:text-[11px]">
+                      {getProductPriceLabel(product)}
                     </span>
-                  </a>
-                </div>
+                  </span>
+                </a>
               </article>
             ))}
           </div>
 
-          <article className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
-            <a
-              href={`#/producto/${centralClassicCake.id}`}
-              className="group/central relative block h-44 w-44 rounded-[1.85rem] border-[7px] border-white bg-white shadow-lift transition-[border-color,box-shadow] duration-300 hover:border-blush/55 hover:shadow-[0_24px_55px_rgba(23,54,109,0.22)] focus-visible:border-blush/55 focus-visible:shadow-[0_24px_55px_rgba(23,54,109,0.22)] xl:h-52 xl:w-52"
-              aria-label={`Ver ${centralClassicCake.name}, ${getProductPriceLabel(centralClassicCake)}`}
-            >
-              <span className="block h-full w-full overflow-hidden rounded-[1.5rem] bg-white">
-                <AssetImage
-                  src={centralClassicCake.image}
-                  alt={`${centralClassicCake.name}, torta clásica de Bake Me Happy`}
-                  className="h-full w-full transform-gpu object-contain transition-[transform,filter] duration-500 ease-out group-hover/central:scale-[1.04] group-hover/central:brightness-[1.04] group-hover/central:saturate-[1.08] group-focus-visible/central:scale-[1.04] group-focus-visible/central:brightness-[1.04] group-focus-visible/central:saturate-[1.08]"
-                  style={{ objectPosition: centralClassicCake.imagePosition }}
-                  loading="lazy"
-                  decoding="async"
-                  width="416"
-                  height="416"
-                />
-              </span>
-              <span className="featured-orbit-label absolute left-1/2 top-[calc(100%-0.5rem)] z-10 flex w-52 -translate-x-1/2 flex-col items-center justify-center rounded-xl border border-blush/25 bg-white/95 px-3 py-1.5 text-center shadow-soft xl:top-[calc(100%-0.35rem)] xl:w-60 xl:px-3.5 xl:py-2">
-                <span className="block text-xs font-bold leading-tight text-ink xl:hidden">
-                  {getShortCakeName(centralClassicCake.name).replace(
-                    " de Vainilla",
-                    "",
-                  )}
-                </span>
-                <span className="hidden text-sm font-bold leading-tight text-ink xl:block">
-                  {centralClassicCake.name}
-                </span>
-                <span className="mt-0.5 hidden whitespace-nowrap text-xs font-semibold leading-tight text-plum xl:block">
-                  {getProductPriceLabel(centralClassicCake)}
-                </span>
-              </span>
-            </a>
-          </article>
-
           <Sparkles
-            className="pointer-events-none absolute left-[12%] top-[27%] z-20 text-gold"
+            className="pointer-events-none absolute -right-3 -top-4 z-20 text-gold"
             size={20}
             strokeWidth={1.7}
             aria-hidden="true"
           />
           <Heart
-            className="pointer-events-none absolute bottom-[21%] right-[10%] z-20 text-blush"
+            className="pointer-events-none absolute -bottom-4 -left-3 z-20 text-blush"
             size={24}
             strokeWidth={1.7}
             aria-hidden="true"

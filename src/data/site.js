@@ -25,8 +25,17 @@ export const NAV_LINKS = [
 export const GENERAL_WHATSAPP_MESSAGE =
   "Hola, vengo de la pagina web de Bake Me Happy. Quisiera hacer un pedido o consultar por una torta personalizada.";
 
-export function getWhatsAppUrl(message = GENERAL_WHATSAPP_MESSAGE) {
+export function getDirectWhatsAppUrl(message = GENERAL_WHATSAPP_MESSAGE) {
   return `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+}
+
+export function getWhatsAppUrl(message = GENERAL_WHATSAPP_MESSAGE) {
+  const directUrl = getDirectWhatsAppUrl(message);
+  const trackingPath = `/whatsapp/index.html#${encodeURIComponent(directUrl)}`;
+
+  return typeof window === "undefined"
+    ? trackingPath
+    : new URL(trackingPath, window.location.origin).href;
 }
 
 export function getPhoneUrl(number) {

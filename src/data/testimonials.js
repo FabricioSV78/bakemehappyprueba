@@ -55,4 +55,12 @@ export const testimonials = [
     quote:
       "Conozco su emprendimiento desde hace poco, cuando acompañé a una amiga y compró una tortita. La atención es excelente, son muy amables y todos sus productos son de calidad y muy deliciosos. Visiten este local, no se van a arrepentir.",
   },
+  {
+    id: 8,
+    name: "Heidit Larisa González Ramírez",
+    source: "Reseña de Google",
+    rating: 5,
+    quote:
+      "Ambiente agradable e impecable, buena atención. Diseños únicos y exclusivos de tortas y, por sobre todo, originales. 👍👌😊👏 Definitivamente lo recomiendo. 😊😊",
+  },
 ];

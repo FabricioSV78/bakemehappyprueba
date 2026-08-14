@@ -76,18 +76,8 @@ export function getStartingPriceLabel(product) {
   return product?.price ?? "Consultar";
 }
 
-export function getPreparationTime(product) {
-  if (product?.preparationTime) return product.preparationTime;
-
-  const preparationByCategory = {
-    "Tortas clasicas": "2 a 3 dias habiles",
-    "Tortas tematicas": "24 horas",
-    "Bocaditos tematicos": "4 a 5 dias habiles",
-    Complementos: "24 a 48 horas",
-    "Mini tortas": "2 a 3 dias habiles",
-  };
-
-  return preparationByCategory[product?.category] ?? "segun coordinacion";
+export function getPreparationTime() {
+  return "24 horas";
 }
 
 export function getPriceOptions(product) {
@@ -251,8 +241,10 @@ export function isMiniCake(product) {
   return product?.category === "Mini tortas";
 }
 
-export function isThemedBite(product) {
-  return product?.category === "Bocaditos tematicos";
+export function isPackComplement(product) {
+  return (
+    product?.category === "Complementos" && product?.orderMode === "pack"
+  );
 }
 
 export function isComplement(product) {
