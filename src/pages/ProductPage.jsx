@@ -59,7 +59,6 @@ export default function ProductPage({ currentPath }) {
   const miniCake = isMiniCake(product);
   const packComplement = isPackComplement(product);
   const complementProduct = isComplement(product);
-  const simpleComplement = complementProduct && !packComplement;
   const quantityProduct = miniCake || complementProduct;
   const flavorSelectionLabel = product?.selectionLabel ?? "Sabor";
 
@@ -132,7 +131,7 @@ export default function ProductPage({ currentPath }) {
           <p className="mt-3 text-sm leading-6 text-ink/65">
             Este producto no está disponible en la tienda actual.
           </p>
-          <a href="#/tienda" className="button-primary mt-6">
+          <a href="/tienda" className="button-primary mt-6">
             Volver a la tienda
           </a>
         </div>
@@ -226,7 +225,9 @@ export default function ProductPage({ currentPath }) {
       ? `Adicional por sabor y relleno: ${formatSoles(totalSurcharge)}.`
       : null,
     personalizedCake && theme ? `Temática: ${theme}.` : null,
-    additionalInfo ? `Información adicional: ${additionalInfo}.` : null,
+    !complementProduct && additionalInfo
+      ? `Información adicional: ${additionalInfo}.`
+      : null,
     showGiftCandleOption ? `Velita de regalo: ${giftCandle}.` : null,
     selectedComplementItems.length
       ? `Complementos: ${selectedComplementItems
@@ -241,7 +242,7 @@ export default function ProductPage({ currentPath }) {
     hasComplementsTotal && orderTotal !== null
       ? `Total estimado con complementos: ${formatSoles(orderTotal)}.`
       : null,
-    message ? `Mensaje en la torta: ${message}.` : null,
+    !complementProduct && message ? `Mensaje en la torta: ${message}.` : null,
     date ? `Fecha deseada: ${formatDisplayDate(date)}.` : null,
     time ? `Hora deseada: ${formatDisplayTime(time)}.` : null,
     `Entrega: ${delivery}.`,
@@ -253,7 +254,7 @@ export default function ProductPage({ currentPath }) {
     <section className="overflow-x-hidden bg-cream pb-20 pt-24 sm:pb-28 sm:pt-28 lg:pt-[10.5rem]">
       <div className={DETAIL_CONTAINER_CLASS}>
         <a
-          href="#/tienda"
+          href="/tienda"
           className="relative z-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-lavender/30 bg-white px-4 text-sm font-semibold text-ink shadow-sm transition-colors hover:border-plum/45 hover:text-plum"
         >
           <ArrowLeft size={17} aria-hidden="true" />
@@ -617,27 +618,23 @@ export default function ProductPage({ currentPath }) {
                           />
                         </div>
                       )}
-                      <TextField
-                        label={simpleComplement ? "Detalle (opcional)" : "Mensaje (opcional)"}
-                        value={message}
-                        onChange={setMessage}
-                        placeholder={
-                          simpleComplement
-                            ? "Ej. incluir con torta principal"
-                            : "Ej. Feliz cumple, Valeria"
-                        }
-                      />
-                      <TextAreaField
-                        label="Indicaciones (opcional)"
-                        value={additionalInfo}
-                        onChange={setAdditionalInfo}
-                        rows={3}
-                        placeholder={
-                          simpleComplement
-                            ? "Ej. combinar con otro pedido"
-                            : "Ej. empaque para regalo o alguna indicación importante"
-                        }
-                      />
+                      {!complementProduct && (
+                        <>
+                          <TextField
+                            label="Mensaje (opcional)"
+                            value={message}
+                            onChange={setMessage}
+                            placeholder="Ej. Feliz cumple, Valeria"
+                          />
+                          <TextAreaField
+                            label="Indicaciones (opcional)"
+                            value={additionalInfo}
+                            onChange={setAdditionalInfo}
+                            rows={3}
+                            placeholder="Ej. empaque para regalo o alguna indicación importante"
+                          />
+                        </>
+                      )}
                     </div>
                   ) : (
                     <div className="space-y-4">

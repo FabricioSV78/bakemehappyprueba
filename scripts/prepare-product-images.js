@@ -12,6 +12,10 @@ const productImagesDirectory = path.join(
   "images",
   "webp",
 );
+const productGalleryDirectories = [
+  path.join(productImagesDirectory, "TORTAS"),
+  path.join(productImagesDirectory, "COMPLEMENTOS"),
+];
 const manifestPath = path.join(
   projectDirectory,
   "src",
@@ -97,9 +101,13 @@ async function findCompleteGalleryFolders(directory) {
 }
 
 async function writeProductImageManifest() {
-  const galleryFolders = await findCompleteGalleryFolders(
-    productImagesDirectory,
-  );
+  const galleryFolders = (
+    await Promise.all(
+      productGalleryDirectories.map((directory) =>
+        findCompleteGalleryFolders(directory),
+      ),
+    )
+  ).flat();
   const publicPaths = galleryFolders
     .map(
       (folderPath) =>

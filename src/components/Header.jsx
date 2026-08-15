@@ -90,7 +90,7 @@ export default function Header({ currentPath = "/", onOpenOrderModal }) {
 
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
         <a
-          href="#/"
+          href="/"
           className="group min-w-0 shrink-0"
           onClick={() => setIsOpen(false)}
         >

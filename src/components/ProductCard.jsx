@@ -28,7 +28,7 @@ export default function ProductCard({ product, priority = false }) {
           </span>
         )}
         <a
-          href={`#/producto/${product.id}`}
+          href={`/producto/${product.id}`}
           className="absolute bottom-2.5 right-2.5 z-10 grid h-11 w-11 place-items-center rounded-full border border-blush/30 bg-white/95 text-plum shadow-sm transition-all duration-200 hover:scale-105 hover:border-plum/30 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum focus-visible:ring-offset-2"
           aria-label={`Ver detalles de ${product.name}, ${mainPrice}`}
         >
@@ -39,7 +39,7 @@ export default function ProductCard({ product, priority = false }) {
       <div className="flex min-w-0 flex-1 flex-col items-center bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF0F5_100%)] px-2.5 py-3 text-center sm:px-4 sm:py-3.5">
         <h3 className="flex min-h-11 min-w-0 items-center justify-center font-display text-base font-semibold leading-tight text-ink sm:min-h-12 sm:text-lg">
           <a
-            href={`#/producto/${product.id}`}
+            href={`/producto/${product.id}`}
             className="transition-colors hover:text-plum"
           >
             {product.name}

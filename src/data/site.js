@@ -8,18 +8,18 @@ export const SITE_CONFIG = {
       display: "+51 986 943 948",
     },
   ],
-  instagramHandle: "@bakemehappy.trujillo",
-  instagramUrl: "https://www.instagram.com/",
+  instagramHandle: "@bakemehappy.pe_",
+  instagramUrl: "https://www.instagram.com/bakemehappy.pe_/",
   location: "Trujillo, Peru",
-  hours: "Lunes a sabado, 9:00 a.m. - 7:00 p.m.",
+  hours: "Lunes a sabado, 9:00 a.m. - 10:30 p.m.",
   address: "Punto de recojo previa coordinacion",
 };
 
 export const NAV_LINKS = [
-  { label: "Inicio", href: "#/", path: "/" },
-  { label: "Quienes somos", href: "#/quienes-somos", path: "/quienes-somos" },
-  { label: "Tienda", href: "#/tienda", path: "/tienda" },
-  { label: "Como hago mi pedido", href: "#/pedido", path: "/pedido" },
+  { label: "Inicio", href: "/", path: "/" },
+  { label: "Quienes somos", href: "/quienes-somos", path: "/quienes-somos" },
+  { label: "Tienda", href: "/tienda", path: "/tienda" },
+  { label: "Como hago mi pedido", href: "/pedido", path: "/pedido" },
 ];
 
 export const GENERAL_WHATSAPP_MESSAGE =

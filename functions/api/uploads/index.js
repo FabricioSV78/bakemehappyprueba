@@ -29,7 +29,18 @@ async function handleUpload(context) {
   }
 
   const { maxBytes, ttlSeconds } = getUploadConfig(env);
-  const contentLength = Number.parseInt(request.headers.get("Content-Length") ?? "0", 10);
+  const contentType = request.headers.get("Content-Type") ?? "";
+  if (!contentType.toLowerCase().startsWith("multipart/form-data;")) {
+    return jsonResponse({ error: "Formato de solicitud no permitido." }, 415);
+  }
+
+  const contentLength = Number.parseInt(
+    request.headers.get("Content-Length") ?? "",
+    10,
+  );
+  if (!Number.isSafeInteger(contentLength) || contentLength <= 0) {
+    return jsonResponse({ error: "No se pudo verificar el tamaño del archivo." }, 411);
+  }
   if (contentLength > maxBytes + 128 * 1024) {
     return jsonResponse({ error: "La imagen supera el límite de 8 MB." }, 413);
   }

@@ -20,7 +20,7 @@ export default function Footer() {
         <Reveal className="grid gap-10 border-b border-white/15 pb-10 sm:grid-cols-2 lg:grid-cols-[1.35fr_0.8fr_1fr_1fr] lg:gap-8">
           <div className="sm:col-span-2 lg:col-span-1">
             <a
-              href="#/"
+              href="/"
               className="inline-flex rounded-lg"
             >
               <BrandLockup size="footer" inverted />

@@ -51,16 +51,17 @@ function FilterSection({ label, children, className = "" }) {
   );
 }
 
-function shouldOpenSizeGuideFromHash() {
+function shouldOpenSizeGuideFromUrl() {
   if (typeof window === "undefined") return false;
   return window.location.hash.includes("guia-tamanos");
 }
 
-function getInitialCategoryFromHash() {
+function getInitialCategoryFromUrl() {
   if (typeof window === "undefined") return ALL_CATEGORIES[0];
 
-  const queryString = window.location.hash.split("?")[1] ?? "";
-  const requestedCategory = new URLSearchParams(queryString).get("categoria");
+  const requestedCategory = new URLSearchParams(window.location.search).get(
+    "categoria",
+  );
 
   return ALL_CATEGORIES.includes(requestedCategory)
     ? requestedCategory
@@ -238,43 +239,74 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   return (
     <nav
       aria-label="Paginación de la tienda"
-      className="mt-10 flex flex-wrap items-center justify-center gap-2"
+      className="mt-10"
     >
-      <button
-        type="button"
-        className="grid h-11 w-11 place-items-center rounded-full border border-blush/30 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        aria-label="Página anterior"
-      >
-        <ChevronLeft size={18} aria-hidden="true" />
-      </button>
-
-      {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+      <div className="flex items-center justify-center gap-3 sm:hidden">
         <button
-          key={page}
           type="button"
-          className={`h-11 min-w-11 rounded-full px-4 text-sm font-semibold shadow-sm ${
-            currentPage === page
-              ? "bg-plum text-white"
-              : "border border-blush/30 bg-white text-ink/70"
-          }`}
-          onClick={() => onPageChange(page)}
-          aria-current={currentPage === page ? "page" : undefined}
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-blush/30 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          aria-label="Página anterior"
         >
-          {page}
+          <ChevronLeft size={18} aria-hidden="true" />
         </button>
-      ))}
 
-      <button
-        type="button"
-        className="grid h-11 w-11 place-items-center rounded-full border border-blush/30 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        aria-label="Página siguiente"
-      >
-        <ChevronRight size={18} aria-hidden="true" />
-      </button>
+        <span
+          className="min-w-28 rounded-full border border-blush/30 bg-white px-4 py-3 text-center text-sm font-semibold text-ink shadow-sm"
+          aria-live="polite"
+        >
+          Página {currentPage} de {totalPages}
+        </span>
+
+        <button
+          type="button"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-blush/30 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          aria-label="Página siguiente"
+        >
+          <ChevronRight size={18} aria-hidden="true" />
+        </button>
+      </div>
+
+      <div className="hidden flex-wrap items-center justify-center gap-2 sm:flex">
+        <button
+          type="button"
+          className="grid h-11 w-11 place-items-center rounded-full border border-blush/30 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          aria-label="Página anterior"
+        >
+          <ChevronLeft size={18} aria-hidden="true" />
+        </button>
+
+        {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+          <button
+            key={page}
+            type="button"
+            className={`h-11 min-w-11 rounded-full px-4 text-sm font-semibold shadow-sm ${
+              currentPage === page
+                ? "bg-plum text-white"
+                : "border border-blush/30 bg-white text-ink/70"
+            }`}
+            onClick={() => onPageChange(page)}
+            aria-current={currentPage === page ? "page" : undefined}
+          >
+            {page}
+          </button>
+        ))}
+
+        <button
+          type="button"
+          className="grid h-11 w-11 place-items-center rounded-full border border-blush/30 bg-white text-ink shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          aria-label="Página siguiente"
+        >
+          <ChevronRight size={18} aria-hidden="true" />
+        </button>
+      </div>
     </nav>
   );
 }
@@ -285,14 +317,14 @@ export default function Catalog() {
   const pendingPriceFilterTopRef = useRef(null);
   const priceBounds = useMemo(() => getCatalogPriceBounds(), []);
   const [activeCategory, setActiveCategory] = useState(
-    getInitialCategoryFromHash,
+    getInitialCategoryFromUrl,
   );
   const [priceRange, setPriceRange] = useState(priceBounds);
   const [occasion, setOccasion] = useState(DEFAULT_OCCASION);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
-  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(shouldOpenSizeGuideFromHash);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(shouldOpenSizeGuideFromUrl);
 
   const filteredProducts = useMemo(() => {
     const query = normalizeText(searchTerm.trim());

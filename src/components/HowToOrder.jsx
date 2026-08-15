@@ -203,7 +203,7 @@ export default function HowToOrder() {
         </div>
 
         <Reveal className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-3 text-center sm:flex-row sm:justify-center">
-          <a href="#/tienda" className="button-primary">
+          <a href="/tienda" className="button-primary">
             <ShoppingBag size={19} aria-hidden="true" />
             Ir a la tienda
           </a>

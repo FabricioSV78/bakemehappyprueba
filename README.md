@@ -29,11 +29,11 @@ símbolos. Por ejemplo: `51999999999`.
 ## Producción
 
 ```bash
-npm run build
+npm run check
 ```
 
-La compilación genera `dist`, que es el directorio configurado para Cloudflare
-Pages en `wrangler.jsonc`.
+El comando valida el código con ESLint y genera `dist`, que es el directorio
+configurado para Cloudflare Pages en `wrangler.jsonc`.
 
 Antes de compilar, el proyecto convierte las fotografías numeradas a WebP y
 calcula una versión basada en el contenido. Cada carpeta de producto se

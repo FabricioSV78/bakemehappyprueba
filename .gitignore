@@ -6,6 +6,8 @@ vite.stderr.log
 repomix-output.*
 .wrangler/
 .npm-cache/
+.tmp-workers-types/
+.audit-workers-types/
 .dev.vars
 .env
 .env.*

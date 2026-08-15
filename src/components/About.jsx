@@ -8,9 +8,10 @@ import {
 import Reveal from "./Reveal";
 import AssetImage from "./AssetImage";
 
-const heroImage = "/images/webp/hero 1.webp";
-const celebrationImage = "/images/webp/hero 2.webp";
-const birthdayImage = "/images/webp/hero 3.webp";
+const aboutImagesBasePath = "/images/webp/QUIENES SOMOS";
+const heroImage = `${aboutImagesBasePath}/1.webp`;
+const celebrationImage = `${aboutImagesBasePath}/2.webp`;
+const birthdayImage = `${aboutImagesBasePath}/3.webp`;
 const SHOW_PRODUCTION_PROCESS = false;
 
 const processSteps = [
@@ -78,11 +79,11 @@ function AboutActions({ className = "" }) {
     <Reveal
       className={`flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center ${className}`}
     >
-      <a href="#/tienda" className="button-primary">
+      <a href="/tienda" className="button-primary">
         Ver nuestras tortas
         <ArrowRight size={18} aria-hidden="true" />
       </a>
-      <a href="#/pedido" className="button-secondary">
+      <a href="/pedido" className="button-secondary">
         Conocer cómo hacer un pedido
       </a>
     </Reveal>

@@ -18,9 +18,34 @@ const ROUTES = {
   "/pedido": OrderPage,
 };
 
-function getCurrentPath() {
-  const hash = window.location.hash;
-  return hash.startsWith("#/") ? hash.slice(1).split("?")[0] : "/";
+function normalizePathname(pathname) {
+  return pathname.length > 1 ? pathname.replace(/\/+$/, "") : "/";
+}
+
+function migrateLegacyHashRoute() {
+  const legacyRoute = window.location.hash;
+
+  if (!legacyRoute.startsWith("#/")) return;
+
+  window.history.replaceState(
+    window.history.state,
+    "",
+    legacyRoute.slice(1),
+  );
+}
+
+function getCurrentLocation() {
+  migrateLegacyHashRoute();
+
+  return `${normalizePathname(window.location.pathname)}${window.location.search}${window.location.hash}`;
+}
+
+function getPathname(location) {
+  return normalizePathname(location.split(/[?#]/, 1)[0] || "/");
+}
+
+function isApplicationPath(pathname) {
+  return Boolean(ROUTES[pathname]) || pathname.startsWith("/producto/");
 }
 
 function PageLoadingFallback() {
@@ -39,26 +64,75 @@ function PageLoadingFallback() {
 }
 
 export default function App() {
-  const [currentPath, setCurrentPath] = useState(getCurrentPath);
+  const [currentLocation, setCurrentLocation] = useState(getCurrentLocation);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const currentPath = getPathname(currentLocation);
   const Page = currentPath.startsWith("/producto/")
     ? ProductPage
     : ROUTES[currentPath] ?? HomePage;
 
   useEffect(() => {
-    const handleHashChange = () => {
-      if (window.location.hash.startsWith("#/")) {
-        setCurrentPath(getCurrentPath());
+    const handlePopState = () => setCurrentLocation(getCurrentLocation());
+    const handleInternalNavigation = (event) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
       }
+
+      const target = event.target instanceof Element ? event.target : null;
+      const link = target?.closest("a[href]");
+      const href = link?.getAttribute("href") ?? "";
+
+      if (
+        !link ||
+        !href ||
+        href.startsWith("#") ||
+        link.hasAttribute("download") ||
+        (link.target && link.target !== "_self")
+      ) {
+        return;
+      }
+
+      const destination = new URL(link.href, window.location.href);
+      const pathname = normalizePathname(destination.pathname);
+
+      if (
+        destination.origin !== window.location.origin ||
+        !isApplicationPath(pathname)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      const nextLocation = `${pathname}${destination.search}${destination.hash}`;
+
+      if (nextLocation === currentLocation) {
+        window.scrollTo({ top: 0, behavior: "auto" });
+        return;
+      }
+
+      window.history.pushState({}, "", nextLocation);
+      setCurrentLocation(nextLocation);
     };
 
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
+    window.addEventListener("popstate", handlePopState);
+    document.addEventListener("click", handleInternalNavigation);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      document.removeEventListener("click", handleInternalNavigation);
+    };
+  }, [currentLocation]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
-  }, [currentPath]);
+  }, [currentLocation]);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-cream text-ink">
@@ -70,7 +144,7 @@ export default function App() {
         onOpenOrderModal={() => setIsOrderModalOpen(true)}
       />
       <main id="contenido">
-        <div key={currentPath} className="page-enter">
+        <div key={currentLocation} className="page-enter">
           <Suspense fallback={<PageLoadingFallback />}>
             <Page
               currentPath={currentPath}

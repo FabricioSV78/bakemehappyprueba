@@ -76,7 +76,7 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
             <a
-              href="#/tienda?categoria=Tortas%20clasicas"
+              href="/tienda?categoria=Tortas%20clasicas"
               className="button-primary shrink-0 whitespace-nowrap"
             >
               Ver tortas clásicas
@@ -117,7 +117,7 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
                 style={{ "--collage-delay": `${100 + index * 90}ms` }}
               >
                 <a
-                  href={`#/producto/${product.id}`}
+                  href={`/producto/${product.id}`}
                   className="group/tile flex h-full min-h-0 flex-col overflow-hidden rounded-[1.5rem] border border-blush/30 bg-white shadow-soft transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-blush/65 hover:shadow-lift focus-visible:-translate-y-1 focus-visible:border-blush/65 focus-visible:shadow-lift"
                   aria-label={`Ver ${product.name}, ${getProductPriceLabel(product)}`}
                 >

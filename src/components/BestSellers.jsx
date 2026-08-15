@@ -57,7 +57,7 @@ export default function BestSellers() {
         </div>
 
         <Reveal className="mt-10 flex justify-center" delay={120}>
-          <a href="#/tienda" className="button-secondary min-w-[220px]">
+          <a href="/tienda" className="button-secondary min-w-[220px]">
             Ver mas tortas
             <ArrowRight size={18} aria-hidden="true" />
           </a>

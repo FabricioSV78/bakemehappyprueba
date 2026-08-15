@@ -32,6 +32,7 @@ export default function Hero({ onOpenOrderModal }) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [firstSlideReady, setFirstSlideReady] = useState(false);
   const [slidesReady, setSlidesReady] = useState(false);
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(false);
   const loadedSlidesRef = useRef(new Set());
 
   const markSlideAsLoaded = (index) => {
@@ -43,8 +44,26 @@ export default function Hero({ onOpenOrderModal }) {
   };
 
   useEffect(() => {
+    if (autoPlayEnabled) return undefined;
+
+    const enableAutoPlay = () => setAutoPlayEnabled(true);
+    const passiveOptions = { once: true, passive: true };
+
+    window.addEventListener("pointerdown", enableAutoPlay, passiveOptions);
+    window.addEventListener("wheel", enableAutoPlay, passiveOptions);
+    window.addEventListener("keydown", enableAutoPlay, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", enableAutoPlay);
+      window.removeEventListener("wheel", enableAutoPlay);
+      window.removeEventListener("keydown", enableAutoPlay);
+    };
+  }, [autoPlayEnabled]);
+
+  useEffect(() => {
     if (
       !slidesReady ||
+      !autoPlayEnabled ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
       return undefined;
@@ -55,7 +74,7 @@ export default function Hero({ onOpenOrderModal }) {
     }, SLIDE_INTERVAL_MS);
 
     return () => window.clearInterval(intervalId);
-  }, [slidesReady]);
+  }, [autoPlayEnabled, slidesReady]);
 
   return (
     <section
@@ -138,7 +157,7 @@ export default function Hero({ onOpenOrderModal }) {
               Hacer mi pedido
             </button>
             <a
-              href="#/tienda"
+              href="/tienda"
               className="button-secondary w-full min-[380px]:min-w-0 min-[380px]:flex-1 sm:w-auto sm:flex-none"
             >
               Ver tienda
