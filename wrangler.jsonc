@@ -4,13 +4,6 @@
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-08-06",
   "upload_source_maps": true,
-  "observability": {
-    "enabled": true,
-    "logs": {
-      "enabled": true,
-      "head_sampling_rate": 1
-    }
-  },
   "r2_buckets": [
     {
       "binding": "ORDER_UPLOADS",
