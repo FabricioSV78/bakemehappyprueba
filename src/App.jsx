@@ -4,11 +4,16 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import WhatsAppFloat from "./components/WhatsAppFloat";
 import HomePage from "./pages/HomePage";
+import { categories, products } from "./data/products";
+import { preloadProductAssets } from "./utils/assets";
 
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const CatalogPage = lazy(() => import("./pages/CatalogPage"));
 const OrderPage = lazy(() => import("./pages/OrderPage"));
 const ProductPage = lazy(() => import("./pages/ProductPage"));
+const catalogProducts = products.filter((product) =>
+  categories.includes(product.category),
+);
 
 const ROUTES = {
   "/": HomePage,
@@ -51,7 +56,7 @@ function isApplicationPath(pathname) {
 function PageLoadingFallback() {
   return (
     <div
-      className="grid min-h-[55vh] place-items-center bg-cream px-5 pt-28 lg:pt-40"
+      className="grid min-h-[100svh] place-items-center bg-cream px-5 pt-28 lg:pt-40"
       role="status"
       aria-live="polite"
     >
@@ -133,6 +138,22 @@ export default function App() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [currentLocation]);
+
+  useEffect(() => {
+    if (currentPath.startsWith("/producto/")) {
+      const productId = Number.parseInt(currentPath.split("/").pop(), 10);
+      const product = products.find((item) => item.id === productId);
+
+      if (product) void preloadProductAssets(product);
+      return;
+    }
+
+    if (currentPath === "/tienda" || currentPath === "/catalogo") {
+      catalogProducts.slice(0, 4).forEach((product) => {
+        void preloadProductAssets({ image: product.image });
+      });
+    }
+  }, [currentPath]);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-cream text-ink">

@@ -76,7 +76,9 @@ export default function ProductGallery({ product, activeIndex, onSelect }) {
                       image.position ?? product.imagePosition ?? "center",
                   }}
                   loading="lazy"
+                  fetchPriority="low"
                   decoding="async"
+                  revealWhenReady
                   width="1402"
                   height="1122"
                 />
@@ -96,6 +98,9 @@ export default function ProductGallery({ product, activeIndex, onSelect }) {
                 activeImage.position ?? product.imagePosition ?? "center",
             }}
             fetchPriority="high"
+            loading="eager"
+            decoding="async"
+            revealWhenReady
             width="1402"
             height="1122"
           />

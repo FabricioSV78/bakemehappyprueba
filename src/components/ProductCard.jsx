@@ -1,5 +1,6 @@
 import { CakeSlice, Eye } from "lucide-react";
 import { getProductPriceLabel } from "../utils/productPrice";
+import { preloadProductAssets } from "../utils/assets";
 import AssetImage from "./AssetImage";
 
 export default function ProductCard({ product, priority = false }) {
@@ -7,9 +8,17 @@ export default function ProductCard({ product, priority = false }) {
   const showTwoTierTag =
     product.category === "Tortas tematicas" &&
     product.tags?.some((tag) => tag.toLowerCase() === "2 pisos");
+  const prepareProductGallery = () => {
+    void preloadProductAssets(product);
+  };
 
   return (
-    <article className="brand-product-card flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-blush/35 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-plum/30 hover:shadow-soft">
+    <article
+      className="brand-product-card flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-blush/35 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-plum/30 hover:shadow-soft"
+      onPointerEnter={prepareProductGallery}
+      onPointerDown={prepareProductGallery}
+      onFocusCapture={prepareProductGallery}
+    >
       <div className="group relative aspect-[6/5] overflow-hidden bg-blush/30">
         <AssetImage
           src={product.image}
@@ -19,6 +28,7 @@ export default function ProductCard({ product, priority = false }) {
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
           decoding="async"
+          revealWhenReady
           width="560"
           height="448"
         />

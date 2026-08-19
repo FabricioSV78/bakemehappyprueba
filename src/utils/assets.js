@@ -3,6 +3,7 @@ import { assetVersions } from "../data/assetVersions.generated";
 const configuredR2BaseUrl = import.meta.env.VITE_R2_PUBLIC_URL?.trim();
 
 export const R2_ASSETS_ENABLED = Boolean(configuredR2BaseUrl);
+const imagePreloadCache = new Map();
 
 function normalizeBaseUrl(value) {
   return value?.replace(/\/+$/, "") ?? "";
@@ -53,4 +54,68 @@ export function getAssetUrl(source) {
 
   const remoteUrl = `${normalizeBaseUrl(configuredR2BaseUrl)}${encodeAssetPath(localUrl)}`;
   return appendVersionQuery(remoteUrl, version);
+}
+
+function loadDecodedImage(source, fallbackSource) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    let attemptedFallback = false;
+
+    const finish = async () => {
+      try {
+        await image.decode?.();
+      } catch {
+        // onload confirma que el recurso es utilizable aunque decode no exista.
+      }
+      resolve(true);
+    };
+
+    image.decoding = "async";
+    image.onload = finish;
+    image.onerror = () => {
+      if (!attemptedFallback && fallbackSource && source !== fallbackSource) {
+        attemptedFallback = true;
+        image.src = fallbackSource;
+        return;
+      }
+
+      resolve(false);
+    };
+    image.src = source;
+  });
+}
+
+export function preloadAsset(source) {
+  if (typeof Image === "undefined" || !source) return Promise.resolve(false);
+
+  const remoteSource = getAssetUrl(source);
+  const localSource = getLocalAssetUrl(source);
+  const cacheKey = `${remoteSource}|${localSource}`;
+
+  if (!imagePreloadCache.has(cacheKey)) {
+    imagePreloadCache.set(
+      cacheKey,
+      loadDecodedImage(remoteSource, localSource),
+    );
+  }
+
+  return imagePreloadCache.get(cacheKey);
+}
+
+export function preloadProductAssets(product) {
+  const sources = product?.images?.length
+    ? product.images.map((image) =>
+        typeof image === "string" ? image : image?.src,
+      )
+    : [product?.image];
+
+  const [primarySource, ...secondarySources] = [
+    ...new Set(sources.filter(Boolean)),
+  ];
+
+  if (!primarySource) return Promise.resolve([]);
+
+  return preloadAsset(primarySource).then(() =>
+    Promise.allSettled(secondarySources.map(preloadAsset)),
+  );
 }

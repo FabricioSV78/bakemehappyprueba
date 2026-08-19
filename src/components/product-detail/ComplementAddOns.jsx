@@ -31,6 +31,7 @@ function ComplementItems({ options, selectedItems, onQuantityChange }) {
                   style={{ objectPosition: option.imagePosition ?? "center" }}
                   loading="lazy"
                   decoding="async"
+                  revealWhenReady
                   width="96"
                   height="96"
                 />
