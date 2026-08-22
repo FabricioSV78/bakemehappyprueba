@@ -619,4 +619,18 @@ export const thematicProducts = [
       "30 porciones - Large: S/ 300",
     ],
   }),
+  createThematicProduct({
+    id: 144,
+    name: "Torta Lazos y Corazones",
+    folder: "Torta lazos y corazones",
+    description: "Torta decorada con buttercream y lacitos de tela.",
+    occasions: ["PARA EL", "PARA ELLA", "BODAS"],
+    tags: ["Lazos", "Corazones"],
+    prices: [
+      "Tiny cake: S/ 90",
+      "Small: S/ 120",
+      "Medium: S/ 160",
+      "Large: S/ 200",
+    ],
+  }),
 ];

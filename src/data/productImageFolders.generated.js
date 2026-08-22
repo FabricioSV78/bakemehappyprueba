@@ -54,6 +54,7 @@ export const productImageFolders = [
   "/images/webp/TORTAS/tortas tematicas/Suit Village",
   "/images/webp/TORTAS/tortas tematicas/Tiny friends",
   "/images/webp/TORTAS/tortas tematicas/Torta floreada",
+  "/images/webp/TORTAS/tortas tematicas/Torta lazos y corazones",
   "/images/webp/TORTAS/tortas tematicas/Unicornio",
   "/images/webp/TORTAS/tortas tematicas/Vintage love",
   "/images/webp/TORTAS/tortas tematicas/Vintage Maria",

@@ -4,7 +4,7 @@ import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 import { products } from "../data/products";
 
-const bestSellerProductIds = [101, 103, 7, 8];
+const bestSellerProductIds = [110, 103, 7, 114];
 const bestSellerProducts = bestSellerProductIds
   .map((productId) => products.find((product) => product.id === productId))
   .filter(Boolean);

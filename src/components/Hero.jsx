@@ -4,13 +4,6 @@ import AssetImage from "./AssetImage";
 
 const HERO_SLIDES = [
   {
-    src: "/images/webp/hero 1.webp",
-    position:
-      "object-[86%_top] sm:object-[93%_top] lg:object-[68%_45%]",
-    mobileTop: "-7%",
-    mobileHeight: "107%",
-  },
-  {
     src: "/images/webp/hero 2.webp",
     position:
       "object-[83%_50%] sm:object-[90%_34%] lg:object-[68%_50%]",

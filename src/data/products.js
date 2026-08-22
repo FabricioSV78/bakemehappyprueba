@@ -701,6 +701,7 @@ const existingProducts = [
   {
     id: 29,
     name: "Cupcakes con Fondant",
+    isVisible: false,
     description:
       "Cupcakes con buttercream y detalles personalizados en fondant.",
     category: "Complementos",
@@ -731,6 +732,7 @@ const existingProducts = [
   {
     id: 30,
     name: "Cupcakes con Fresas",
+    isVisible: false,
     description:
       "Cupcakes con buttercream, fresas frescas o mini macarons.",
     category: "Complementos",
@@ -785,6 +787,7 @@ const existingProducts = [
   {
     id: 32,
     name: "Cake Pops Complejos",
+    isVisible: false,
     description:
       "Cake pops personalizados con detalles complejos en fondant.",
     category: "Complementos",
@@ -837,6 +840,7 @@ const existingProducts = [
   {
     id: 34,
     name: "Paletas Complejas",
+    isVisible: false,
     description:
       "Paletas personalizadas con personajes o detalles complejos en fondant.",
     category: "Complementos",
@@ -862,12 +866,17 @@ const existingProducts = [
   },
 ];
 
-export const products = [
+const allProducts = [
   ...thematicProducts,
   ...existingProducts.filter(
     (product) => product.category !== "Tortas tematicas",
   ),
 ];
+
+// Los productos ocultos conservan toda su configuración para poder reactivarlos.
+export const products = allProducts.filter(
+  (product) => product.isVisible !== false,
+);
 
 export const categories = [
   "Tortas clasicas",
