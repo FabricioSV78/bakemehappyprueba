@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Menu, MessageCircle, Phone, X } from "lucide-react";
+import { Menu, MessageCircle, X } from "lucide-react";
 import {
-  getPhoneUrl,
   getWhatsAppUrl,
   NAV_LINKS,
   SITE_CONFIG,
@@ -48,8 +47,6 @@ export default function Header({ currentPath = "/", onOpenOrderModal }) {
     : currentPath === "/catalogo"
       ? "/tienda"
       : currentPath;
-  const contactPhones = SITE_CONFIG.contactPhones ?? [];
-
   useEffect(() => {
     const closeMenu = () => setIsOpen(false);
     window.addEventListener("resize", closeMenu);
@@ -69,17 +66,6 @@ export default function Header({ currentPath = "/", onOpenOrderModal }) {
               external
               compact
             />
-
-            {contactPhones.map((phone) => (
-              <HeaderContactLink
-                key={`${phone.label}-${phone.number}`}
-                href={getPhoneUrl(phone.number)}
-                icon={Phone}
-                label={phone.label}
-                value={phone.display}
-                compact
-              />
-            ))}
           </div>
 
           <p className="text-right text-[11px] font-semibold uppercase tracking-[0.16em] text-plum/85">
@@ -148,17 +134,6 @@ export default function Header({ currentPath = "/", onOpenOrderModal }) {
                 onClick={() => setIsOpen(false)}
                 external
               />
-
-              {contactPhones.map((phone) => (
-                <HeaderContactLink
-                  key={`${phone.label}-${phone.number}-mobile`}
-                  href={getPhoneUrl(phone.number)}
-                  icon={Phone}
-                  label={phone.label}
-                  value={phone.display}
-                  onClick={() => setIsOpen(false)}
-                />
-              ))}
             </div>
 
             <nav className="mt-2 flex flex-col" aria-label="Móvil">

@@ -22,7 +22,7 @@ const faqs = [
   {
     question: "¿Tienen delivery?",
     answer:
-      "Sí, se coordina según zona, fecha y horario. También puede acordarse recojo en punto definido previamente.",
+      "Sí, el delivery tiene un costo adicional segun la zona. También puede acordarse recojo en nuestro taller.",
   },
 ];
 

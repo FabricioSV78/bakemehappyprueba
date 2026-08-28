@@ -1,4 +1,6 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ArrowLeft,
   ArrowRight,
   Heart,
   MessageCircle,
@@ -23,12 +25,60 @@ function getShortCakeName(productName) {
 }
 
 export default function FeaturedGallery({ onOpenOrderModal }) {
+  const carouselRef = useRef(null);
+  const [currentCakeIndex, setCurrentCakeIndex] = useState(0);
+
+  const updateCurrentCake = useCallback(() => {
+    const carousel = carouselRef.current;
+    const firstCard = carousel?.firstElementChild;
+    if (!carousel || !firstCard) return;
+
+    const styles = window.getComputedStyle(carousel);
+    const gap = Number.parseFloat(styles.columnGap || styles.gap) || 0;
+    const step = firstCard.getBoundingClientRect().width + gap;
+    const nextIndex = Math.min(
+      classicCakes.length - 1,
+      Math.max(0, Math.round(carousel.scrollLeft / step)),
+    );
+
+    setCurrentCakeIndex(nextIndex);
+  }, []);
+
+  const scrollToCake = (cakeIndex) => {
+    const carousel = carouselRef.current;
+    const cards = carousel?.children;
+    if (!carousel || !cards?.length) return;
+
+    const nextIndex = Math.min(
+      cards.length - 1,
+      Math.max(0, cakeIndex),
+    );
+    const card = cards[nextIndex];
+    const styles = window.getComputedStyle(carousel);
+    const gap = Number.parseFloat(styles.columnGap || styles.gap) || 0;
+    const step = card.getBoundingClientRect().width + gap;
+
+    carousel.scrollTo({
+      left: nextIndex * step,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+    setCurrentCakeIndex(nextIndex);
+  };
+
+  useEffect(() => {
+    const handleResize = () => updateCurrentCake();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [updateCurrentCake]);
+
   if (classicCakes.length === 0) return null;
 
   return (
     <section
       id="galeria"
-      className="section-space relative hidden scroll-mt-20 overflow-hidden border-y border-blush/25 bg-[linear-gradient(135deg,#FFF4ED_0%,#FFFAF7_48%,#EFF0FC_100%)] lg:block"
+      className="section-space relative scroll-mt-20 overflow-hidden border-y border-blush/25 bg-[linear-gradient(135deg,#FFF4ED_0%,#FFFAF7_48%,#EFF0FC_100%)]"
       aria-labelledby="featured-cakes-title"
     >
       <div
@@ -54,7 +104,7 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-10">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] items-center gap-12 px-5 sm:px-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-10">
         <Reveal
           className="mx-auto max-w-xl text-center lg:mx-0 lg:text-left"
           direction="left"
@@ -94,12 +144,19 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
         </Reveal>
 
         <Reveal
-          className="classic-collage-reveal relative mx-auto h-[34rem] w-full max-w-[44rem] xl:h-[39rem]"
+          className="classic-collage-reveal relative mx-auto w-full max-w-[44rem] lg:h-[34rem] xl:h-[39rem]"
           direction="scale"
           delay={100}
           role="group"
           aria-label="Collage de tortas clásicas"
+          aria-describedby="classic-cakes-mobile-hint"
         >
+          <p
+            id="classic-cakes-mobile-hint"
+            className="absolute -top-7 left-0 text-xs font-medium text-ink/60 lg:hidden"
+          >
+            Desliza para ver más tortas
+          </p>
           <div
             className="pointer-events-none absolute -bottom-8 -right-8 h-56 w-56 rounded-full bg-lavender/15 blur-2xl"
             aria-hidden="true"
@@ -109,7 +166,11 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
             aria-hidden="true"
           />
 
-          <div className="classic-cake-collage relative z-10 h-full">
+          <div
+            ref={carouselRef}
+            className="classic-cake-collage relative z-10 h-[26rem] sm:h-[29rem] lg:h-full"
+            onScroll={updateCurrentCake}
+          >
             {classicCakes.map((product, index) => (
               <article
                 key={product.id}
@@ -146,6 +207,30 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
                 </a>
               </article>
             ))}
+          </div>
+
+          <div
+            className="relative z-20 mt-4 flex items-center justify-center gap-3 lg:hidden"
+            aria-label="Controles de tortas clásicas"
+          >
+            <button
+              type="button"
+              onClick={() => scrollToCake(currentCakeIndex - 1)}
+              disabled={currentCakeIndex === 0}
+              className="grid h-12 w-12 place-items-center rounded-full border border-blush/35 bg-white text-ink shadow-sm transition-[color,transform,box-shadow,opacity] duration-200 hover:-translate-y-0.5 hover:text-plum hover:shadow-md disabled:pointer-events-none disabled:opacity-35"
+              aria-label="Ver torta anterior"
+            >
+              <ArrowLeft size={19} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToCake(currentCakeIndex + 1)}
+              disabled={currentCakeIndex === classicCakes.length - 1}
+              className="grid h-12 w-12 place-items-center rounded-full border border-plum/30 bg-white text-plum shadow-sm ring-4 ring-lavender/20 transition-[color,transform,box-shadow,opacity] duration-200 hover:-translate-y-0.5 hover:shadow-md disabled:pointer-events-none disabled:opacity-35"
+              aria-label="Ver siguiente torta"
+            >
+              <ArrowRight size={19} aria-hidden="true" />
+            </button>
           </div>
 
           <Sparkles

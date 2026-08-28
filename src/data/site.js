@@ -1,17 +1,10 @@
 export const SITE_CONFIG = {
   whatsappNumber: "51986943948", // Reemplazar por el numero real, sin simbolos.
   whatsappDisplay: "+51 986 943 948",
-  contactPhones: [
-    {
-      label: "Llamadas y pedidos",
-      number: "51986943948",
-      display: "+51 986 943 948",
-    },
-  ],
   instagramHandle: "@bakemehappy.pe_",
   instagramUrl: "https://www.instagram.com/bakemehappy.pe_/",
   location: "Trujillo, Peru",
-  hours: "Lunes a sabado, 9:00 a.m. - 10:30 p.m.",
+  hours: "Lunes a sabado, 9:00 a.m. - 9:00 p.m.",
   address: "Punto de recojo previa coordinacion",
 };
 
@@ -36,11 +29,4 @@ export function getWhatsAppUrl(message = GENERAL_WHATSAPP_MESSAGE) {
   return typeof window === "undefined"
     ? trackingPath
     : new URL(trackingPath, window.location.origin).href;
-}
-
-export function getPhoneUrl(number) {
-  const normalizedNumber = String(number).replace(/[^\d+]/g, "");
-  return normalizedNumber.startsWith("+")
-    ? `tel:${normalizedNumber}`
-    : `tel:+${normalizedNumber}`;
 }

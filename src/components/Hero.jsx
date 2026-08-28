@@ -116,7 +116,7 @@ export default function Hero({ onOpenOrderModal }) {
             style={{ "--hero-delay": "60ms" }}
           >
             <CakeSlice size={15} aria-hidden="true" />
-            Tu pastelería virtual en Trujillo
+            Tu pastelería creativa en Trujillo
           </div>
           <h1
             className="hero-reveal break-words font-display text-[clamp(2.6rem,12vw,3.5rem)] font-semibold leading-[0.98] text-ink sm:text-6xl lg:text-7xl"

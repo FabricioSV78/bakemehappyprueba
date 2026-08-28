@@ -48,13 +48,11 @@ export default function BrandLockup({
   return (
     <span className={`inline-flex min-w-0 items-center gap-3 ${className}`}>
       <AssetImage
-        src="/images/webp/LOGO/logo-principal-header.webp"
+        src="/images/webp/LOGO/logo-cake-transparent.webp"
         alt=""
-        className={`${styles.mark} shrink-0 rounded-[1rem] object-cover shadow-sm ring-1 ${
-          inverted ? "ring-white/20" : "ring-ink/10"
-        }`}
-        width="320"
-        height="320"
+        className={`${styles.mark} shrink-0 object-contain drop-shadow-[0_3px_6px_rgba(23,54,109,0.14)]`}
+        width="512"
+        height="512"
       />
       <span className="min-w-0">
         <span

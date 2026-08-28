@@ -26,10 +26,10 @@ export default {
         },
       },
       fontFamily: {
-        // Cambio 4: primero se declaran las familias oficiales del manual.
-        // Las siguientes son equivalentes web hasta disponer de sus .woff2.
-        sans: ["BR Omny", "Nunito Sans", "Arial", "sans-serif"],
-        display: ["Super Dream", "Fredoka", "BR Omny", "sans-serif"],
+        // Super Dream conserva la identidad de los títulos; Poppins cubre
+        // cuerpo, navegación y controles con archivos locales optimizados.
+        sans: ["Poppins", "Arial", "sans-serif"],
+        display: ["Super Dream", "Poppins", "Arial", "sans-serif"],
         accent: ["MindBlue", "Caveat", "cursive"],
       },
       boxShadow: {

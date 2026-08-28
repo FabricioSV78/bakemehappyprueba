@@ -1,6 +1,5 @@
-import { Clock3, Instagram, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Clock3, Instagram, MapPin, MessageCircle } from "lucide-react";
 import {
-  getPhoneUrl,
   getWhatsAppUrl,
   NAV_LINKS,
   SITE_CONFIG,
@@ -12,8 +11,6 @@ const linkClass =
   "text-sm leading-6 text-white/65 transition-colors hover:text-white";
 
 export default function Footer() {
-  const contactPhones = SITE_CONFIG.contactPhones ?? [];
-
   return (
     <footer className="brand-scallop-top bg-ink text-white">
       <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-14">
@@ -83,21 +80,6 @@ export default function Footer() {
                 <MessageCircle className="shrink-0 text-blush" size={18} aria-hidden="true" />
                 {SITE_CONFIG.whatsappDisplay}
               </a>
-              {contactPhones.map((phone) => (
-                <a
-                  key={`${phone.label}-${phone.number}-footer`}
-                  href={getPhoneUrl(phone.number)}
-                  className={`inline-flex items-center gap-3 ${linkClass}`}
-                >
-                  <Phone className="shrink-0 text-blush" size={18} aria-hidden="true" />
-                  <span>
-                    <span className="block text-[10px] uppercase tracking-wider text-white/45">
-                      {phone.label}
-                    </span>
-                    {phone.display}
-                  </span>
-                </a>
-              ))}
               <a
                 href={SITE_CONFIG.instagramUrl}
                 target="_blank"

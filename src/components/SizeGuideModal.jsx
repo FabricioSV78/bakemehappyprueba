@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import AssetImage from "./AssetImage";
 
 const ink = "#2E236C";
 const pink = "#E96B9C";
@@ -8,26 +9,16 @@ const cream = "#FFF7F0";
 
 function LogoMark() {
   return (
-    <div className="mx-auto flex w-fit flex-col items-center text-center">
-      <div className="flex items-center justify-center gap-2 sm:gap-3">
-        <span className="font-display text-[clamp(1.9rem,5.4vw,3.25rem)] font-black leading-none tracking-normal text-[#123B82]">
-          Bake
-        </span>
-        <span className="relative grid h-[clamp(2.35rem,6.3vw,3.7rem)] w-[clamp(2.45rem,6.5vw,3.9rem)] place-items-center rounded-[14px] border-[3px] border-[#123B82] bg-[#F9B5CA] text-[clamp(0.95rem,2.6vw,1.45rem)] font-black leading-none text-white shadow-[inset_0_-8px_0_rgba(18,59,130,0.14)]">
-          <span className="absolute -top-3.5 left-1/2 h-3.5 w-3.5 -translate-x-1/2 rounded-full border-2 border-[#123B82] bg-[#E95886]" />
-          <span className="absolute -top-1.5 h-2.5 w-10 rounded-t-full border-t-[3px] border-[#123B82]" />
-          me
-        </span>
-        <span className="font-display text-[clamp(1.9rem,5.4vw,3.25rem)] font-black leading-none tracking-normal text-[#123B82]">
-          Happy
-        </span>
-      </div>
-      <div className="mt-1.5 flex items-center justify-center gap-2 text-[clamp(0.58rem,1.25vw,0.76rem)] font-semibold uppercase tracking-[0.3em] text-[#123B82]">
-        <span className="h-1.5 w-1.5 rounded-full bg-[#F29AB8]" />
-        Pastelería artesanal
-        <span className="h-1.5 w-1.5 rounded-full bg-[#F29AB8]" />
-      </div>
-    </div>
+    <AssetImage
+      src="/images/webp/LOGO/logo-horizontal-transparent.webp"
+      alt="Bake Me Happy"
+      width="780"
+      height="181"
+      loading="eager"
+      decoding="async"
+      draggable="false"
+      className="relative z-10 mx-auto block h-auto w-[78%] max-w-[25rem] select-none object-contain sm:w-[66%]"
+    />
   );
 }
 

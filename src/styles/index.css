@@ -1,17 +1,49 @@
 @font-face {
-  font-family: "Fredoka";
+  font-family: "Super Dream";
   font-style: normal;
   font-display: swap;
-  font-weight: 300 700;
-  src: url("../assets/fonts/fredoka-latin-wght-v5.3.0.woff2") format("woff2-variations");
+  font-weight: 400;
+  src: url("../assets/fonts/super-dream-v1.000.ttf") format("truetype");
 }
 
 @font-face {
-  font-family: "Nunito Sans";
+  font-family: "Poppins";
   font-style: normal;
   font-display: swap;
-  font-weight: 200 1000;
-  src: url("../assets/fonts/nunito-sans-latin-wght-v5.3.0.woff2") format("woff2-variations");
+  font-weight: 400;
+  src: url("../assets/fonts/poppins-latin-400-v24.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("../assets/fonts/poppins-latin-500-v24.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("../assets/fonts/poppins-latin-600-v24.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("../assets/fonts/poppins-latin-700-v24.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url("../assets/fonts/poppins-latin-900-v24.woff2") format("woff2");
 }
 
 @tailwind base;
@@ -44,7 +76,7 @@
     min-width: 320px;
     overflow-x: hidden;
     background: #fff4ed;
-    font-family: "BR Omny", "Nunito Sans", Arial, sans-serif;
+    font-family: "Poppins", Arial, sans-serif;
   }
 
   * {
@@ -400,6 +432,40 @@
   opacity: 1;
   transform: none;
   will-change: auto;
+}
+
+@media (max-width: 1023px) {
+  .classic-cake-collage {
+    grid-template-columns: none;
+    grid-template-rows: minmax(0, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 0.125rem;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: none;
+    padding: 0.25rem 0.125rem 0.75rem;
+  }
+
+  .classic-cake-collage::-webkit-scrollbar {
+    display: none;
+  }
+
+  .classic-cake-tile-1,
+  .classic-cake-tile-2,
+  .classic-cake-tile-3,
+  .classic-cake-tile-4,
+  .classic-cake-tile-5,
+  .classic-cake-tile-6 {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .classic-cake-tile {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
 }
 
 @media (max-width: 1023px) {
