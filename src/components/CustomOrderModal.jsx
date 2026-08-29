@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { getWhatsAppUrl } from "../data/site";
 import { cakeFlavors, fillingFlavors, sizeGuide } from "../data/products";
+import { isDeliveryTimeWithinRange } from "../utils/productDetail";
 import { DateTimeFields } from "./product-detail/ProductFormFields";
 import { SizeGuideContent } from "./SizeGuideModal";
 
@@ -353,6 +354,13 @@ export default function CustomOrderModal({ isOpen, onClose }) {
 
     if (!form.date || !form.time) {
       setScheduleError("Selecciona la fecha y la hora de entrega.");
+      return;
+    }
+
+    if (!isDeliveryTimeWithinRange(form.time)) {
+      setScheduleError(
+        "Selecciona una hora entre las 7:00 a. m. y las 9:00 p. m.",
+      );
       return;
     }
 

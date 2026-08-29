@@ -2,6 +2,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ArrowLeft, ArrowRight, CalendarDays, Clock, Minus, Plus } from "lucide-react";
 import {
+  DELIVERY_CLOSING_HOUR as CLOSING_HOUR,
+  DELIVERY_OPENING_HOUR as OPENING_HOUR,
   formatDisplayDate,
   formatDisplayTime,
   formatSoles,
@@ -29,8 +31,6 @@ const CALENDAR_MONTHS = [
   "Noviembre",
   "Diciembre",
 ];
-const OPENING_HOUR = 9;
-const CLOSING_HOUR = 22;
 const CUSTOM_TIME_HOURS = Array.from(
   { length: CLOSING_HOUR - OPENING_HOUR + 1 },
   (_, index) => String(OPENING_HOUR + index).padStart(2, "0"),
@@ -439,7 +439,7 @@ function TimePickerField({
             <div>
               <p className="text-sm font-semibold text-ink">Hora deseada</p>
               <p className="text-xs text-ink/55">
-                Atención de 9:00 a. m. a 10:00 p. m.
+                Entregas y recojos de 7:00 a. m. a 9:00 p. m.
               </p>
             </div>
           </div>

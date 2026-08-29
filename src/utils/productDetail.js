@@ -140,6 +140,22 @@ export function formatDisplayTime(value) {
   return `${displayHours}:${minutes} ${period}`;
 }
 
+export const DELIVERY_OPENING_HOUR = 7;
+export const DELIVERY_CLOSING_HOUR = 21;
+
+export function isDeliveryTimeWithinRange(value) {
+  if (!/^\d{2}:\d{2}$/.test(value ?? "")) return false;
+
+  const [hours, minutes] = value.split(":").map(Number);
+  if (hours > 23 || minutes > 59) return false;
+
+  const selectedMinutes = hours * 60 + minutes;
+  return (
+    selectedMinutes >= DELIVERY_OPENING_HOUR * 60 &&
+    selectedMinutes <= DELIVERY_CLOSING_HOUR * 60
+  );
+}
+
 function getGuideLabel(size) {
   return `${size.portions} - ${size.name}`;
 }
