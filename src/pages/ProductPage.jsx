@@ -41,6 +41,7 @@ import {
   isMiniCake,
   isPackComplement,
   isPersonalizedCake,
+  resolveOptionSurcharges,
 } from "../utils/productDetail";
 import SizeGuideModal from "../components/SizeGuideModal";
 
@@ -105,6 +106,13 @@ export default function ProductPage({ currentPath }) {
   const [quantity, setQuantity] = useState(1);
   const [selectedComplements, setSelectedComplements] = useState({});
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
+  const pricedFlavorOptions = useMemo(
+    () =>
+      personalizedCake
+        ? resolveOptionSurcharges(flavorOptions, selectedSize)
+        : flavorOptions,
+    [flavorOptions, personalizedCake, selectedSize],
+  );
 
   useEffect(() => {
     setSelectedSize(sizeOptions[0]?.label ?? "");
@@ -142,7 +150,7 @@ export default function ProductPage({ currentPath }) {
   const selectedPrice = sizeOptions.find((size) => size.label === selectedSize);
   const referenceValue = selectedPrice?.value ?? product.price ?? "Consultar";
   const flavorSurcharge = personalizedCake
-    ? getOptionSurcharge(flavorOptions, selectedFlavor)
+    ? getOptionSurcharge(flavorOptions, selectedFlavor, selectedSize)
     : 0;
   const fillingSurcharge = personalizedCake
     ? getOptionSurcharge(fillingOptions, selectedFilling)
@@ -435,7 +443,7 @@ export default function ProductPage({ currentPath }) {
                             <SelectField
                               label={flavorSelectionLabel}
                               name="flavor"
-                              options={flavorOptions}
+                              options={pricedFlavorOptions}
                               value={selectedFlavor}
                               onChange={setSelectedFlavor}
                             />
@@ -474,7 +482,7 @@ export default function ProductPage({ currentPath }) {
                               <SelectField
                                 label="Sabor"
                                 name="flavor"
-                                options={flavorOptions}
+                                options={pricedFlavorOptions}
                                 value={selectedFlavor}
                                 onChange={setSelectedFlavor}
                               />
@@ -521,7 +529,7 @@ export default function ProductPage({ currentPath }) {
                           <SelectField
                             label="Sabor"
                             name="flavor"
-                            options={flavorOptions}
+                            options={pricedFlavorOptions}
                             value={selectedFlavor}
                             onChange={setSelectedFlavor}
                           />

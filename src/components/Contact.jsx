@@ -74,24 +74,32 @@ export default function Contact() {
           direction="right"
           delay={100}
         >
-          <div className="absolute inset-0 bg-soft-grid bg-[size:28px_28px]" />
-          <div className="absolute left-[18%] top-[24%] h-px w-[68%] rotate-12 bg-plum/20" />
-          <div className="absolute left-[12%] top-[58%] h-px w-[74%] -rotate-6 bg-plum/20" />
-          <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center">
-            <span className="grid h-16 w-16 place-items-center rounded-full bg-ink text-white shadow-lift">
-              <MapPin size={28} aria-hidden="true" />
-            </span>
-            <h3 className="mt-5 font-display text-2xl text-ink">
-              Trujillo, Perú
-            </h3>
-            <p className="mt-2 max-w-[240px] text-sm leading-6 text-ink/65">
-              Delivery o recojo previa coordinación.
+          <iframe
+            title="Ubicación de Bake Me Happy en Trujillo"
+            src={SITE_CONFIG.mapEmbedUrl}
+            className="absolute inset-0 h-full w-full border-0"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
+          <div className="pointer-events-none absolute left-3 right-3 top-3 z-10 rounded-xl border border-lavender/25 bg-white/95 px-4 py-3 text-left shadow-soft backdrop-blur sm:left-4 sm:right-auto sm:w-[17rem]">
+            <p className="text-sm font-semibold text-ink">
+              {SITE_CONFIG.mapLabel}
             </p>
-            <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-plum">
-              <Navigation size={15} aria-hidden="true" />
-              Ubicación referencial
-            </span>
+            <p className="mt-1 text-xs leading-5 text-ink/65">
+              {SITE_CONFIG.mapAddress}
+            </p>
           </div>
+          <a
+            href={SITE_CONFIG.mapsUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="absolute bottom-4 left-1/2 z-10 inline-flex min-h-11 -translate-x-1/2 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-white/80 bg-white/95 px-5 py-2.5 text-sm font-semibold text-ink shadow-lift backdrop-blur transition-[color,transform,box-shadow] duration-200 hover:-translate-x-1/2 hover:-translate-y-0.5 hover:text-plum"
+            aria-label="Abrir la ubicación de Bake Me Happy en Google Maps"
+          >
+            <Navigation size={17} aria-hidden="true" />
+            Cómo llegar
+          </a>
         </Reveal>
       </div>
     </section>

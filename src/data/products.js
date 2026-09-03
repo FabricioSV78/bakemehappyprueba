@@ -913,17 +913,32 @@ export const cakeFlavors = [
   {
     label: "Zanahoria con pecanas",
     helper: "Sabor especial",
-    surcharge: 20,
+    surchargeBySize: {
+      tiny: 20,
+      small: 40,
+      medium: 60,
+      large: 80,
+    },
   },
   {
     label: "Marmoleado de chocolate y vainilla",
     helper: "Sabor especial",
-    surcharge: 20,
+    surchargeBySize: {
+      tiny: 10,
+      small: 20,
+      medium: 30,
+      large: 40,
+    },
   },
   {
     label: "Naranja wando",
     helper: "Sabor especial",
-    surcharge: 20,
+    surchargeBySize: {
+      tiny: 10,
+      small: 20,
+      medium: 30,
+      large: 40,
+    },
   },
 ];
 

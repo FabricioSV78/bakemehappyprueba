@@ -13,7 +13,12 @@ import {
 } from "lucide-react";
 import { getWhatsAppUrl } from "../data/site";
 import { cakeFlavors, fillingFlavors, sizeGuide } from "../data/products";
-import { isDeliveryTimeWithinRange } from "../utils/productDetail";
+import {
+  formatSoles,
+  getOptionSurcharge,
+  isDeliveryTimeWithinRange,
+  resolveOptionSurcharges,
+} from "../utils/productDetail";
 import { DateTimeFields } from "./product-detail/ProductFormFields";
 import { SizeGuideContent } from "./SizeGuideModal";
 
@@ -70,10 +75,10 @@ function buildSizeOptions() {
   return [...oneTier, ...twoTiers, ...special];
 }
 
-function buildPricedOptions(options) {
-  return options.map((option) => ({
+function buildPricedOptions(options, selectedSize = "") {
+  return resolveOptionSurcharges(options, selectedSize).map((option) => ({
     ...option,
-    helper: option.surcharge ? `Adicional S/ ${option.surcharge}` : "",
+    helper: option.surcharge ? `Adicional ${formatSoles(option.surcharge)}` : "",
   }));
 }
 
@@ -266,14 +271,23 @@ function DeliveryOptions({ value, onChange }) {
 
 export default function CustomOrderModal({ isOpen, onClose }) {
   const sizeOptions = useMemo(buildSizeOptions, []);
-  const flavorOptions = useMemo(() => buildPricedOptions(cakeFlavors), []);
   const fillingOptions = useMemo(() => buildPricedOptions(fillingFlavors), []);
   const [form, setForm] = useState({
     ...INITIAL_FORM,
     size: sizeOptions[0]?.label ?? "",
-    flavor: getOptionValue(flavorOptions[0]),
+    flavor: getOptionValue(cakeFlavors[0]),
     filling: getOptionValue(fillingOptions[0]),
   });
+  const flavorOptions = useMemo(
+    () => buildPricedOptions(cakeFlavors, form.size),
+    [form.size],
+  );
+  const flavorSurcharge = getOptionSurcharge(
+    cakeFlavors,
+    form.flavor,
+    form.size,
+  );
+  const fillingSurcharge = getOptionSurcharge(fillingFlavors, form.filling);
   const [referenceFile, setReferenceFile] = useState(null);
   const [uploadError, setUploadError] = useState("");
   const [scheduleError, setScheduleError] = useState("");
@@ -308,8 +322,8 @@ export default function CustomOrderModal({ isOpen, onClose }) {
     const lines = [
       "Hola, quisiera cotizar una torta personalizada desde la web de Bake Me Happy.",
       `Tamaño: ${form.size}.`,
-      `Sabor: ${form.flavor}.`,
-      `Relleno: ${form.filling}.`,
+      `Sabor: ${form.flavor}${flavorSurcharge ? ` (+ ${formatSoles(flavorSurcharge)})` : ""}.`,
+      `Relleno: ${form.filling}${fillingSurcharge ? ` (+ ${formatSoles(fillingSurcharge)})` : ""}.`,
       form.occasion ? `Temática: ${form.occasion}.` : null,
       form.colors ? `Colores: ${form.colors}.` : null,
       form.message ? `Mensaje en la torta: ${form.message}.` : null,

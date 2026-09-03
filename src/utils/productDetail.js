@@ -8,12 +8,53 @@ export function getOptionValue(option) {
   return option?.label ?? option ?? "";
 }
 
-export function getOptionSurcharge(options, selectedValue) {
+export function getCakeSizeKey(sizeValue) {
+  const normalizedSize = String(sizeValue ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (normalizedSize.includes("tiny")) return "tiny";
+  if (normalizedSize.includes("small")) return "small";
+  if (normalizedSize.includes("medium")) return "medium";
+  if (normalizedSize.includes("large")) return "large";
+
+  const [, portions] = normalizedSize.match(/(15|20|30)\s*porciones?/) ?? [];
+  if (portions === "15") return "small";
+  if (portions === "20") return "medium";
+  if (portions === "30") return "large";
+
+  return null;
+}
+
+export function resolveOptionSurcharge(option, selectedSize = "") {
+  if (!option || typeof option !== "object") return 0;
+
+  const sizeKey = getCakeSizeKey(selectedSize);
+  if (option.surchargeBySize && sizeKey) {
+    return option.surchargeBySize[sizeKey] ?? 0;
+  }
+
+  return option.surcharge ?? 0;
+}
+
+export function resolveOptionSurcharges(options, selectedSize = "") {
+  return options.map((option) =>
+    typeof option === "object"
+      ? {
+          ...option,
+          surcharge: resolveOptionSurcharge(option, selectedSize),
+        }
+      : option,
+  );
+}
+
+export function getOptionSurcharge(options, selectedValue, selectedSize = "") {
   const selectedOption = options.find(
     (option) => getOptionValue(option) === selectedValue,
   );
 
-  return selectedOption?.surcharge ?? 0;
+  return resolveOptionSurcharge(selectedOption, selectedSize);
 }
 
 export function getCurrencyAmount(value) {

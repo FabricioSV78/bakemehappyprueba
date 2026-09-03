@@ -1,18 +1,61 @@
 import { assetVersions } from "../data/assetVersions.generated";
 
-const configuredR2BaseUrl = import.meta.env.VITE_R2_PUBLIC_URL?.trim();
+function normalizeBaseUrl(value) {
+  const candidate = value?.trim();
+  if (!candidate) return "";
+
+  try {
+    const url = new URL(candidate);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return "";
+
+    url.search = "";
+    url.hash = "";
+    return `${url.origin}${url.pathname.replace(/\/+$/, "")}`;
+  } catch {
+    return "";
+  }
+}
+
+const configuredR2BaseUrl = normalizeBaseUrl(
+  import.meta.env.VITE_R2_PUBLIC_URL,
+);
 
 export const R2_ASSETS_ENABLED = Boolean(configuredR2BaseUrl);
+export const R2_ASSET_ORIGIN = R2_ASSETS_ENABLED
+  ? new URL(configuredR2BaseUrl).origin
+  : "";
 const imagePreloadCache = new Map();
 
-function normalizeBaseUrl(value) {
-  return value?.replace(/\/+$/, "") ?? "";
+function ensureConnectionHint(rel, href) {
+  if (!href || document.head.querySelector(`link[rel="${rel}"][href="${href}"]`)) {
+    return;
+  }
+
+  const link = document.createElement("link");
+  link.rel = rel;
+  link.href = href;
+  document.head.append(link);
+}
+
+/**
+ * Abre anticipadamente la conexion al dominio R2. Solo se ejecuta cuando la
+ * variable publica contiene una URL valida; en local no agrega ningun recurso.
+ */
+export function initializeAssetDelivery() {
+  if (typeof document === "undefined" || !R2_ASSET_ORIGIN) return;
+
+  ensureConnectionHint("dns-prefetch", R2_ASSET_ORIGIN);
+  ensureConnectionHint("preconnect", R2_ASSET_ORIGIN);
 }
 
 function encodeAssetPath(path) {
   return path
     .split("/")
-    .map((segment) => encodeURIComponent(segment))
+    .map((segment) =>
+      // `&` es válido dentro del path. Mantenerlo evita que Vite/Pages busque
+      // literalmente una carpeta llamada `%26` en nombres como "You & Me".
+      encodeURIComponent(segment).replace(/%26/gi, "&"),
+    )
     .join("/");
 }
 

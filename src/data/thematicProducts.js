@@ -633,4 +633,183 @@ export const thematicProducts = [
       "Large: S/ 200",
     ],
   }),
+  createThematicProduct({
+    id: 145,
+    name: "Amor Eterno",
+    folder: "Amor eterno",
+    description:
+      "Torta decorada con buttercream, detalles en masa elástica y flores naturales.",
+    occasions: ["PARA ELLA", "BODAS"],
+    tags: ["Flores naturales", "Masa elástica"],
+    prices: [
+      "15 porciones - Small: S/ 195",
+      "20 porciones - Medium: S/ 230",
+      "30 porciones - Large: S/ 280",
+    ],
+  }),
+  createThematicProduct({
+    id: 146,
+    name: "Blue Celebration",
+    folder: "Blue celebration",
+    description:
+      "Torta decorada con buttercream y detalles en masa elástica.",
+    occasions: ["PARA EL", "PARA ELLA"],
+    tags: ["Celebración", "Masa elástica"],
+    prices: [
+      "15 porciones - Small: S/ 180",
+      "20 porciones - Medium: S/ 220",
+      "30 porciones - Large: S/ 260",
+    ],
+  }),
+  createThematicProduct({
+    id: 147,
+    name: "Guerreras KPOP Musical",
+    folder: "Guerreras KPOP musical",
+    description:
+      "Torta decorada con buttercream y detalles modelados en fondant y masa elástica.",
+    occasions: ["PARA ELLA", "NIÑOS Y NIÑAS"],
+    tags: ["KPOP", "Fondant", "Masa elástica"],
+    prices: [
+      "20 porciones - Medium: S/ 350",
+      "30 porciones - Large: S/ 410",
+    ],
+  }),
+  createThematicProduct({
+    id: 148,
+    name: "Rosa Floral",
+    folder: "Rosa floral",
+    description:
+      "Torta decorada con buttercream y rosetones elaborados en buttercream.",
+    occasions: ["PARA ELLA", "BODAS"],
+    tags: ["Rosetones", "Flores"],
+    prices: [
+      "Tiny cake: S/ 110",
+      "15 porciones - Small: S/ 130",
+      "20 porciones - Medium: S/ 170",
+      "30 porciones - Large: S/ 210",
+    ],
+  }),
+  createThematicProduct({
+    id: 149,
+    name: "Sweet Love",
+    folder: "Sweet love",
+    description:
+      "Torta decorada con buttercream y un corazón elaborado en buttercream.",
+    occasions: ["PARA EL", "PARA ELLA", "BODAS"],
+    tags: ["Corazón", "Romántica"],
+    prices: [
+      "Tiny cake: S/ 110",
+      "15 porciones - Small: S/ 130",
+      "20 porciones - Medium: S/ 170",
+      "30 porciones - Large: S/ 210",
+    ],
+  }),
+  createThematicProduct({
+    id: 150,
+    name: "Jardín Elegante",
+    folder: "Jardín elegante",
+    description:
+      "Torta decorada con buttercream, papel de arroz comestible, lluvia fresca y velas doradas.",
+    occasions: ["PARA ELLA", "BODAS"],
+    tags: ["Papel de arroz", "Flores", "Velas doradas", "Rectangular"],
+    prices: ["15 porciones - Rectangular: S/ 190"],
+  }),
+  createThematicProduct({
+    id: 151,
+    name: "Vintage Birthday",
+    folder: "Vintage birthday",
+    description:
+      "Torta decorada con buttercream, letras en buttercream e imágenes en papel comestible.",
+    occasions: ["PARA EL", "PARA ELLA"],
+    tags: ["Vintage", "Papel comestible", "Cumpleaños"],
+    prices: [
+      "15 porciones - Small: S/ 140",
+      "20 porciones - Medium: S/ 180",
+      "30 porciones - Large: S/ 230",
+    ],
+  }),
+  createThematicProduct({
+    id: 152,
+    name: "Lazos y Corazones: 2 Pisos",
+    folder: "Lazos y corazones 2 pisos",
+    description:
+      "Torta de 2 pisos decorada con buttercream y lacitos de tela.",
+    occasions: ["PARA EL", "PARA ELLA", "BODAS"],
+    tags: ["2 pisos", "Lazos", "Corazones"],
+    prices: [
+      "15 porciones - Small: S/ 250",
+      "20 porciones - Medium: S/ 350",
+      "30 porciones - Large: S/ 410",
+    ],
+  }),
+  createThematicProduct({
+    id: 153,
+    name: "Red Roses",
+    folder: "Red roses",
+    description:
+      "Torta decorada con buttercream, papel de arroz y rosas naturales.",
+    occasions: ["PARA ELLA", "BODAS"],
+    tags: ["Rosas naturales", "Papel de arroz"],
+    prices: [
+      "15 porciones - Small: S/ 180",
+      "20 porciones - Medium: S/ 230",
+      "30 porciones - Large: S/ 280",
+    ],
+  }),
+  createThematicProduct({
+    id: 154,
+    name: "You & Me",
+    folder: "You & Me",
+    description:
+      "Torta romántica decorada con buttercream, una ilustración de pareja en papel comestible y detalles de corazones. La frase es personalizable.",
+    occasions: ["PARA EL", "PARA ELLA", "BODAS"],
+    tags: ["Romántica", "Papel comestible", "Frase personalizable"],
+    prices: [
+      "15 porciones - Small: S/ 140",
+      "20 porciones - Medium: S/ 180",
+      "30 porciones - Large: S/ 220",
+    ],
+  }),
+  createThematicProduct({
+    id: 155,
+    name: "Torta Fabio",
+    folder: "Torta Fabio",
+    description:
+      "Torta para celebrar decorada con buttercream, esferas y número personalizable.",
+    occasions: ["PARA EL", "PARA ELLA"],
+    tags: ["Esferas", "Número personalizable", "Cumpleaños"],
+    prices: [
+      "15 porciones - Small: S/ 195",
+      "20 porciones - Medium: S/ 250",
+      "30 porciones - Large: S/ 300",
+    ],
+  }),
+  createThematicProduct({
+    id: 156,
+    name: "Gender Reveal Vintage",
+    folder: "Gender reveal vintage",
+    description:
+      "Torta con decoración vintage ideal para celebrar la revelación de género de tu bebé, decorada con buttercream y detalles mangueados a mano.",
+    occasions: ["BABY"],
+    tags: ["Gender reveal", "Vintage", "Baby shower"],
+    prices: [
+      "15 porciones - Small: S/ 160",
+      "20 porciones - Medium: S/ 220",
+      "30 porciones - Large: S/ 280",
+    ],
+  }),
+  createThematicProduct({
+    id: 157,
+    name: "Graduación Vintage",
+    folder: "Graduación vintage",
+    description:
+      "Torta decorada con buttercream, flores en masa elástica, diploma y birrete elaborados en masa elástica.",
+    occasions: ["PARA EL", "PARA ELLA", "GRADUACION"],
+    tags: ["Graduación", "Vintage", "Masa elástica"],
+    prices: [
+      "15 porciones - Small: S/ 210",
+      "20 porciones - Medium: S/ 260",
+      "30 porciones - Large: S/ 310",
+    ],
+  }),
 ];

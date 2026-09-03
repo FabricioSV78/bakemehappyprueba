@@ -3,6 +3,11 @@ export const SITE_CONFIG = {
   whatsappDisplay: "+51 986 943 948",
   instagramHandle: "@bakemehappy.pe_",
   instagramUrl: "https://www.instagram.com/bakemehappy.pe_/",
+  mapsUrl: "https://maps.app.goo.gl/dD4yH5LMTx65mfHo7?g_st=am",
+  mapEmbedUrl:
+    "https://www.google.com/maps?q=-8.1116685%2C-79.046463&z=17&output=embed",
+  mapLabel: "Bake Me Happy",
+  mapAddress: "VXQ3+8CM, Covicorti, Trujillo, La Libertad 13011, Perú",
   location: "Trujillo, Peru",
   hours: "Lunes a sabado, 9:00 a.m. - 9:00 p.m.",
   address: "Punto de recojo previa coordinacion",

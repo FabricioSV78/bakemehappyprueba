@@ -45,6 +45,10 @@ Los PNG originales se conservan localmente como fuente, pero se excluyen de
 
 ## Despliegue en Cloudflare Pages y R2
 
+La guía completa para configurar ambos buckets desde el panel, sincronizar las
+imágenes y comprobar el respaldo local está en
+[`docs/CLOUDFLARE_R2.md`](docs/CLOUDFLARE_R2.md).
+
 La arquitectura usa dos buckets distintos:
 
 - `bake-me-happy-assets`: público, para las imágenes del sitio.
@@ -70,11 +74,12 @@ No habilites acceso público ni `r2.dev` en `bake-me-happy-private-uploads`.
 npm run r2:sync
 ```
 
-El comando sube solamente los formatos utilizados por la web y sobrescribe la
-misma clave cuando una imagen cambia, por ejemplo `1.webp`. El hash se agrega
-como parámetro de la URL (`1.webp?v=...`) para invalidar la caché sin acumular
-copias en el bucket. No elimina los archivos locales. En Cloudflare Pages,
-agrega como variable de compilación:
+El comando compara un manifiesto remoto, sube solamente los archivos nuevos o
+modificados y elimina los objetos administrados que ya no existen localmente.
+Cuando una imagen cambia sobrescribe la misma clave, por ejemplo `1.webp`. El
+hash se agrega como parámetro de la URL (`1.webp?v=...`) para invalidar la caché
+sin acumular copias por versión. Los archivos locales siempre se conservan. En
+Cloudflare Pages, agrega como variable de compilación:
 
 ```text
 VITE_R2_PUBLIC_URL=https://assets.tudominio.com

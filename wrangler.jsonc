@@ -2,12 +2,13 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "bake-me-happy",
   "pages_build_output_dir": "./dist",
-  "compatibility_date": "2026-08-06",
+  "compatibility_date": "2026-08-18",
   "upload_source_maps": true,
   "r2_buckets": [
     {
       "binding": "ORDER_UPLOADS",
-      "bucket_name": "bake-me-happy-private-uploads"
+      "bucket_name": "bake-me-happy-private-uploads",
+      "preview_bucket_name": "bake-me-happy-private-uploads"
     }
   ],
   "vars": {
