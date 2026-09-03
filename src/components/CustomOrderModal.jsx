@@ -19,7 +19,10 @@ import {
   isDeliveryTimeWithinRange,
   resolveOptionSurcharges,
 } from "../utils/productDetail";
-import { DateTimeFields } from "./product-detail/ProductFormFields";
+import {
+  DateTimeFields,
+  SelectInput as ResponsiveSelectInput,
+} from "./product-detail/ProductFormFields";
 import { SizeGuideContent } from "./SizeGuideModal";
 
 const INITIAL_FORM = {
@@ -127,23 +130,15 @@ function SelectInput({ label, icon, value, onChange, options }) {
   const selectedOption = options.find((option) => getOptionValue(option) === value);
 
   return (
-    <label className="grid content-start gap-1.5">
+    <label className="grid min-w-0 content-start gap-1.5">
       <FieldLabel icon={icon}>{label}</FieldLabel>
-      <select
+      <ResponsiveSelectInput
+        name={label}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="min-h-12 w-full rounded-xl border border-blush/35 bg-white px-4 text-base font-semibold text-ink outline-none focus:border-plum/45 focus:ring-4 focus:ring-plum/10"
-      >
-        {options.map((option) => {
-          const optionValue = getOptionValue(option);
-
-          return (
-            <option key={optionValue} value={optionValue}>
-              {optionValue}
-            </option>
-          );
-        })}
-      </select>
+        onChange={onChange}
+        options={options}
+        className="rounded-xl"
+      />
       {selectedOption?.helper && (
         <p className="text-sm leading-5 text-ink/55">{selectedOption.helper}</p>
       )}

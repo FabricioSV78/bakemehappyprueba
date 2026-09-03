@@ -1,6 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, ArrowRight, CalendarDays, Clock, Minus, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  ChevronDown,
+  Clock,
+  Minus,
+  Plus,
+} from "lucide-react";
 import {
   DELIVERY_CLOSING_HOUR as CLOSING_HOUR,
   DELIVERY_OPENING_HOUR as OPENING_HOUR,
@@ -741,26 +749,48 @@ export function ClassicSizeOptionsField({ value, onChange, options }) {
 }
 
 export function SelectInput({ name, value, onChange, options, className = "" }) {
-  return (
-    <select
-      name={name}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      className={`min-h-12 min-w-0 w-full rounded-lg border border-blush/35 bg-white px-4 text-base font-semibold text-ink outline-none focus:border-plum/45 focus:ring-4 focus:ring-plum/10 ${className}`}
-    >
-      {options.map((option) => {
-        const optionValue = getOptionValue(option);
-        const surcharge =
-          typeof option === "object" ? option.surcharge ?? 0 : 0;
+  const selectedOption = options.find(
+    (option) => getOptionValue(option) === value,
+  );
+  const selectedValue = selectedOption
+    ? getOptionValue(selectedOption)
+    : value || "Selecciona una opción";
 
-        return (
-          <option key={optionValue} value={optionValue}>
-            {optionValue}
-            {surcharge > 0 ? ` (+ ${formatSoles(surcharge)})` : ""}
-          </option>
-        );
-      })}
-    </select>
+  return (
+    <span
+      className={`relative block min-h-12 min-w-0 w-full rounded-lg border border-blush/35 bg-white transition-[border-color,box-shadow] focus-within:border-plum/45 focus-within:ring-4 focus-within:ring-plum/10 ${className}`}
+    >
+      <span
+        aria-hidden="true"
+        className="flex min-h-12 w-full items-center gap-2.5 px-4 py-2.5 text-left text-base font-semibold leading-5 text-ink sm:leading-6"
+      >
+        <span className="min-w-0 flex-1 whitespace-normal break-words">
+          {selectedValue}
+        </span>
+        <ChevronDown className="shrink-0 text-ink/75" size={16} />
+      </span>
+
+      <select
+        name={name}
+        value={value}
+        title={selectedValue}
+        onChange={(event) => onChange(event.target.value)}
+        className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+      >
+        {options.map((option) => {
+          const optionValue = getOptionValue(option);
+          const surcharge =
+            typeof option === "object" ? option.surcharge ?? 0 : 0;
+
+          return (
+            <option key={optionValue} value={optionValue}>
+              {optionValue}
+              {surcharge > 0 ? ` (+ ${formatSoles(surcharge)})` : ""}
+            </option>
+          );
+        })}
+      </select>
+    </span>
   );
 }
 
