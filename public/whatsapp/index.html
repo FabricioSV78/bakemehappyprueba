@@ -116,7 +116,7 @@
         width="76"
         height="76"
       />
-      <h1>Abriendo WhatsApp…</h1>
+      <h1 id="page-title">Preparando WhatsApp…</h1>
       <p id="status" aria-live="polite">
         Estamos preparando tu conversación con Bake Me Happy.
       </p>
@@ -127,9 +127,11 @@
     <script>
       (() => {
         const status = document.getElementById("status");
+        const pageTitle = document.getElementById("page-title");
         const continueLink = document.getElementById("continue-link");
+        const pageUrl = new URL(window.location.href);
 
-        try {
+        const getTargetUrl = () => {
           const encodedTarget = window.location.hash.slice(1);
           const target = decodeURIComponent(encodedTarget);
           const targetUrl = new URL(target);
@@ -137,24 +139,61 @@
             targetUrl.protocol === "https:" && targetUrl.hostname === "wa.me";
 
           if (!validTarget) throw new Error("Destino no permitido");
+          return targetUrl;
+        };
 
+        const continueToWhatsApp = () => {
+          const targetUrl = getTargetUrl();
           continueLink.href = targetUrl.href;
           continueLink.hidden = false;
+          window.setTimeout(() => window.location.replace(targetUrl.href), 0);
+        };
 
-          window.addEventListener(
-            "load",
-            () => {
-              window.setTimeout(() => window.location.replace(targetUrl.href), 0);
-            },
-            { once: true },
-          );
-        } catch {
+        const showRedirectError = () => {
           document.querySelector(".loader")?.remove();
           status.textContent =
             "No pudimos abrir WhatsApp automáticamente. Vuelve a la tienda e inténtalo nuevamente.";
           continueLink.href = "/tienda";
           continueLink.textContent = "Volver a la tienda";
           continueLink.hidden = false;
+        };
+
+        if (pageUrl.searchParams.get("state") === "preparing") {
+          document.title = "Preparando pedido | Bake Me Happy";
+          pageTitle.textContent = "Preparando tu pedido…";
+          status.textContent =
+            "Estamos subiendo tu foto y preparando el mensaje para WhatsApp.";
+
+          const finishPreparation = () => {
+            if (!window.location.hash) return;
+
+            try {
+              continueToWhatsApp();
+            } catch {
+              showRedirectError();
+            }
+          };
+
+          window.addEventListener("hashchange", finishPreparation, {
+            once: true,
+          });
+          finishPreparation();
+
+          window.setTimeout(() => {
+            if (window.location.hash) return;
+            status.textContent =
+              "La foto sigue cargando de forma segura. Enseguida abriremos WhatsApp.";
+          }, 8000);
+          return;
+        }
+
+        try {
+          const targetUrl = getTargetUrl();
+          continueLink.href = targetUrl.href;
+          continueLink.hidden = false;
+          window.addEventListener("load", continueToWhatsApp, { once: true });
+        } catch {
+          showRedirectError();
         }
       })();
     </script>

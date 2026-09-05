@@ -11,7 +11,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { getWhatsAppUrl } from "../data/site";
+import { getWhatsAppPreparingUrl, getWhatsAppUrl } from "../data/site";
 import { cakeFlavors, fillingFlavors, sizeGuide } from "../data/products";
 import {
   formatSoles,
@@ -179,6 +179,31 @@ function FormSection({ step, title, children }) {
 
 function formatFileSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+async function uploadReferencePhoto(file) {
+  const uploadData = new FormData();
+  uploadData.append("photo", file);
+
+  const response = await fetch("/api/uploads", {
+    method: "POST",
+    body: uploadData,
+    headers: { Accept: "application/json" },
+  });
+  const contentType = response.headers.get("content-type") ?? "";
+  const isJsonResponse = contentType.toLowerCase().includes("application/json");
+  const result = isJsonResponse
+    ? await response.json().catch(() => ({}))
+    : {};
+
+  if (!response.ok || typeof result.url !== "string" || !result.url) {
+    throw new Error(
+      result.error ||
+        "El servicio de fotos no respondió correctamente. Inténtalo nuevamente.",
+    );
+  }
+
+  return result.url;
 }
 
 function ReferenceUpload({ file, onChange, error }) {
@@ -378,10 +403,12 @@ export default function CustomOrderModal({ isOpen, onClose }) {
 
     let whatsappWindow = null;
     if (referenceFile) {
-      whatsappWindow = window.open("about:blank", "bake-me-happy-whatsapp");
+      whatsappWindow = window.open(
+        getWhatsAppPreparingUrl(),
+        "_blank",
+      );
       if (whatsappWindow) {
         whatsappWindow.opener = null;
-        whatsappWindow.document.title = "Preparando pedido...";
       }
     }
 
@@ -389,29 +416,15 @@ export default function CustomOrderModal({ isOpen, onClose }) {
       let temporaryPhotoUrl = "";
 
       if (referenceFile) {
-        const uploadData = new FormData();
-        uploadData.append("photo", referenceFile);
-        const response = await fetch("/api/uploads", {
-          method: "POST",
-          body: uploadData,
-          headers: { Accept: "application/json" },
-        });
-        const result = await response.json().catch(() => ({}));
-
-        if (!response.ok || !result.url) {
-          throw new Error(
-            result.error || "No se pudo subir la foto. Inténtalo nuevamente.",
-          );
-        }
-
-        temporaryPhotoUrl = result.url;
+        temporaryPhotoUrl = await uploadReferencePhoto(referenceFile);
       }
 
       const whatsappUrl = getWhatsAppUrl(
         buildWhatsAppMessage(temporaryPhotoUrl),
       );
-      if (whatsappWindow) {
-        whatsappWindow.location.replace(whatsappUrl);
+      if (whatsappWindow && !whatsappWindow.closed) {
+        const readyUrl = `${getWhatsAppPreparingUrl()}${new URL(whatsappUrl).hash}`;
+        whatsappWindow.location.replace(readyUrl);
       } else if (referenceFile) {
         window.location.assign(whatsappUrl);
       } else {

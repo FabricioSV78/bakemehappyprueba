@@ -35,3 +35,11 @@ export function getWhatsAppUrl(message = GENERAL_WHATSAPP_MESSAGE) {
     ? trackingPath
     : new URL(trackingPath, window.location.origin).href;
 }
+
+export function getWhatsAppPreparingUrl() {
+  const preparingPath = "/whatsapp/index.html?state=preparing";
+
+  return typeof window === "undefined"
+    ? preparingPath
+    : new URL(preparingPath, window.location.origin).href;
+}
