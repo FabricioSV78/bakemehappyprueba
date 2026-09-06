@@ -191,6 +191,8 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
                       loading="lazy"
                       decoding="async"
                       revealWhenReady
+                      responsiveWidths={[480, 960]}
+                      sourceWidth={1402}
                       sizes="(min-width: 1280px) 220px, 18vw"
                       width="416"
                       height="416"

@@ -29,6 +29,9 @@ export default function ProductCard({ product, priority = false }) {
           fetchPriority={priority ? "high" : "auto"}
           decoding="async"
           revealWhenReady
+          responsiveWidths={[480, 960]}
+          sourceWidth={1402}
+          sizes="(min-width: 1800px) 22vw, (min-width: 1280px) 28vw, (min-width: 768px) 31vw, (min-width: 420px) 46vw, calc(100vw - 40px)"
           width="560"
           height="448"
         />

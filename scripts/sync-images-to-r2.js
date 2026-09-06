@@ -4,6 +4,7 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { assetVersions } from "../src/data/assetVersions.generated.js";
+import { resolveAssetVersion } from "../src/utils/assetVersion.js";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectDirectory = path.resolve(scriptDirectory, "..");
@@ -55,7 +56,7 @@ async function findImages(directory) {
         .relative(publicDirectory, fullPath)
         .split(path.sep)
         .join("/")}`;
-      return assetVersions[publicPath] ? [fullPath] : [];
+      return resolveAssetVersion(assetVersions, publicPath) ? [fullPath] : [];
     }),
   );
 
@@ -215,7 +216,10 @@ async function main() {
           .relative(publicDirectory, filePath)
           .split(path.sep)
           .join("/")}`;
-        return [publicPath.slice(1), assetVersions[publicPath]];
+        return [
+          publicPath.slice(1),
+          resolveAssetVersion(assetVersions, publicPath),
+        ];
       }),
     );
 

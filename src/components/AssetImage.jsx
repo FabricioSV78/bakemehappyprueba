@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ImageOff, LoaderCircle } from "lucide-react";
 import {
+  getAssetSrcSet,
   getAssetUrl,
   getLocalAssetUrl,
   R2_ASSETS_ENABLED,
@@ -18,11 +19,17 @@ export default function AssetImage({
   onError,
   onLoad,
   revealWhenReady = false,
+  responsiveWidths = [],
   showPlaceholder = false,
+  sourceWidth,
   ...imageProps
 }) {
   const localSource = getLocalAssetUrl(src);
   const remoteSource = getAssetUrl(src);
+  const remoteSourceSet = getAssetSrcSet(src, responsiveWidths, sourceWidth);
+  const localSourceSet = getAssetSrcSet(src, responsiveWidths, sourceWidth, {
+    local: true,
+  });
   const [resolvedSource, setResolvedSource] = useState(remoteSource);
   const shouldShowPlaceholder = revealWhenReady || showPlaceholder;
   const [loadState, setLoadState] = useState(
@@ -31,6 +38,7 @@ export default function AssetImage({
   const isReady = loadState === "ready";
   const hasError = loadState === "error";
   const isUsingR2 = R2_ASSETS_ENABLED && resolvedSource === remoteSource;
+  const resolvedSourceSet = isUsingR2 ? remoteSourceSet : localSourceSet;
 
   useEffect(() => {
     setResolvedSource(remoteSource);
@@ -87,9 +95,10 @@ export default function AssetImage({
       <img
         {...imageProps}
         src={resolvedSource}
+        srcSet={resolvedSourceSet || undefined}
         className={`${className} ${
           revealWhenReady
-            ? `transition-opacity duration-300 motion-reduce:transition-none ${
+            ? `transition-opacity duration-150 motion-reduce:transition-none ${
                 isReady ? "opacity-100" : "opacity-0"
               }`
             : ""
@@ -101,7 +110,7 @@ export default function AssetImage({
       />
       {shouldShowPlaceholder && (
         <span
-          className={`asset-image-placeholder pointer-events-none absolute inset-0 z-[1] grid place-items-center overflow-hidden transition-opacity duration-300 motion-reduce:transition-none ${
+          className={`asset-image-placeholder pointer-events-none absolute inset-0 z-[1] grid place-items-center overflow-hidden transition-opacity duration-150 motion-reduce:transition-none ${
             isReady ? "opacity-0" : "opacity-100"
           }`}
           data-image-placeholder={hasError ? "error" : "loading"}

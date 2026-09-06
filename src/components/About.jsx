@@ -53,6 +53,7 @@ function EditorialImage({
   width = "760",
   height = "520",
   loading = "lazy",
+  sourceWidth = 1586,
 }) {
   return (
     <Reveal
@@ -68,6 +69,9 @@ function EditorialImage({
         loading={loading}
         decoding="async"
         revealWhenReady
+        responsiveWidths={[480, 960]}
+        sourceWidth={sourceWidth}
+        sizes="(min-width: 768px) 46vw, calc(100vw - 40px)"
         width={width}
         height={height}
       />
@@ -122,6 +126,7 @@ export default function About() {
             width="520"
             height="345"
             loading="eager"
+            sourceWidth={1536}
           />
         </div>
       </section>

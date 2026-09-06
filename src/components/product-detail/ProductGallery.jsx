@@ -79,6 +79,9 @@ export default function ProductGallery({ product, activeIndex, onSelect }) {
                   fetchPriority="low"
                   decoding="async"
                   revealWhenReady
+                  responsiveWidths={[480]}
+                  sourceWidth={1402}
+                  sizes="(min-width: 640px) 112px, 30vw"
                   width="1402"
                   height="1122"
                 />
@@ -101,6 +104,9 @@ export default function ProductGallery({ product, activeIndex, onSelect }) {
             loading="eager"
             decoding="async"
             revealWhenReady
+            responsiveWidths={[480, 960]}
+            sourceWidth={1402}
+            sizes="(min-width: 1024px) 620px, (min-width: 640px) calc(100vw - 10rem), calc(100vw - 2.5rem)"
             width="1402"
             height="1122"
           />

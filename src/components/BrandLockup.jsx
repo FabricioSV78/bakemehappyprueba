@@ -51,6 +51,12 @@ export default function BrandLockup({
         src="/images/webp/LOGO/logo-cake-transparent.webp"
         alt=""
         className={`${styles.mark} shrink-0 object-contain drop-shadow-[0_3px_6px_rgba(23,54,109,0.14)]`}
+        fetchPriority="high"
+        loading="eager"
+        decoding="async"
+        responsiveWidths={[128, 192]}
+        sourceWidth={512}
+        sizes="60px"
         width="512"
         height="512"
       />

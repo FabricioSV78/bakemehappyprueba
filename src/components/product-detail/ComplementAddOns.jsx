@@ -32,6 +32,9 @@ function ComplementItems({ options, selectedItems, onQuantityChange }) {
                   loading="lazy"
                   decoding="async"
                   revealWhenReady
+                  responsiveWidths={[480]}
+                  sourceWidth={1402}
+                  sizes="64px"
                   width="96"
                   height="96"
                 />

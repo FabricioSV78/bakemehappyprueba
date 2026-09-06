@@ -2,12 +2,12 @@ import { readdir, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { assetVersions } from "../src/data/assetVersions.generated.js";
+import { resolveAssetVersion } from "../src/utils/assetVersion.js";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectDirectory = path.resolve(scriptDirectory, "..");
 const distDirectory = path.join(projectDirectory, "dist");
 const distImagesDirectory = path.join(distDirectory, "images");
-const deployableAssetPaths = new Set(Object.keys(assetVersions));
 
 async function findFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -31,7 +31,7 @@ async function main() {
       .relative(distDirectory, filePath)
       .split(path.sep)
       .join("/")}`;
-    if (deployableAssetPaths.has(publicPath)) continue;
+    if (resolveAssetVersion(assetVersions, publicPath)) continue;
 
     removedBytes += (await stat(filePath)).size;
     await rm(filePath);

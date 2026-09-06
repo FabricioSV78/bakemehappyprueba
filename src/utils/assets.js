@@ -1,4 +1,5 @@
 import { assetVersions } from "../data/assetVersions.generated";
+import { resolveAssetVersion } from "./assetVersion";
 
 function normalizeBaseUrl(value) {
   const candidate = value?.trim();
@@ -60,7 +61,24 @@ function encodeAssetPath(path) {
 }
 
 function getAssetVersion(source) {
-  return assetVersions[source] ?? "";
+  return resolveAssetVersion(assetVersions, source);
+}
+
+export function getResponsiveAssetPath(source, width) {
+  if (
+    typeof source !== "string" ||
+    !source.startsWith("/") ||
+    !source.toLowerCase().endsWith(".webp") ||
+    !Number.isFinite(width)
+  ) {
+    return "";
+  }
+
+  const lastSlash = source.lastIndexOf("/");
+  const directory = source.slice(0, lastSlash);
+  const fileName = source.slice(lastSlash + 1, -5);
+
+  return `${directory}/_responsive/${fileName}-${width}.webp`;
 }
 
 function appendVersionQuery(source, version) {
@@ -99,7 +117,47 @@ export function getAssetUrl(source) {
   return appendVersionQuery(remoteUrl, version);
 }
 
-function loadDecodedImage(source, fallbackSource) {
+export function getAssetSrcSet(
+  source,
+  widths = [],
+  sourceWidth,
+  { local = false } = {},
+) {
+  const getUrl = local ? getLocalAssetUrl : getAssetUrl;
+  const candidates = widths
+    .map((width) => Number.parseInt(width, 10))
+    .filter((width) => Number.isFinite(width) && width > 0)
+    .map((width) => ({
+      source: getResponsiveAssetPath(source, width),
+      width,
+    }))
+    .filter((candidate) => getAssetVersion(candidate.source));
+  const originalWidth = Number.parseInt(sourceWidth, 10);
+
+  if (Number.isFinite(originalWidth) && originalWidth > 0) {
+    candidates.push({ source, width: originalWidth });
+  }
+
+  return candidates
+    .filter(
+      (candidate, index, collection) =>
+        collection.findIndex((item) => item.width === candidate.width) === index,
+    )
+    .sort((left, right) => left.width - right.width)
+    .map((candidate) => `${getUrl(candidate.source)} ${candidate.width}w`)
+    .join(", ");
+}
+
+const productPreloadSizes =
+  "(min-width: 1024px) 620px, (min-width: 640px) calc(100vw - 10rem), calc(100vw - 2.5rem)";
+
+function loadDecodedImage({
+  source,
+  sourceSet,
+  fallbackSource,
+  fallbackSourceSet,
+  sizes,
+}) {
   return new Promise((resolve) => {
     const image = new Image();
     let attemptedFallback = false;
@@ -118,12 +176,15 @@ function loadDecodedImage(source, fallbackSource) {
     image.onerror = () => {
       if (!attemptedFallback && fallbackSource && source !== fallbackSource) {
         attemptedFallback = true;
+        image.srcset = fallbackSourceSet;
         image.src = fallbackSource;
         return;
       }
 
       resolve(false);
     };
+    image.sizes = sizes;
+    image.srcset = sourceSet;
     image.src = source;
   });
 }
@@ -133,12 +194,22 @@ function preloadAsset(source) {
 
   const remoteSource = getAssetUrl(source);
   const localSource = getLocalAssetUrl(source);
-  const cacheKey = `${remoteSource}|${localSource}`;
+  const remoteSourceSet = getAssetSrcSet(source, [480, 960], 1402);
+  const localSourceSet = getAssetSrcSet(source, [480, 960], 1402, {
+    local: true,
+  });
+  const cacheKey = `${remoteSourceSet}|${localSourceSet}`;
 
   if (!imagePreloadCache.has(cacheKey)) {
     imagePreloadCache.set(
       cacheKey,
-      loadDecodedImage(remoteSource, localSource),
+      loadDecodedImage({
+        source: remoteSource,
+        sourceSet: remoteSourceSet,
+        fallbackSource: localSource,
+        fallbackSourceSet: localSourceSet,
+        sizes: productPreloadSizes,
+      }),
     );
   }
 

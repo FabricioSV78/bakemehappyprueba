@@ -1,5 +1,13 @@
 import { createHash } from "node:crypto";
-import { access, readFile, readdir, stat, writeFile } from "node:fs/promises";
+import {
+  access,
+  mkdir,
+  readFile,
+  readdir,
+  rm,
+  stat,
+  writeFile,
+} from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -30,6 +38,11 @@ const buildStatePath = path.join(
 );
 const numberedSourceImage = /^[123]\.(?:jpe?g|png)$/i;
 const expectedGalleryFiles = ["1.webp", "2.webp", "3.webp"];
+const responsiveDirectoryName = "_responsive";
+const productResponsiveWidths = [480, 960];
+const heroResponsiveWidths = [800, 1400];
+const logoResponsiveWidths = [128, 192];
+const responsiveImagePattern = /-(?:128|192|480|800|960|1400)\.webp$/i;
 
 async function pathExists(filePath) {
   try {
@@ -77,6 +90,118 @@ async function findImages(directory, pattern) {
   );
 
   return sources.flat();
+}
+
+function getResponsiveWidths(filePath) {
+  const relativePath = path
+    .relative(productImagesDirectory, filePath)
+    .split(path.sep)
+    .join("/");
+  const fileName = path.basename(filePath);
+
+  if (/^(?:1|2|3)\.webp$/i.test(fileName)) {
+    return productResponsiveWidths;
+  }
+
+  if (/^hero (?:2|3)\.webp$/i.test(relativePath)) {
+    return heroResponsiveWidths;
+  }
+
+  if (relativePath === "LOGO/logo-cake-transparent.webp") {
+    return logoResponsiveWidths;
+  }
+
+  return [];
+}
+
+function getResponsiveTargetPath(sourcePath, width) {
+  const extension = path.extname(sourcePath);
+  const baseName = path.basename(sourcePath, extension);
+
+  return path.join(
+    path.dirname(sourcePath),
+    responsiveDirectoryName,
+    `${baseName}-${width}.webp`,
+  );
+}
+
+async function findGeneratedResponsiveImages(directory) {
+  if (!(await pathExists(directory))) return [];
+
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = await Promise.all(
+    entries.map(async (entry) => {
+      const fullPath = path.join(directory, entry.name);
+
+      if (entry.isDirectory()) {
+        return findGeneratedResponsiveImages(fullPath);
+      }
+
+      return path.basename(path.dirname(fullPath)) === responsiveDirectoryName &&
+        responsiveImagePattern.test(entry.name)
+        ? [fullPath]
+        : [];
+    }),
+  );
+
+  return files.flat();
+}
+
+async function prepareResponsiveImages(previousBuildState, nextBuildState) {
+  const webpImages = await findImages(productImagesDirectory, /\.webp$/i);
+  const sourceImages = webpImages.filter(
+    (filePath) => !filePath.split(path.sep).includes(responsiveDirectoryName),
+  );
+  const desiredTargets = new Set();
+  let preparedImages = 0;
+
+  for (const sourcePath of sourceImages) {
+    const widths = getResponsiveWidths(sourcePath);
+    if (widths.length === 0) continue;
+
+    const [sourceHash, metadata] = await Promise.all([
+      getFileHash(sourcePath),
+      sharp(sourcePath).metadata(),
+    ]);
+
+    for (const width of widths) {
+      if (!metadata.width || metadata.width <= width) continue;
+
+      const targetPath = getResponsiveTargetPath(sourcePath, width);
+      const targetKey = path
+        .relative(projectDirectory, targetPath)
+        .split(path.sep)
+        .join("/");
+      const stateKey = `responsive:${targetKey}`;
+      const targetExists = await pathExists(targetPath);
+      const sourceChanged =
+        !targetExists || previousBuildState[stateKey] !== sourceHash;
+
+      desiredTargets.add(path.resolve(targetPath));
+
+      if (sourceChanged) {
+        await mkdir(path.dirname(targetPath), { recursive: true });
+        await sharp(sourcePath)
+          .resize({ width, withoutEnlargement: true })
+          .webp({ quality: 80, effort: 4, smartSubsample: true })
+          .toFile(targetPath);
+        preparedImages += 1;
+      }
+
+      nextBuildState[stateKey] = sourceHash;
+    }
+  }
+
+  const generatedImages = await findGeneratedResponsiveImages(
+    productImagesDirectory,
+  );
+  for (const generatedPath of generatedImages) {
+    if (!desiredTargets.has(path.resolve(generatedPath))) {
+      await rm(generatedPath);
+    }
+  }
+
+  return preparedImages;
 }
 
 async function findCompleteGalleryFolders(directory) {
@@ -166,6 +291,10 @@ async function main() {
     previousBuildState,
     nextBuildState,
   );
+  const responsiveImages = await prepareResponsiveImages(
+    previousBuildState,
+    nextBuildState,
+  );
   const galleryCount = await writeProductImageManifest();
 
   await writeFile(
@@ -178,6 +307,11 @@ async function main() {
     convertedImages > 0
       ? `${convertedImages} imagen(es) convertida(s) a WebP.\n`
       : "Las imagenes numeradas ya estan preparadas.\n",
+  );
+  process.stdout.write(
+    responsiveImages > 0
+      ? `${responsiveImages} variante(s) responsiva(s) preparada(s).\n`
+      : "Las variantes responsivas ya estan preparadas.\n",
   );
   process.stdout.write(`${galleryCount} galeria(s) completa(s) detectada(s).\n`);
 }

@@ -56,7 +56,10 @@ function isDeployableAsset(filePath) {
   const publicPath = toPublicPath(filePath);
   const extension = path.extname(filePath).toLowerCase();
 
-  return !sourceExtensions.has(extension) || retainedSourceAssets.has(publicPath);
+  return (
+    !publicPath.includes("/_responsive/") &&
+    (!sourceExtensions.has(extension) || retainedSourceAssets.has(publicPath))
+  );
 }
 
 async function getAssetRecord(filePath) {

@@ -95,8 +95,13 @@ export default function Hero({ onOpenOrderModal }) {
               fetchPriority={index === 0 ? "high" : "low"}
               loading={index === 0 ? "eager" : "lazy"}
               decoding="async"
+              responsiveWidths={[800, 1400]}
+              sourceWidth={1672}
+              sizes="100vw"
               showPlaceholder={index === 0}
               onLoad={() => markSlideAsLoaded(index)}
+              width="1672"
+              height="941"
             />
           );
         })}
