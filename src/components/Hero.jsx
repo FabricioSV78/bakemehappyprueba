@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, CakeSlice, MessageCircle } from "lucide-react";
+import {
+  IMAGE_ASSETS,
+  IMAGE_SIZES,
+  IMAGE_SOURCE_WIDTHS,
+  RESPONSIVE_IMAGE_WIDTHS,
+} from "../data/imageDelivery";
 import AssetImage from "./AssetImage";
 
 const HERO_SLIDES = [
   {
-    src: "/images/webp/hero 2.webp",
+    src: IMAGE_ASSETS.heroPrimary,
     position:
       "object-[83%_50%] sm:object-[90%_34%] lg:object-[68%_50%]",
     mobileTop: "-10%",
@@ -95,9 +101,9 @@ export default function Hero({ onOpenOrderModal }) {
               fetchPriority={index === 0 ? "high" : "low"}
               loading={index === 0 ? "eager" : "lazy"}
               decoding="async"
-              responsiveWidths={[800, 1400]}
-              sourceWidth={1672}
-              sizes="100vw"
+              responsiveWidths={RESPONSIVE_IMAGE_WIDTHS.hero}
+              sourceWidth={IMAGE_SOURCE_WIDTHS.hero}
+              sizes={IMAGE_SIZES.hero}
               showPlaceholder={index === 0}
               onLoad={() => markSlideAsLoaded(index)}
               width="1672"

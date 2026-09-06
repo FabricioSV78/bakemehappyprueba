@@ -11,6 +11,10 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import {
+  getResponsiveWidthsForSource,
+  RESPONSIVE_IMAGE_WIDTHS,
+} from "../src/data/imageDelivery.js";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectDirectory = path.resolve(scriptDirectory, "..");
@@ -39,10 +43,13 @@ const buildStatePath = path.join(
 const numberedSourceImage = /^[123]\.(?:jpe?g|png)$/i;
 const expectedGalleryFiles = ["1.webp", "2.webp", "3.webp"];
 const responsiveDirectoryName = "_responsive";
-const productResponsiveWidths = [480, 960];
-const heroResponsiveWidths = [800, 1400];
-const logoResponsiveWidths = [128, 192];
-const responsiveImagePattern = /-(?:128|192|480|800|960|1400)\.webp$/i;
+const allResponsiveWidths = [
+  ...new Set(Object.values(RESPONSIVE_IMAGE_WIDTHS).flat()),
+];
+const responsiveImagePattern = new RegExp(
+  `-(?:${allResponsiveWidths.join("|")})\\.webp$`,
+  "i",
+);
 
 async function pathExists(filePath) {
   try {
@@ -97,21 +104,8 @@ function getResponsiveWidths(filePath) {
     .relative(productImagesDirectory, filePath)
     .split(path.sep)
     .join("/");
-  const fileName = path.basename(filePath);
 
-  if (/^(?:1|2|3)\.webp$/i.test(fileName)) {
-    return productResponsiveWidths;
-  }
-
-  if (/^hero (?:2|3)\.webp$/i.test(relativePath)) {
-    return heroResponsiveWidths;
-  }
-
-  if (relativePath === "LOGO/logo-cake-transparent.webp") {
-    return logoResponsiveWidths;
-  }
-
-  return [];
+  return getResponsiveWidthsForSource(`/${relativePath}`);
 }
 
 function getResponsiveTargetPath(sourcePath, width) {

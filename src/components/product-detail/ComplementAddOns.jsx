@@ -1,4 +1,9 @@
 import { ChevronDown, Minus, Plus } from "lucide-react";
+import {
+  IMAGE_SIZES,
+  IMAGE_SOURCE_WIDTHS,
+  RESPONSIVE_IMAGE_WIDTHS,
+} from "../../data/imageDelivery";
 import { getProductPriceLabel } from "../../utils/productPrice";
 import AssetImage from "../AssetImage";
 
@@ -32,9 +37,9 @@ function ComplementItems({ options, selectedItems, onQuantityChange }) {
                   loading="lazy"
                   decoding="async"
                   revealWhenReady
-                  responsiveWidths={[480]}
-                  sourceWidth={1402}
-                  sizes="64px"
+                  responsiveWidths={RESPONSIVE_IMAGE_WIDTHS.product}
+                  sourceWidth={IMAGE_SOURCE_WIDTHS.product}
+                  sizes={IMAGE_SIZES.addOn}
                   width="96"
                   height="96"
                 />

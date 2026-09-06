@@ -8,6 +8,11 @@ import {
   Star,
 } from "lucide-react";
 import { products } from "../data/products";
+import {
+  IMAGE_SIZES,
+  IMAGE_SOURCE_WIDTHS,
+  RESPONSIVE_IMAGE_WIDTHS,
+} from "../data/imageDelivery";
 import { getProductPriceLabel } from "../utils/productPrice";
 import Reveal from "./Reveal";
 import AssetImage from "./AssetImage";
@@ -191,9 +196,9 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
                       loading="lazy"
                       decoding="async"
                       revealWhenReady
-                      responsiveWidths={[480, 960]}
-                      sourceWidth={1402}
-                      sizes="(min-width: 1280px) 220px, 18vw"
+                      responsiveWidths={RESPONSIVE_IMAGE_WIDTHS.product}
+                      sourceWidth={IMAGE_SOURCE_WIDTHS.product}
+                      sizes={IMAGE_SIZES.featuredCard}
                       width="416"
                       height="416"
                     />

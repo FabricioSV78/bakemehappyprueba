@@ -6,8 +6,17 @@ import Seo from "./components/Seo";
 import WhatsAppFloat from "./components/WhatsAppFloat";
 import HomePage from "./pages/HomePage";
 import { categories, products } from "./data/products";
+import {
+  IMAGE_ASSETS,
+  IMAGE_SIZES,
+  RESPONSIVE_IMAGE_WIDTHS,
+} from "./data/imageDelivery";
 import { getSeoForLocation } from "./data/seo";
-import { preloadProductAssets } from "./utils/assets";
+import {
+  preloadCatalogProductImage,
+  preloadImageAsset,
+  preloadProductAssets,
+} from "./utils/assets";
 
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const CatalogPage = lazy(() => import("./pages/CatalogPage"));
@@ -17,6 +26,15 @@ const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const catalogProducts = products.filter((product) =>
   categories.includes(product.category),
 );
+
+function preloadAboutImage() {
+  return preloadImageAsset(IMAGE_ASSETS.aboutPrimary, {
+    fetchPriority: "high",
+    responsiveWidths: RESPONSIVE_IMAGE_WIDTHS.product,
+    sizes: IMAGE_SIZES.editorial,
+    sourceWidth: 1536,
+  });
+}
 
 const ROUTES = {
   "/": HomePage,
@@ -64,6 +82,16 @@ function getPathname(location) {
 
 function isApplicationPath(pathname) {
   return Boolean(ROUTES[pathname]) || pathname.startsWith("/producto/");
+}
+
+function getCatalogPreviewProducts(location) {
+  const url = new URL(location, window.location.origin);
+  const requestedCategory = url.searchParams.get("categoria");
+  const matchingProducts = requestedCategory
+    ? catalogProducts.filter((product) => product.category === requestedCategory)
+    : catalogProducts;
+
+  return matchingProducts.slice(0, 2);
 }
 
 function PageLoadingFallback() {
@@ -153,6 +181,50 @@ export default function App() {
   }, [currentLocation]);
 
   useEffect(() => {
+    const prepareLinkedRoute = (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const link = target?.closest("a[href]");
+      if (!link) return;
+
+      const destination = new URL(link.href, window.location.href);
+      if (destination.origin !== window.location.origin) return;
+
+      const pathname = normalizePathname(destination.pathname);
+
+      if (pathname === "/tienda") {
+        getCatalogPreviewProducts(destination.href).forEach((product, index) => {
+          void preloadCatalogProductImage(
+            product,
+            index === 0 ? "high" : "auto",
+          );
+        });
+        return;
+      }
+
+      if (pathname === "/quienes-somos") {
+        void preloadAboutImage();
+        return;
+      }
+
+      if (pathname.startsWith("/producto/")) {
+        const productId = Number.parseInt(pathname.split("/").pop(), 10);
+        const product = products.find((item) => item.id === productId);
+        if (product) void preloadProductAssets(product);
+      }
+    };
+
+    document.addEventListener("pointerover", prepareLinkedRoute, {
+      passive: true,
+    });
+    document.addEventListener("focusin", prepareLinkedRoute);
+
+    return () => {
+      document.removeEventListener("pointerover", prepareLinkedRoute);
+      document.removeEventListener("focusin", prepareLinkedRoute);
+    };
+  }, []);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [currentLocation]);
 
@@ -166,11 +238,17 @@ export default function App() {
     }
 
     if (currentPath === "/tienda") {
-      catalogProducts.slice(0, 4).forEach((product) => {
-        void preloadProductAssets({ image: product.image });
+      getCatalogPreviewProducts(currentLocation).forEach((product, index) => {
+        void preloadCatalogProductImage(
+          product,
+          index === 0 ? "high" : "auto",
+        );
       });
+      return;
     }
-  }, [currentPath]);
+
+    if (currentPath === "/quienes-somos") void preloadAboutImage();
+  }, [currentLocation, currentPath]);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-cream text-ink">

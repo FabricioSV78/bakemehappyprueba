@@ -1,4 +1,10 @@
 import AssetImage from "./AssetImage";
+import {
+  IMAGE_ASSETS,
+  IMAGE_SIZES,
+  IMAGE_SOURCE_WIDTHS,
+  RESPONSIVE_IMAGE_WIDTHS,
+} from "../data/imageDelivery";
 
 const SIZE_STYLES = {
   header: {
@@ -48,15 +54,15 @@ export default function BrandLockup({
   return (
     <span className={`inline-flex min-w-0 items-center gap-3 ${className}`}>
       <AssetImage
-        src="/images/webp/LOGO/logo-cake-transparent.webp"
+        src={IMAGE_ASSETS.logo}
         alt=""
         className={`${styles.mark} shrink-0 object-contain drop-shadow-[0_3px_6px_rgba(23,54,109,0.14)]`}
         fetchPriority="high"
         loading="eager"
         decoding="async"
-        responsiveWidths={[128, 192]}
-        sourceWidth={512}
-        sizes="60px"
+        responsiveWidths={RESPONSIVE_IMAGE_WIDTHS.logo}
+        sourceWidth={IMAGE_SOURCE_WIDTHS.logo}
+        sizes={IMAGE_SIZES.logo}
         width="512"
         height="512"
       />

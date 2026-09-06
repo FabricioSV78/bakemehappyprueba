@@ -1,4 +1,9 @@
 import { CakeSlice, Eye } from "lucide-react";
+import {
+  IMAGE_SIZES,
+  IMAGE_SOURCE_WIDTHS,
+  RESPONSIVE_IMAGE_WIDTHS,
+} from "../data/imageDelivery";
 import { getProductPriceLabel } from "../utils/productPrice";
 import { preloadProductAssets } from "../utils/assets";
 import AssetImage from "./AssetImage";
@@ -29,9 +34,9 @@ export default function ProductCard({ product, priority = false }) {
           fetchPriority={priority ? "high" : "auto"}
           decoding="async"
           revealWhenReady
-          responsiveWidths={[480, 960]}
-          sourceWidth={1402}
-          sizes="(min-width: 1800px) 22vw, (min-width: 1280px) 28vw, (min-width: 768px) 31vw, (min-width: 420px) 46vw, calc(100vw - 40px)"
+          responsiveWidths={RESPONSIVE_IMAGE_WIDTHS.product}
+          sourceWidth={IMAGE_SOURCE_WIDTHS.product}
+          sizes={IMAGE_SIZES.catalogCard}
           width="560"
           height="448"
         />

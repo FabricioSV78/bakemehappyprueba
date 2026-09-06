@@ -5,12 +5,24 @@ import {
   DEFAULT_SITE_URL,
   normalizeSiteUrl,
 } from "./src/data/siteUrl.js";
+import { categories, products } from "./src/data/products.js";
+import {
+  IMAGE_ASSETS,
+  IMAGE_SIZES,
+  IMAGE_SOURCE_WIDTHS,
+  RESPONSIVE_IMAGE_WIDTHS,
+  getResponsiveWidthsForSource,
+} from "./src/data/imageDelivery.js";
 import { assetVersions } from "./src/data/assetVersions.generated.js";
 import { resolveAssetVersion } from "./src/utils/assetVersion.js";
 
 const productionOrigin = DEFAULT_SITE_URL;
-const logoSource = "/images/webp/LOGO/logo-cake-transparent.webp";
-const heroSource = "/images/webp/hero 2.webp";
+const logoSource = IMAGE_ASSETS.logo;
+const heroSource = IMAGE_ASSETS.heroPrimary;
+const aboutSource = IMAGE_ASSETS.aboutPrimary;
+const catalogProducts = products.filter((product) =>
+  categories.includes(product.category),
+);
 
 function normalizeAssetBaseUrl(value) {
   const candidate = value?.trim();
@@ -26,44 +38,95 @@ function normalizeAssetBaseUrl(value) {
   }
 }
 
-function encodeAssetPath(source) {
-  return source
-    .split("/")
-    .map((segment) =>
-      encodeURIComponent(segment).replace(/%26/gi, "&"),
-    )
-    .join("/");
+function getAssetRecord(product) {
+  return [product.image, resolveAssetVersion(assetVersions, product.image)];
 }
 
-function getResponsiveAssetPath(source, width) {
-  const lastSlash = source.lastIndexOf("/");
-  const directory = source.slice(0, lastSlash);
-  const fileName = source.slice(lastSlash + 1, -5);
+function getInitialImagePreloadScript(assetBaseUrl) {
+  const catalogRecords = Object.fromEntries(
+    ["Todos", ...categories].map((category) => {
+      const matchingProducts =
+        category === "Todos"
+          ? catalogProducts
+          : catalogProducts.filter((product) => product.category === category);
 
-  return `${directory}/_responsive/${fileName}-${width}.webp`;
-}
+      return [category, matchingProducts.slice(0, 2).map(getAssetRecord)];
+    }),
+  );
+  const productRecords = Object.fromEntries(
+    products
+      .filter(
+        (product) =>
+          product.image && getResponsiveWidthsForSource(product.image).length,
+      )
+      .map((product) => [String(product.id), getAssetRecord(product)]),
+  );
+  const heroRecord = [
+    heroSource,
+    resolveAssetVersion(assetVersions, heroSource),
+  ];
+  const aboutRecord = [
+    aboutSource,
+    resolveAssetVersion(assetVersions, aboutSource),
+  ];
+  const logoRecord = [
+    logoSource,
+    resolveAssetVersion(assetVersions, logoSource),
+  ];
 
-function getBuildAssetUrl(source, assetBaseUrl) {
-  const encodedPath = encodeAssetPath(source);
-  const baseUrl = assetBaseUrl ? `${assetBaseUrl}${encodedPath}` : encodedPath;
-  const version = resolveAssetVersion(assetVersions, source);
-
-  return version ? `${baseUrl}?v=${encodeURIComponent(version)}` : baseUrl;
-}
-
-function getBuildAssetSrcSet(source, widths, sourceWidth, assetBaseUrl) {
-  const candidates = widths
-    .map((width) => ({ source: getResponsiveAssetPath(source, width), width }))
-    .filter((candidate) => resolveAssetVersion(assetVersions, candidate.source));
-
-  candidates.push({ source, width: sourceWidth });
-
-  return candidates
-    .map(
-      (candidate) =>
-        `${getBuildAssetUrl(candidate.source, assetBaseUrl)} ${candidate.width}w`,
-    )
-    .join(", ");
+  return `(() => {
+    const assetBase = ${JSON.stringify(assetBaseUrl)};
+    const catalog = ${JSON.stringify(catalogRecords)};
+    const products = ${JSON.stringify(productRecords)};
+    const hero = ${JSON.stringify(heroRecord)};
+    const about = ${JSON.stringify(aboutRecord)};
+    const logo = ${JSON.stringify(logoRecord)};
+    const widths = ${JSON.stringify(RESPONSIVE_IMAGE_WIDTHS.product)};
+    const failedStorageKey = "bmh:r2-failed-assets:v1";
+    let failed = [];
+    try {
+      const storedFailures = JSON.parse(sessionStorage.getItem(failedStorageKey) || "[]");
+      failed = Array.isArray(storedFailures) ? storedFailures : [];
+    } catch {}
+    const encodePath = (source) => source.split("/").map((part) => encodeURIComponent(part).replace(/%26/gi, "&")).join("/");
+    const responsivePath = (source, width) => {
+      const slash = source.lastIndexOf("/");
+      return source.slice(0, slash) + "/_responsive/" + source.slice(slash + 1, -5) + "-" + width + ".webp";
+    };
+    const addPreload = ([source, version], sizes, priority, responsiveWidths = widths, sourceWidth = ${IMAGE_SOURCE_WIDTHS.product}) => {
+      if (!source) return;
+      const base = assetBase && !failed.includes(source) ? assetBase : "";
+      const url = (path) => base + encodePath(path) + (version ? "?v=" + encodeURIComponent(version) : "");
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
+      link.type = "image/webp";
+      link.href = url(source);
+      link.setAttribute("imagesrcset", [...responsiveWidths.map((width) => url(responsivePath(source, width)) + " " + width + "w"), url(source) + " " + sourceWidth + "w"].join(", "));
+      link.setAttribute("imagesizes", sizes);
+      link.fetchPriority = priority;
+      document.head.append(link);
+    };
+    const pathname = location.pathname.length > 1 ? location.pathname.replace(/\\/+$/, "") : "/";
+    addPreload(logo, ${JSON.stringify(IMAGE_SIZES.logo)}, "high", ${JSON.stringify(RESPONSIVE_IMAGE_WIDTHS.logo)}, ${IMAGE_SOURCE_WIDTHS.logo});
+    if (pathname === "/") {
+      addPreload(hero, ${JSON.stringify(IMAGE_SIZES.hero)}, "high", ${JSON.stringify(RESPONSIVE_IMAGE_WIDTHS.hero)}, ${IMAGE_SOURCE_WIDTHS.hero});
+      return;
+    }
+    if (pathname === "/quienes-somos") {
+      addPreload(about, ${JSON.stringify(IMAGE_SIZES.editorial)}, "high", ${JSON.stringify(RESPONSIVE_IMAGE_WIDTHS.product)}, 1536);
+      return;
+    }
+    if (pathname === "/tienda") {
+      const category = new URLSearchParams(location.search).get("categoria") || "Todos";
+      (catalog[category] || catalog.Todos).forEach((record, index) => addPreload(record, ${JSON.stringify(IMAGE_SIZES.catalogCard)}, index === 0 ? "high" : "auto"));
+      return;
+    }
+    const productMatch = pathname.match(/^\\/producto\\/(\\d+)$/);
+    if (productMatch && products[productMatch[1]]) {
+      addPreload(products[productMatch[1]], ${JSON.stringify(IMAGE_SIZES.productDetail)}, "high");
+    }
+  })();`;
 }
 
 export default defineConfig(({ mode }) => {
@@ -71,20 +134,6 @@ export default defineConfig(({ mode }) => {
   const siteUrl = normalizeSiteUrl(environment.VITE_SITE_URL);
   const assetBaseUrl = normalizeAssetBaseUrl(environment.VITE_R2_PUBLIC_URL);
   const assetOrigin = assetBaseUrl ? new URL(assetBaseUrl).origin : "";
-  const logoUrl = getBuildAssetUrl(logoSource, assetBaseUrl);
-  const logoSrcSet = getBuildAssetSrcSet(
-    logoSource,
-    [128, 192],
-    512,
-    assetBaseUrl,
-  );
-  const heroUrl = getBuildAssetUrl(heroSource, assetBaseUrl);
-  const heroSrcSet = getBuildAssetSrcSet(
-    heroSource,
-    [800, 1400],
-    1672,
-    assetBaseUrl,
-  );
 
   return {
     plugins: [
@@ -94,21 +143,8 @@ export default defineConfig(({ mode }) => {
         transformIndexHtml(html) {
           const tags = [
             {
-              tag: "link",
-              attrs: {
-                rel: "preload",
-                as: "image",
-                href: logoUrl,
-                imagesrcset: logoSrcSet,
-                imagesizes: "60px",
-                fetchpriority: "high",
-                type: "image/webp",
-              },
-              injectTo: "head",
-            },
-            {
               tag: "script",
-              children: `if (window.location.pathname === "/") { const link = document.createElement("link"); link.rel = "preload"; link.as = "image"; link.href = ${JSON.stringify(heroUrl)}; link.imageSrcset = ${JSON.stringify(heroSrcSet)}; link.imageSizes = "100vw"; link.fetchPriority = "high"; document.head.append(link); }`,
+              children: getInitialImagePreloadScript(assetBaseUrl),
               injectTo: "head",
             },
           ];

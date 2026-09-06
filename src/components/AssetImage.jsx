@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
-import { ImageOff, LoaderCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { R2_FALLBACK_TIMEOUT_MS } from "../data/imageDelivery";
 import {
   getAssetSrcSet,
   getAssetUrl,
   getLocalAssetUrl,
+  rememberRemoteAssetFailure,
   R2_ASSETS_ENABLED,
 } from "../utils/assets";
-
-const R2_FALLBACK_TIMEOUT_MS = 3000;
 
 /**
  * Intenta cargar desde R2 y, si el objeto aún no fue sincronizado o R2 no
@@ -22,6 +21,7 @@ export default function AssetImage({
   responsiveWidths = [],
   showPlaceholder = false,
   sourceWidth,
+  loading = "eager",
   ...imageProps
 }) {
   const localSource = getLocalAssetUrl(src);
@@ -32,31 +32,73 @@ export default function AssetImage({
   });
   const [resolvedSource, setResolvedSource] = useState(remoteSource);
   const shouldShowPlaceholder = revealWhenReady || showPlaceholder;
-  const [loadState, setLoadState] = useState(
-    shouldShowPlaceholder ? "loading" : "ready",
-  );
+  const [loadState, setLoadState] = useState("loading");
+  const [isTimeoutArmed, setIsTimeoutArmed] = useState(loading !== "lazy");
+  const imageRef = useRef(null);
+  const requestedAssetRef = useRef(src);
+  const attemptedLocalFallbackRef = useRef(remoteSource === localSource);
   const isReady = loadState === "ready";
   const hasError = loadState === "error";
-  const isUsingR2 = R2_ASSETS_ENABLED && resolvedSource === remoteSource;
+  const isUsingR2 =
+    R2_ASSETS_ENABLED &&
+    remoteSource !== localSource &&
+    resolvedSource === remoteSource;
   const resolvedSourceSet = isUsingR2 ? remoteSourceSet : localSourceSet;
 
   useEffect(() => {
+    if (requestedAssetRef.current === src) return;
+
+    requestedAssetRef.current = src;
+    attemptedLocalFallbackRef.current = remoteSource === localSource;
     setResolvedSource(remoteSource);
-    setLoadState(shouldShowPlaceholder ? "loading" : "ready");
-  }, [remoteSource, shouldShowPlaceholder]);
+    setLoadState("loading");
+  }, [localSource, remoteSource, src]);
 
   useEffect(() => {
-    if (!isUsingR2 || !localSource || localSource === remoteSource || isReady) {
+    if (loading !== "lazy") {
+      setIsTimeoutArmed(true);
+      return undefined;
+    }
+
+    setIsTimeoutArmed(false);
+    const image = imageRef.current;
+    if (!image || typeof IntersectionObserver === "undefined") {
+      setIsTimeoutArmed(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setIsTimeoutArmed(true);
+        observer.disconnect();
+      },
+      { rootMargin: "300px 0px" },
+    );
+
+    observer.observe(image);
+    return () => observer.disconnect();
+  }, [loading, src]);
+
+  useEffect(() => {
+    if (
+      !isUsingR2 ||
+      !localSource ||
+      localSource === remoteSource ||
+      !isTimeoutArmed ||
+      loadState !== "loading"
+    ) {
       return undefined;
     }
 
     const fallbackTimer = window.setTimeout(() => {
-      setLoadState(shouldShowPlaceholder ? "loading" : "ready");
+      attemptedLocalFallbackRef.current = true;
+      rememberRemoteAssetFailure(src);
       setResolvedSource(localSource);
     }, R2_FALLBACK_TIMEOUT_MS);
 
     return () => window.clearTimeout(fallbackTimer);
-  }, [isReady, isUsingR2, localSource, remoteSource, shouldShowPlaceholder]);
+  }, [isTimeoutArmed, isUsingR2, loadState, localSource, remoteSource, src]);
 
   const handleLoad = (event) => {
     const image = event.currentTarget;
@@ -64,13 +106,11 @@ export default function AssetImage({
 
     onLoad?.(event);
 
-    if (!shouldShowPlaceholder) return;
-
     const revealImage = () => {
       if (image.currentSrc === loadedSource) setLoadState("ready");
     };
 
-    if (typeof image.decode === "function") {
+    if (revealWhenReady && typeof image.decode === "function") {
       image.decode().catch(() => undefined).finally(revealImage);
     } else {
       revealImage();
@@ -78,10 +118,15 @@ export default function AssetImage({
   };
 
   const handleError = (event) => {
-    if (isUsingR2 && localSource) {
-      setLoadState(shouldShowPlaceholder ? "loading" : "ready");
-      event.currentTarget.srcset = "";
-      event.currentTarget.src = localSource;
+    if (
+      isUsingR2 &&
+      localSource &&
+      localSource !== remoteSource &&
+      !attemptedLocalFallbackRef.current
+    ) {
+      attemptedLocalFallbackRef.current = true;
+      rememberRemoteAssetFailure(src);
+      setLoadState("loading");
       setResolvedSource(localSource);
       return;
     }
@@ -93,9 +138,11 @@ export default function AssetImage({
   return (
     <>
       <img
+        ref={imageRef}
         {...imageProps}
         src={resolvedSource}
         srcSet={resolvedSourceSet || undefined}
+        loading={loading}
         className={`${className} ${
           revealWhenReady
             ? `transition-opacity duration-150 motion-reduce:transition-none ${
@@ -110,24 +157,14 @@ export default function AssetImage({
       />
       {shouldShowPlaceholder && (
         <span
-          className={`asset-image-placeholder pointer-events-none absolute inset-0 z-[1] grid place-items-center overflow-hidden transition-opacity duration-150 motion-reduce:transition-none ${
+          className={`asset-image-placeholder pointer-events-none absolute inset-0 z-[1] overflow-hidden transition-opacity duration-150 motion-reduce:transition-none ${
             isReady ? "opacity-0" : "opacity-100"
           }`}
-          data-image-placeholder={hasError ? "error" : "loading"}
+          data-image-placeholder={
+            isReady ? "ready" : hasError ? "error" : "loading"
+          }
           aria-hidden="true"
-        >
-          <span className="asset-image-placeholder-icon relative z-[1] grid h-10 w-10 place-items-center rounded-full border border-white/80 bg-white/90 text-plum shadow-sm sm:h-11 sm:w-11">
-            {hasError ? (
-              <ImageOff size={19} strokeWidth={1.8} />
-            ) : (
-              <LoaderCircle
-                className="animate-spin motion-reduce:animate-none"
-                size={21}
-                strokeWidth={2}
-              />
-            )}
-          </span>
-        </span>
+        />
       )}
     </>
   );

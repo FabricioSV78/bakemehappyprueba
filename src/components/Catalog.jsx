@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { categories, occasionOptions, products } from "../data/products";
+import { preloadCatalogProductImage } from "../utils/assets";
 import ProductCard from "./ProductCard";
 import Reveal from "./Reveal";
 import SizeGuideModal from "./SizeGuideModal";
@@ -358,6 +359,8 @@ export default function Catalog() {
     pageStart,
     pageStart + PRODUCTS_PER_PAGE,
   );
+  const firstCriticalProduct = visibleProducts[0];
+  const secondCriticalProduct = visibleProducts[1];
   const firstVisibleProduct = filteredProducts.length ? pageStart + 1 : 0;
   const lastVisibleProduct = Math.min(
     pageStart + visibleProducts.length,
@@ -399,6 +402,15 @@ export default function Catalog() {
   useEffect(() => {
     setCurrentPage((page) => Math.min(page, totalPages));
   }, [totalPages]);
+
+  useEffect(() => {
+    if (firstCriticalProduct) {
+      void preloadCatalogProductImage(firstCriticalProduct, "high");
+    }
+    if (secondCriticalProduct) {
+      void preloadCatalogProductImage(secondCriticalProduct);
+    }
+  }, [firstCriticalProduct, secondCriticalProduct]);
 
   const clearFilters = () => {
     setActiveCategory("Todos");
@@ -603,9 +615,9 @@ export default function Catalog() {
             {visibleProducts.length > 0 ? (
               <div className="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 min-[420px]:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">
                 {visibleProducts.map((product, index) => (
-                  <Reveal key={product.id} delay={(index % 4) * 55}>
+                  <div key={product.id} className="h-full">
                     <ProductCard product={product} priority={index < 2} />
-                  </Reveal>
+                  </div>
                 ))}
               </div>
             ) : (

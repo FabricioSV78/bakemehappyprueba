@@ -1,5 +1,12 @@
 import { assetVersions } from "../data/assetVersions.generated";
-import { resolveAssetVersion } from "./assetVersion";
+import {
+  IMAGE_SIZES,
+  IMAGE_SOURCE_WIDTHS,
+  R2_FALLBACK_TIMEOUT_MS,
+  RESPONSIVE_IMAGE_WIDTHS,
+  getResponsiveWidthsForSource,
+} from "../data/imageDelivery";
+import { getVersionSourcePath, resolveAssetVersion } from "./assetVersion";
 
 function normalizeBaseUrl(value) {
   const candidate = value?.trim();
@@ -26,6 +33,54 @@ const R2_ASSET_ORIGIN = R2_ASSETS_ENABLED
   ? new URL(configuredR2BaseUrl).origin
   : "";
 const imagePreloadCache = new Map();
+const failedRemoteAssets = new Set();
+const FAILED_REMOTE_ASSETS_STORAGE_KEY = "bmh:r2-failed-assets:v1";
+
+function restoreFailedRemoteAssets() {
+  if (typeof window === "undefined") return;
+
+  try {
+    const storedAssets = JSON.parse(
+      window.sessionStorage.getItem(FAILED_REMOTE_ASSETS_STORAGE_KEY) ?? "[]",
+    );
+
+    if (Array.isArray(storedAssets)) {
+      storedAssets.forEach((source) => {
+        if (typeof source === "string") failedRemoteAssets.add(source);
+      });
+    }
+  } catch {
+    // La entrega de imagenes debe seguir funcionando si sessionStorage no esta disponible.
+  }
+}
+
+restoreFailedRemoteAssets();
+
+function getFailureCacheKey(source) {
+  return getVersionSourcePath(typeof source === "string" ? source : "");
+}
+
+export function hasRemoteAssetFailed(source) {
+  return failedRemoteAssets.has(getFailureCacheKey(source));
+}
+
+export function rememberRemoteAssetFailure(source) {
+  const cacheKey = getFailureCacheKey(source);
+  if (!cacheKey || failedRemoteAssets.has(cacheKey)) return;
+
+  failedRemoteAssets.add(cacheKey);
+
+  if (typeof window === "undefined") return;
+
+  try {
+    window.sessionStorage.setItem(
+      FAILED_REMOTE_ASSETS_STORAGE_KEY,
+      JSON.stringify([...failedRemoteAssets]),
+    );
+  } catch {
+    // El Set en memoria mantiene la proteccion aunque el almacenamiento este bloqueado.
+  }
+}
 
 function ensureConnectionHint(rel, href) {
   if (!href || document.head.querySelector(`link[rel="${rel}"][href="${href}"]`)) {
@@ -107,6 +162,7 @@ export function getAssetUrl(source) {
 
   if (
     !R2_ASSETS_ENABLED ||
+    hasRemoteAssetFailed(localUrl) ||
     !localUrl.startsWith("/") ||
     localUrl.startsWith("//")
   ) {
@@ -124,9 +180,13 @@ export function getAssetSrcSet(
   { local = false } = {},
 ) {
   const getUrl = local ? getLocalAssetUrl : getAssetUrl;
+  const supportedWidths = new Set(getResponsiveWidthsForSource(source));
   const candidates = widths
     .map((width) => Number.parseInt(width, 10))
-    .filter((width) => Number.isFinite(width) && width > 0)
+    .filter(
+      (width) =>
+        Number.isFinite(width) && width > 0 && supportedWidths.has(width),
+    )
     .map((width) => ({
       source: getResponsiveAssetPath(source, width),
       width,
@@ -148,10 +208,9 @@ export function getAssetSrcSet(
     .join(", ");
 }
 
-const productPreloadSizes =
-  "(min-width: 1024px) 620px, (min-width: 640px) calc(100vw - 10rem), calc(100vw - 2.5rem)";
-
 function loadDecodedImage({
+  assetSource,
+  fetchPriority,
   source,
   sourceSet,
   fallbackSource,
@@ -160,7 +219,28 @@ function loadDecodedImage({
 }) {
   return new Promise((resolve) => {
     const image = new Image();
-    let attemptedFallback = false;
+    let attemptedFallback = source === fallbackSource;
+    let fallbackTimer;
+    let settled = false;
+
+    const finishRequest = (result) => {
+      if (settled) return;
+      settled = true;
+      if (fallbackTimer) window.clearTimeout(fallbackTimer);
+      resolve(result);
+    };
+
+    const switchToLocalFallback = () => {
+      if (attemptedFallback || !fallbackSource || source === fallbackSource) {
+        return false;
+      }
+
+      attemptedFallback = true;
+      rememberRemoteAssetFailure(assetSource);
+      image.srcset = fallbackSourceSet;
+      image.src = fallbackSource;
+      return true;
+    };
 
     const finish = async () => {
       try {
@@ -168,52 +248,91 @@ function loadDecodedImage({
       } catch {
         // onload confirma que el recurso es utilizable aunque decode no exista.
       }
-      resolve(true);
+      finishRequest(true);
     };
 
     image.decoding = "async";
+    image.fetchPriority = fetchPriority;
     image.onload = finish;
     image.onerror = () => {
-      if (!attemptedFallback && fallbackSource && source !== fallbackSource) {
-        attemptedFallback = true;
-        image.srcset = fallbackSourceSet;
-        image.src = fallbackSource;
-        return;
-      }
+      if (switchToLocalFallback()) return;
 
-      resolve(false);
+      finishRequest(false);
     };
     image.sizes = sizes;
     image.srcset = sourceSet;
     image.src = source;
+
+    if (!attemptedFallback) {
+      fallbackTimer = window.setTimeout(() => {
+        switchToLocalFallback();
+      }, R2_FALLBACK_TIMEOUT_MS);
+    }
   });
 }
 
-function preloadAsset(source) {
+export function preloadImageAsset(
+  source,
+  {
+    fetchPriority = "auto",
+    responsiveWidths = RESPONSIVE_IMAGE_WIDTHS.product,
+    sizes = IMAGE_SIZES.productDetail,
+    sourceWidth = IMAGE_SOURCE_WIDTHS.product,
+  } = {},
+) {
   if (typeof Image === "undefined" || !source) return Promise.resolve(false);
 
   const remoteSource = getAssetUrl(source);
   const localSource = getLocalAssetUrl(source);
-  const remoteSourceSet = getAssetSrcSet(source, [480, 960], 1402);
-  const localSourceSet = getAssetSrcSet(source, [480, 960], 1402, {
+  const remoteSourceSet = getAssetSrcSet(
+    source,
+    responsiveWidths,
+    sourceWidth,
+  );
+  const localSourceSet = getAssetSrcSet(source, responsiveWidths, sourceWidth, {
     local: true,
   });
-  const cacheKey = `${remoteSourceSet}|${localSourceSet}`;
+  const cacheKey = `${remoteSourceSet}|${localSourceSet}|${sizes}`;
 
   if (!imagePreloadCache.has(cacheKey)) {
     imagePreloadCache.set(
       cacheKey,
       loadDecodedImage({
+        assetSource: source,
+        fetchPriority,
         source: remoteSource,
         sourceSet: remoteSourceSet,
         fallbackSource: localSource,
         fallbackSourceSet: localSourceSet,
-        sizes: productPreloadSizes,
+        sizes,
       }),
     );
   }
 
   return imagePreloadCache.get(cacheKey);
+}
+
+function scheduleIdleTask(task) {
+  if (typeof window === "undefined") return Promise.resolve([]);
+
+  return new Promise((resolve) => {
+    const runTask = () => Promise.resolve(task()).then(resolve);
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(runTask, { timeout: 1200 });
+    } else {
+      window.setTimeout(runTask, 120);
+    }
+  });
+}
+
+export function preloadCatalogProductImage(product, fetchPriority = "auto") {
+  return preloadImageAsset(product?.image, {
+    fetchPriority,
+    responsiveWidths: RESPONSIVE_IMAGE_WIDTHS.product,
+    sizes: IMAGE_SIZES.catalogCard,
+    sourceWidth: IMAGE_SOURCE_WIDTHS.product,
+  });
 }
 
 export function preloadProductAssets(product) {
@@ -229,7 +348,14 @@ export function preloadProductAssets(product) {
 
   if (!primarySource) return Promise.resolve([]);
 
-  return preloadAsset(primarySource).then(() =>
-    Promise.allSettled(secondarySources.map(preloadAsset)),
+  return preloadImageAsset(primarySource, { fetchPriority: "high" }).then(
+    (primaryResult) =>
+      scheduleIdleTask(() =>
+        Promise.allSettled(
+          secondarySources.map((source) =>
+            preloadImageAsset(source, { fetchPriority: "low" }),
+          ),
+        ).then((secondaryResults) => [primaryResult, ...secondaryResults]),
+      ),
   );
 }

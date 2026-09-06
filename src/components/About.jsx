@@ -5,6 +5,7 @@ import {
   PackageCheck,
   WandSparkles,
 } from "lucide-react";
+import { IMAGE_SIZES, RESPONSIVE_IMAGE_WIDTHS } from "../data/imageDelivery";
 import Reveal from "./Reveal";
 import AssetImage from "./AssetImage";
 
@@ -69,9 +70,9 @@ function EditorialImage({
         loading={loading}
         decoding="async"
         revealWhenReady
-        responsiveWidths={[480, 960]}
+        responsiveWidths={RESPONSIVE_IMAGE_WIDTHS.product}
         sourceWidth={sourceWidth}
-        sizes="(min-width: 768px) 46vw, calc(100vw - 40px)"
+        sizes={IMAGE_SIZES.editorial}
         width={width}
         height={height}
       />
