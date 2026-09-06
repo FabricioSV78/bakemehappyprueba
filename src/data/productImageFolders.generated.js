@@ -6,6 +6,7 @@ export const productImageFolders = [
   "/images/webp/COMPLEMENTOS/Cupcakes con Fresas",
   "/images/webp/COMPLEMENTOS/Cupcakes de Mariposas",
   "/images/webp/COMPLEMENTOS/Cupcakes Simples",
+  "/images/webp/COMPLEMENTOS/Cupcakes Simples reserva",
   "/images/webp/COMPLEMENTOS/Pack Happy",
   "/images/webp/COMPLEMENTOS/Paletas Complejas",
   "/images/webp/COMPLEMENTOS/Paletas Simples",

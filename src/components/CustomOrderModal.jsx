@@ -44,6 +44,7 @@ const DELIVERY_OPTIONS = [
 ];
 
 const MAX_REFERENCE_FILE_BYTES = 8 * 1024 * 1024;
+const REFERENCE_UPLOAD_TIMEOUT_MS = 60_000;
 const ACCEPTED_REFERENCE_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -114,6 +115,7 @@ function TextInput({
         {label}
       </FieldLabel>
       <input
+        name={label}
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -153,6 +155,7 @@ function TextAreaInput({ label, value, onChange, placeholder, optional = false }
         {label}
       </FieldLabel>
       <textarea
+        name={label}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
@@ -184,22 +187,56 @@ function formatFileSize(bytes) {
 async function uploadReferencePhoto(file) {
   const uploadData = new FormData();
   uploadData.append("photo", file);
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(
+    () => controller.abort(),
+    REFERENCE_UPLOAD_TIMEOUT_MS,
+  );
 
-  const response = await fetch("/api/uploads", {
-    method: "POST",
-    body: uploadData,
-    headers: { Accept: "application/json" },
-  });
+  let response;
+  try {
+    response = await fetch("/api/uploads", {
+      method: "POST",
+      body: uploadData,
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error(
+        "La foto tardó demasiado en subir. Revisa tu conexión e inténtalo nuevamente.",
+      );
+    }
+
+    if (navigator.onLine === false) {
+      throw new Error(
+        "No tienes conexión a internet. Conéctate y vuelve a intentarlo.",
+      );
+    }
+
+    throw new Error(
+      "No pudimos conectar con el servicio de fotos. Revisa tu conexión e inténtalo nuevamente.",
+    );
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+
   const contentType = response.headers.get("content-type") ?? "";
   const isJsonResponse = contentType.toLowerCase().includes("application/json");
   const result = isJsonResponse
     ? await response.json().catch(() => ({}))
     : {};
 
-  if (!response.ok || typeof result.url !== "string" || !result.url) {
+  if (!response.ok) {
     throw new Error(
-      result.error ||
-        "El servicio de fotos no respondió correctamente. Inténtalo nuevamente.",
+      (typeof result.error === "string" && result.error.trim()) ||
+        "No pudimos subir la foto por un problema temporal. Inténtalo nuevamente.",
+    );
+  }
+
+  if (typeof result.url !== "string" || !result.url) {
+    throw new Error(
+      "La foto se envió, pero no recibimos su enlace. Inténtalo nuevamente.",
     );
   }
 
@@ -220,9 +257,6 @@ function ReferenceUpload({ file, onChange, error }) {
           Elegir imagen
         </label>
       </div>
-      <p className="text-sm leading-5 text-ink/58">
-        JPG, PNG o WebP (máx. 8 MB). Enlace privado por 24 horas.
-      </p>
       <input
         id="custom-order-reference"
         type="file"
@@ -367,15 +401,27 @@ export default function CustomOrderModal({ isOpen, onClose }) {
       return;
     }
 
-    if (!ACCEPTED_REFERENCE_TYPES.has(file.type)) {
+    if (file.size <= 0) {
       setReferenceFile(null);
-      setUploadError("Elige una imagen JPG, PNG o WebP.");
+      setUploadError(
+        "El archivo está vacío o dañado. Elige otra imagen.",
+      );
       return;
     }
 
-    if (file.size <= 0 || file.size > MAX_REFERENCE_FILE_BYTES) {
+    if (!ACCEPTED_REFERENCE_TYPES.has(file.type)) {
       setReferenceFile(null);
-      setUploadError("La imagen debe pesar menos de 8 MB.");
+      setUploadError(
+        "Formato no compatible. Elige una imagen JPG, PNG o WebP.",
+      );
+      return;
+    }
+
+    if (file.size > MAX_REFERENCE_FILE_BYTES) {
+      setReferenceFile(null);
+      setUploadError(
+        `La imagen pesa ${formatFileSize(file.size)}. El máximo permitido es 8 MB.`,
+      );
       return;
     }
 
@@ -480,9 +526,6 @@ export default function CustomOrderModal({ isOpen, onClose }) {
             >
               Diseña tu torta
             </h2>
-            <p className="mt-2 text-sm leading-6 text-ink/62 sm:text-base">
-              Completa los datos y envía tu solicitud por WhatsApp.
-            </p>
           </header>
 
           <form className="mt-5 space-y-4" onSubmit={handleSubmit}>

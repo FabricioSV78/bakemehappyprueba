@@ -20,7 +20,7 @@ function ComplementItems({ options, selectedItems, onQuantityChange }) {
           >
             <div className="flex min-w-0 items-center gap-3">
               <div
-                className={`h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-cream ring-1 sm:h-16 sm:w-16 ${
+                className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-cream ring-1 sm:h-16 sm:w-16 ${
                   isSelected ? "ring-plum/40" : "ring-blush/25"
                 }`}
               >

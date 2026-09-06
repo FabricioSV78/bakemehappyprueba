@@ -44,9 +44,7 @@ export default function Header({ currentPath = "/", onOpenOrderModal }) {
   const [isOpen, setIsOpen] = useState(false);
   const activePath = currentPath.startsWith("/producto/")
     ? "/tienda"
-    : currentPath === "/catalogo"
-      ? "/tienda"
-      : currentPath;
+    : currentPath;
   useEffect(() => {
     const closeMenu = () => setIsOpen(false);
     window.addEventListener("resize", closeMenu);

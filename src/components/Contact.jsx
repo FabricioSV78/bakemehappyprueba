@@ -19,6 +19,7 @@ const contactItems = [
     icon: Instagram,
     label: "Instagram",
     value: SITE_CONFIG.instagramHandle,
+    href: SITE_CONFIG.instagramUrl,
   },
   { icon: Clock3, label: "Horario", value: SITE_CONFIG.hours },
   { icon: MapPin, label: "Zona de atención", value: SITE_CONFIG.location },
@@ -37,7 +38,7 @@ export default function Contact() {
           />
 
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
-            {contactItems.map(({ icon: Icon, label, value }, index) => (
+            {contactItems.map(({ icon: Icon, label, value, href }, index) => (
               <Reveal
                 key={label}
                 className="flex gap-3"
@@ -50,9 +51,21 @@ export default function Contact() {
                   <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-ink/45">
                     {label}
                   </span>
-                  <span className="mt-1 block text-sm font-medium leading-6 text-ink">
-                    {value}
-                  </span>
+                  {href ? (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Abrir ${label} de Bake Me Happy`}
+                      className="mt-1 block text-sm font-medium leading-6 text-ink"
+                    >
+                      {value}
+                    </a>
+                  ) : (
+                    <span className="mt-1 block text-sm font-medium leading-6 text-ink">
+                      {value}
+                    </span>
+                  )}
                 </div>
               </Reveal>
             ))}

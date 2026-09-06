@@ -13,6 +13,11 @@
   ],
   "vars": {
     "UPLOAD_LINK_TTL_SECONDS": "86400",
-    "MAX_UPLOAD_BYTES": "8388608"
+    "MAX_UPLOAD_BYTES": "8388608",
+    "VITE_SITE_URL": "https://bakemehappyprueba.pages.dev",
+    "VITE_R2_PUBLIC_URL": "https://pub-853cf8959554454288e1c9e3169a2dcb.r2.dev",
+    "R2_SYNC_ON_BUILD": "1",
+    "R2_SYNC_BRANCH": "main",
+    "R2_PUBLIC_BUCKET_NAME": "bake-me-happy-assets"
   }
 }

@@ -58,6 +58,7 @@ async function handleDownload(context) {
   headers.set("Content-Disposition", "inline");
   headers.set("ETag", object.httpEtag);
   headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Robots-Tag", "noindex, nofollow");
   headers.set("Referrer-Policy", "no-referrer");
 
   return new Response(object.body, { headers });

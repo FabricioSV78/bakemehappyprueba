@@ -119,18 +119,50 @@ Build output directory: dist
 Node.js: 20 o superior
 ```
 
-Con Pages conectado a Git, el flujo para cambios de imágenes es:
+El comando `npm run build` detecta automáticamente cuando se ejecuta dentro de
+Cloudflare Pages. En la rama `main` sigue este orden:
+
+1. Convierte o actualiza las imágenes numeradas `1`, `2` y `3` a WebP.
+2. Regenera las versiones y verifica las galerías locales.
+3. Compara el manifiesto del bucket y sincroniza solo lo nuevo o modificado.
+4. Elimina del bucket únicamente los objetos obsoletos administrados por ese
+   manifiesto.
+5. Compila y publica la aplicación.
+
+Si la sincronización falla, la compilación termina con error y Pages conserva el
+despliegue anterior. Así nunca se publica una versión nueva que dependa de
+imágenes que todavía no llegaron a R2.
+
+En **Workers & Pages > tu proyecto > Settings > Variables and Secrets**, agrega
+para **Production**:
+
+```text
+VITE_R2_PUBLIC_URL=https://assets.tudominio.com
+R2_SYNC_ON_BUILD=1
+R2_SYNC_BRANCH=main
+R2_PUBLIC_BUCKET_NAME=bake-me-happy-assets
+CLOUDFLARE_ACCOUNT_ID=<ID de tu cuenta>
+CLOUDFLARE_API_TOKEN=<secreto cifrado>
+```
+
+`VITE_R2_PUBLIC_URL` debe contener el dominio real conectado al bucket, no el
+texto de ejemplo. Guarda `CLOUDFLARE_API_TOKEN` como **Secret** y limita el token
+a la cuenta correspondiente con permiso **Workers R2 Storage Edit**. No agregues
+el token a `.env`, `wrangler.jsonc` ni Git.
+
+Los previews no sincronizan el bucket porque solo la rama `main` tiene permiso
+para hacerlo. Si tu rama de producción cambia, actualiza `R2_SYNC_BRANCH`.
+
+Una vez configuradas las variables, el flujo cotidiano queda reducido a:
 
 ```powershell
-npm.cmd run r2:sync
 git add .
 git commit -m "Actualiza imágenes del catálogo"
 git push
 ```
 
-Cloudflare compila y publica la copia local de respaldo. La sincronización R2
-se realiza antes del `push` para que ninguna página nueva apunte a un objeto que
-todavía no existe.
+No hace falta ejecutar `npm.cmd run r2:sync` manualmente antes de cada push. Las
+copias locales se conservan dentro del despliegue como respaldo.
 
 Para un despliegue manual con Wrangler puede usarse:
 

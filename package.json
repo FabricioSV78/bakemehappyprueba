@@ -7,9 +7,9 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "predev": "node scripts/prepare-product-images.js && node scripts/generate-asset-versions.js",
+    "predev": "node scripts/prepare-product-images.js && node scripts/generate-asset-versions.js && node scripts/generate-seo-files.js",
     "dev": "vite",
-    "prebuild": "node scripts/prepare-product-images.js && node scripts/generate-asset-versions.js",
+    "prebuild": "node scripts/prepare-product-images.js && node scripts/generate-asset-versions.js && node scripts/generate-seo-files.js && node scripts/sync-images-on-pages-build.js",
     "build": "vite build",
     "postbuild": "node scripts/prune-build-assets.js",
     "lint": "eslint .",
@@ -24,7 +24,8 @@
     "r2:lifecycle": "wrangler r2 bucket lifecycle add bake-me-happy-private-uploads delete-temporary-uploads temp-uploads/ --expire-days 1",
     "prepare:brand-assets": "node scripts/prepare-brand-assets.js",
     "prepare:product-images": "node scripts/prepare-product-images.js",
-    "prepare:asset-versions": "node scripts/generate-asset-versions.js"
+    "prepare:asset-versions": "node scripts/generate-asset-versions.js",
+    "prepare:seo": "node scripts/generate-seo-files.js"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

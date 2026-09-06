@@ -57,7 +57,7 @@ function EditorialImage({
   return (
     <Reveal
       as="figure"
-      className={`overflow-hidden rounded-lg bg-lavender-light ${className}`}
+      className={`relative overflow-hidden rounded-lg bg-lavender-light ${className}`}
       direction="scale"
     >
       <AssetImage
@@ -67,6 +67,7 @@ function EditorialImage({
         style={{ objectPosition: imagePosition }}
         loading={loading}
         decoding="async"
+        revealWhenReady
         width={width}
         height={height}
       />

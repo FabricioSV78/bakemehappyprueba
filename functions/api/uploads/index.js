@@ -12,12 +12,17 @@ function hasRequiredBindings(env) {
   return Boolean(env.ORDER_UPLOADS && env.UPLOAD_LINK_SECRET);
 }
 
+function uploadError(code, error, status) {
+  return jsonResponse({ code, error }, status);
+}
+
 async function handleUpload(context) {
   const { request, env } = context;
 
   if (!hasRequiredBindings(env)) {
-    return jsonResponse(
-      { error: "El servicio de imágenes todavía no está configurado." },
+    return uploadError(
+      "UPLOADS_UNAVAILABLE",
+      "La subida de fotos no está disponible en este momento. Quita la foto para continuar sin ella o inténtalo más tarde.",
       503,
     );
   }
@@ -25,13 +30,21 @@ async function handleUpload(context) {
   const requestUrl = new URL(request.url);
   const origin = request.headers.get("Origin");
   if (!origin || origin !== requestUrl.origin) {
-    return jsonResponse({ error: "Origen de solicitud no permitido." }, 403);
+    return uploadError(
+      "INVALID_ORIGIN",
+      "No pudimos validar la solicitud. Recarga la página y vuelve a intentarlo.",
+      403,
+    );
   }
 
   const { maxBytes, ttlSeconds } = getUploadConfig(env);
   const contentType = request.headers.get("Content-Type") ?? "";
   if (!contentType.toLowerCase().startsWith("multipart/form-data;")) {
-    return jsonResponse({ error: "Formato de solicitud no permitido." }, 415);
+    return uploadError(
+      "INVALID_REQUEST_FORMAT",
+      "No pudimos reconocer el archivo enviado. Selecciona nuevamente una imagen JPG, PNG o WebP.",
+      415,
+    );
   }
 
   const contentLength = Number.parseInt(
@@ -39,28 +52,61 @@ async function handleUpload(context) {
     10,
   );
   if (!Number.isSafeInteger(contentLength) || contentLength <= 0) {
-    return jsonResponse({ error: "No se pudo verificar el tamaño del archivo." }, 411);
+    return uploadError(
+      "UNKNOWN_FILE_SIZE",
+      "No pudimos verificar el tamaño de la foto. Selecciónala nuevamente e inténtalo otra vez.",
+      411,
+    );
   }
   if (contentLength > maxBytes + 128 * 1024) {
-    return jsonResponse({ error: "La imagen supera el límite de 8 MB." }, 413);
+    return uploadError(
+      "FILE_TOO_LARGE",
+      "La imagen supera el máximo permitido de 8 MB. Reduce su tamaño o elige otra.",
+      413,
+    );
   }
 
   let formData;
   try {
     formData = await request.formData();
   } catch {
-    return jsonResponse({ error: "No se pudo leer la imagen enviada." }, 400);
+    return uploadError(
+      "UNREADABLE_UPLOAD",
+      "No pudimos leer la imagen. Puede estar dañada; guárdala nuevamente o elige otra.",
+      400,
+    );
   }
 
   const photo = formData.get("photo");
   if (!photo || typeof photo.arrayBuffer !== "function") {
-    return jsonResponse({ error: "Selecciona una imagen válida." }, 400);
+    return uploadError(
+      "MISSING_FILE",
+      "No recibimos ninguna foto. Selecciona una imagen e inténtalo nuevamente.",
+      400,
+    );
   }
 
-  if (!ACCEPTED_BROWSER_TYPES.has(photo.type) || photo.size <= 0 || photo.size > maxBytes) {
-    return jsonResponse(
-      { error: "Usa una imagen JPG, PNG o WebP de hasta 8 MB." },
-      photo.size > maxBytes ? 413 : 415,
+  if (photo.size <= 0) {
+    return uploadError(
+      "EMPTY_FILE",
+      "El archivo está vacío o dañado. Elige otra imagen.",
+      400,
+    );
+  }
+
+  if (photo.size > maxBytes) {
+    return uploadError(
+      "FILE_TOO_LARGE",
+      "La imagen supera el máximo permitido de 8 MB. Reduce su tamaño o elige otra.",
+      413,
+    );
+  }
+
+  if (!ACCEPTED_BROWSER_TYPES.has(photo.type)) {
+    return uploadError(
+      "UNSUPPORTED_FILE_TYPE",
+      "Formato no compatible. Elige una imagen JPG, PNG o WebP.",
+      415,
     );
   }
 
@@ -68,7 +114,11 @@ async function handleUpload(context) {
   const bytes = new Uint8Array(buffer);
   const detectedType = detectImageType(bytes);
   if (!detectedType || detectedType.contentType !== photo.type) {
-    return jsonResponse({ error: "El contenido del archivo no es una imagen válida." }, 415);
+    return uploadError(
+      "INVALID_IMAGE_CONTENT",
+      "El archivo no contiene una imagen válida o está dañado. Guárdalo nuevamente como JPG, PNG o WebP y vuelve a intentarlo.",
+      415,
+    );
   }
 
   const id = crypto.randomUUID();
@@ -108,8 +158,9 @@ export async function onRequest(context) {
       path: new URL(context.request.url).pathname,
       message: error instanceof Error ? error.message : String(error),
     }));
-    return jsonResponse(
-      { error: "No se pudo procesar la imagen. Inténtalo nuevamente." },
+    return uploadError(
+      "UPLOAD_FAILED",
+      "No pudimos guardar la foto por un problema temporal. Inténtalo nuevamente en unos minutos.",
       500,
     );
   }

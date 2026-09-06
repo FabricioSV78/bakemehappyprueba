@@ -1,4 +1,7 @@
+import { normalizeSiteUrl } from "./siteUrl";
+
 export const SITE_CONFIG = {
+  siteUrl: normalizeSiteUrl(import.meta.env.VITE_SITE_URL),
   whatsappNumber: "51986943948", // Reemplazar por el numero real, sin simbolos.
   whatsappDisplay: "+51 986 943 948",
   instagramHandle: "@bakemehappy.pe_",
@@ -20,10 +23,10 @@ export const NAV_LINKS = [
   { label: "Como hago mi pedido", href: "/pedido", path: "/pedido" },
 ];
 
-export const GENERAL_WHATSAPP_MESSAGE =
+const GENERAL_WHATSAPP_MESSAGE =
   "Hola, vengo de la pagina web de Bake Me Happy. Quisiera hacer un pedido o consultar por una torta personalizada.";
 
-export function getDirectWhatsAppUrl(message = GENERAL_WHATSAPP_MESSAGE) {
+function getDirectWhatsAppUrl(message = GENERAL_WHATSAPP_MESSAGE) {
   return `https://wa.me/${SITE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 

@@ -95,6 +95,7 @@ export default function Hero({ onOpenOrderModal }) {
               fetchPriority={index === 0 ? "high" : "low"}
               loading={index === 0 ? "eager" : "lazy"}
               decoding="async"
+              showPlaceholder={index === 0}
               onLoad={() => markSlideAsLoaded(index)}
             />
           );
@@ -112,7 +113,7 @@ export default function Hero({ onOpenOrderModal }) {
       <div className="mx-auto flex min-h-[max(42rem,calc(100svh-5rem))] w-full max-w-7xl items-end px-5 pb-12 pt-24 sm:px-8 sm:pb-14 lg:min-h-[max(42rem,calc(100svh-9.375rem))] lg:items-center lg:pb-12 lg:pt-0">
         <div className="w-full min-w-0 max-w-2xl sm:max-w-xl lg:max-w-2xl">
           <div
-            className="hero-reveal mb-4 inline-flex items-center gap-2 rounded-full border border-plum/35 bg-white/88 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-plum backdrop-blur sm:mb-6 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.16em]"
+            className="hero-reveal mb-6 hidden items-center gap-2 rounded-full border border-plum/35 bg-white/88 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-plum backdrop-blur xl:inline-flex"
             style={{ "--hero-delay": "60ms" }}
           >
             <CakeSlice size={15} aria-hidden="true" />

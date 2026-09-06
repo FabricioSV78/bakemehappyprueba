@@ -8,7 +8,7 @@ export function getOptionValue(option) {
   return option?.label ?? option ?? "";
 }
 
-export function getCakeSizeKey(sizeValue) {
+function getCakeSizeKey(sizeValue) {
   const normalizedSize = String(sizeValue ?? "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -27,7 +27,7 @@ export function getCakeSizeKey(sizeValue) {
   return null;
 }
 
-export function resolveOptionSurcharge(option, selectedSize = "") {
+function resolveOptionSurcharge(option, selectedSize = "") {
   if (!option || typeof option !== "object") return 0;
 
   const sizeKey = getCakeSizeKey(selectedSize);
@@ -121,7 +121,7 @@ export function getPreparationTime() {
   return "24 horas";
 }
 
-export function getPriceOptions(product) {
+function getPriceOptions(product) {
   if (product?.prices?.length) {
     return product.prices.map((price) => {
       const [label, value] = price.split(":");

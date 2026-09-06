@@ -28,6 +28,7 @@ export function jsonResponse(data, status = 200) {
     headers: {
       "Cache-Control": "no-store",
       "X-Content-Type-Options": "nosniff",
+      "X-Robots-Tag": "noindex, nofollow",
     },
   });
 }

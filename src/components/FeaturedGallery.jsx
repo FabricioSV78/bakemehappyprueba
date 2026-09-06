@@ -182,7 +182,7 @@ export default function FeaturedGallery({ onOpenOrderModal }) {
                   className="group/tile flex h-full min-h-0 flex-col overflow-hidden rounded-[1.5rem] border border-blush/30 bg-white shadow-soft transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-blush/65 hover:shadow-lift focus-visible:-translate-y-1 focus-visible:border-blush/65 focus-visible:shadow-lift"
                   aria-label={`Ver ${product.name}, ${getProductPriceLabel(product)}`}
                 >
-                  <span className="min-h-0 flex-1 overflow-hidden bg-white">
+                  <span className="relative min-h-0 flex-1 overflow-hidden bg-white">
                     <AssetImage
                       src={product.image}
                       alt={`${product.name} de Bake Me Happy`}

@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import {
   ArrowLeft,
@@ -146,10 +153,16 @@ export function TextField({
   type = "text",
   columnsClassName = "",
 }) {
+  const fieldId = useId();
+
   return (
-    <label className={`${FORM_FIELD_STACK_CLASS} ${columnsClassName}`}>
+    <label
+      className={`${FORM_FIELD_STACK_CLASS} ${columnsClassName}`}
+      htmlFor={fieldId}
+    >
       <span className={FORM_FIELD_LABEL_CLASS}>{label}</span>
       <input
+        id={fieldId}
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -457,6 +470,7 @@ function TimePickerField({
               <label className="grid min-w-0 gap-1.5">
                 <span className="text-xs font-medium text-ink/60">Hora</span>
                 <select
+                  name="hora-entrega"
                   value={customHour}
                   className="min-h-11 min-w-0 rounded-lg border border-blush/30 bg-white px-3 text-sm font-semibold text-ink outline-none focus:border-plum/45 focus:ring-4 focus:ring-plum/10"
                   onChange={(event) => {
@@ -483,6 +497,7 @@ function TimePickerField({
               <label className="grid min-w-0 gap-1.5">
                 <span className="text-xs font-medium text-ink/60">Minutos</span>
                 <select
+                  name="minutos-entrega"
                   value={
                     customHour === String(CLOSING_HOUR) ? "00" : customMinute
                   }
@@ -621,10 +636,13 @@ export function QuantityField({
 }
 
 export function TextAreaField({ label, value, onChange, placeholder, rows = 4 }) {
+  const fieldId = useId();
+
   return (
-    <label className={FORM_FIELD_STACK_CLASS}>
+    <label className={FORM_FIELD_STACK_CLASS} htmlFor={fieldId}>
       <span className={FORM_FIELD_LABEL_CLASS}>{label}</span>
       <textarea
+        id={fieldId}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}

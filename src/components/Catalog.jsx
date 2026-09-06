@@ -153,6 +153,7 @@ function PriceRangeFilter({ value, bounds, onChange, anchorRef }) {
           />
           <input
             type="range"
+            name="precio-minimo"
             min={bounds.min}
             max={bounds.max}
             step={PRICE_STEP}
@@ -163,6 +164,7 @@ function PriceRangeFilter({ value, bounds, onChange, anchorRef }) {
           />
           <input
             type="range"
+            name="precio-maximo"
             min={bounds.min}
             max={bounds.max}
             step={PRICE_STEP}
@@ -213,6 +215,7 @@ function OccasionSelect({ value, onChange }) {
     <FilterSection label="Ocasión">
       <div className="relative">
         <select
+          name="ocasion"
           value={value}
           onChange={(event) => onChange(event.target.value)}
           className="min-h-[3.25rem] w-full appearance-none rounded-full border border-blush/30 bg-white px-5 pr-12 text-sm font-semibold text-ink outline-none transition-colors focus:border-plum/60"
@@ -519,6 +522,7 @@ export default function Catalog() {
                   />
                   <input
                     type="search"
+                    name="buscar-productos"
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
                     placeholder="Buscar por nombre"

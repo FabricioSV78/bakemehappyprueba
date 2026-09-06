@@ -1,16 +1,19 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import CustomOrderModal from "./components/CustomOrderModal";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Seo from "./components/Seo";
 import WhatsAppFloat from "./components/WhatsAppFloat";
 import HomePage from "./pages/HomePage";
 import { categories, products } from "./data/products";
+import { getSeoForLocation } from "./data/seo";
 import { preloadProductAssets } from "./utils/assets";
 
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const CatalogPage = lazy(() => import("./pages/CatalogPage"));
 const OrderPage = lazy(() => import("./pages/OrderPage"));
 const ProductPage = lazy(() => import("./pages/ProductPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const catalogProducts = products.filter((product) =>
   categories.includes(product.category),
 );
@@ -19,7 +22,6 @@ const ROUTES = {
   "/": HomePage,
   "/quienes-somos": AboutPage,
   "/tienda": CatalogPage,
-  "/catalogo": CatalogPage,
   "/pedido": OrderPage,
 };
 
@@ -39,8 +41,19 @@ function migrateLegacyHashRoute() {
   );
 }
 
+function redirectLegacyCatalogRoute() {
+  if (normalizePathname(window.location.pathname) !== "/catalogo") return;
+
+  window.history.replaceState(
+    window.history.state,
+    "",
+    `/tienda${window.location.search}${window.location.hash}`,
+  );
+}
+
 function getCurrentLocation() {
   migrateLegacyHashRoute();
+  redirectLegacyCatalogRoute();
 
   return `${normalizePathname(window.location.pathname)}${window.location.search}${window.location.hash}`;
 }
@@ -74,7 +87,11 @@ export default function App() {
   const currentPath = getPathname(currentLocation);
   const Page = currentPath.startsWith("/producto/")
     ? ProductPage
-    : ROUTES[currentPath] ?? HomePage;
+    : ROUTES[currentPath] ?? NotFoundPage;
+  const seo = useMemo(
+    () => getSeoForLocation(currentLocation, currentPath),
+    [currentLocation, currentPath],
+  );
 
   useEffect(() => {
     const handlePopState = () => setCurrentLocation(getCurrentLocation());
@@ -148,7 +165,7 @@ export default function App() {
       return;
     }
 
-    if (currentPath === "/tienda" || currentPath === "/catalogo") {
+    if (currentPath === "/tienda") {
       catalogProducts.slice(0, 4).forEach((product) => {
         void preloadProductAssets({ image: product.image });
       });
@@ -157,6 +174,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-cream text-ink">
+      <Seo {...seo} />
       <a className="skip-link" href="#contenido">
         Ir al contenido
       </a>

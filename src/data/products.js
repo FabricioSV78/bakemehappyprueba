@@ -2,7 +2,6 @@ import { thematicProducts } from "./thematicProducts.js";
 import {
   cakeImagesWithFallback,
   hasNumberedCakeImages,
-  numberedCakeImages,
 } from "./productImages.js";
 
 const heroImages = [
@@ -25,7 +24,6 @@ const heroImages = [
 
 const productImage = heroImages[0].src;
 
-const personalizedBasePath = "/images/webp/TORTAS/tortas personalizadas";
 const classicBasePath = "/images/webp/TORTAS/tortas clasicas";
 const complementsBasePath = "/images/webp/COMPLEMENTOS";
 const complementOccasions = [
@@ -37,46 +35,6 @@ const complementOccasions = [
   "NIÑOS Y NIÑAS",
 ];
 
-const butterflyImages = numberedCakeImages(
-  `${personalizedBasePath}/personalizada 1`,
-  "Butterfly Cake",
-);
-const teddyImages = numberedCakeImages(
-  `${personalizedBasePath}/personalizada 2`,
-  "Teddy Cake",
-);
-const momImages = numberedCakeImages(
-  `${personalizedBasePath}/personalizada 3`,
-  "Torta Dia de Mama",
-);
-const rosetteImages = numberedCakeImages(
-  `${personalizedBasePath}/personalizada 4`,
-  "Rosette Cake",
-);
-const twoTierImages = numberedCakeImages(
-  `${personalizedBasePath}/personalizada 5`,
-  "Two Tier Cake",
-);
-const heartImages = numberedCakeImages(
-  `${personalizedBasePath}/personalizada 6`,
-  "Heart Cake",
-);
-const valentineImages = numberedCakeImages(
-  `${personalizedBasePath}/personalizada 7`,
-  "Valentine Berries Cake",
-);
-const appleImages = numberedCakeImages(
-  `${personalizedBasePath}/personalizada 8`,
-  "Apple Cake",
-);
-const floralMomImages = numberedCakeImages(
-  `${personalizedBasePath}/personalizada 9`,
-  "Floral Mama Cake",
-);
-const christmasTeddyImages = numberedCakeImages(
-  `${personalizedBasePath}/personalizada 10`,
-  "Christmas Teddy Cake",
-);
 function classicCakeImages(folder, productName) {
   return cakeImagesWithFallback(
     `${classicBasePath}/${folder}`,
@@ -164,243 +122,6 @@ const complexPopsiclesImages = productGalleryImages(
 );
 
 const existingProducts = [
-  {
-    id: 1,
-    name: "Butterfly Cake",
-    description: "Decorada con buttercream, perlas y mariposas comestibles.",
-    category: "Tortas tematicas",
-    occasions: ["PARA ELLA", "BODAS", "BABY", "NIÑOS Y NIÑAS"],
-    tags: ["Mariposas", "Buttercream", "Cumpleanos"],
-    image: butterflyImages[0].src,
-    images: butterflyImages,
-    imagePosition: butterflyImages[0].position,
-    servings: "15 a 30 porciones",
-    details:
-      "Torta de acabado delicado con mariposas, perlas y flores suaves. Ideal para cumpleanos elegantes, celebraciones familiares y mesas dulces en tonos pastel.",
-    flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: [
-      "Decoracion en buttercream",
-      "Topper segun diseno",
-      "Paleta de color personalizada",
-    ],
-    prices: [
-      "15 porciones: S/ 100",
-      "20 porciones: S/ 150",
-      "30 porciones: S/ 200",
-    ],
-  },
-  {
-    id: 2,
-    name: "Teddy Cake",
-    description:
-      "Decorada con buttercream y detalles modelados en masa elastica.",
-    category: "Tortas tematicas",
-    occasions: ["PARA EL", "PARA ELLA", "BABY", "NIÑOS Y NIÑAS"],
-    tags: ["Infantil", "Modelado", "Buttercream"],
-    image: teddyImages[0].src,
-    images: teddyImages,
-    imagePosition: teddyImages[0].position,
-    servings: "15 a 30 porciones",
-    details:
-      "Diseno tierno para cumpleanos infantiles o baby shower. Se puede personalizar con colores, nombre, edad y pequenos detalles modelados.",
-    flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: [
-      "Detalles en masa elastica",
-      "Nombre o edad",
-      "Diseno coordinado por referencia",
-    ],
-    prices: [
-      "15 porciones: S/ 120",
-      "20 porciones: S/ 170",
-      "30 porciones: S/ 210",
-    ],
-  },
-  {
-    id: 3,
-    name: "Torta Dia de Mama",
-    description:
-      "Flores delicadas, topper personalizado y un acabado hecho para celebrar.",
-    category: "Tortas tematicas",
-    occasions: ["PARA ELLA"],
-    tags: ["Mama", "Flores", "Topper"],
-    image: momImages[0].src,
-    images: momImages,
-    imagePosition: momImages[0].position,
-    servings: "Desde 15 porciones",
-    details:
-      "Torta floral con mensaje o topper personalizado. Funciona muy bien para Dia de la Madre, cumpleanos de mama o celebraciones familiares.",
-    flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: [
-      "Topper personalizado",
-      "Flores decorativas",
-      "Acabado en buttercream",
-    ],
-    price: "Desde S/ 120",
-  },
-  {
-    id: 4,
-    name: "Rosette Cake",
-    description:
-      "Cobertura de rosas en buttercream con tonos suaves y acabado romantico.",
-    category: "Tortas tematicas",
-    occasions: ["PARA ELLA", "BODAS"],
-    tags: ["Rosas", "Romantica", "Buttercream"],
-    image: rosetteImages[0].src,
-    images: rosetteImages,
-    imagePosition: rosetteImages[0].position,
-    servings: "15 a 30 porciones",
-    details:
-      "Diseno con rosetas de buttercream, perfecto para cumpleanos, aniversarios o detalles especiales. Puede trabajarse en rosa, lavanda, blanco o tonos combinados.",
-    flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: ["Rosetas en buttercream", "Color personalizado", "Mensaje corto"],
-    prices: [
-      "15 porciones: S/ 115",
-      "20 porciones: S/ 160",
-      "30 porciones: S/ 205",
-    ],
-  },
-  {
-    id: 5,
-    name: "Two Tier Cake",
-    description:
-      "Torta de dos pisos para celebraciones grandes y disenos mas protagonistas.",
-    category: "Tortas tematicas",
-    occasions: ["PARA EL", "PARA ELLA", "BODAS", "GRADUACION"],
-    tags: ["2 pisos", "Eventos", "Premium"],
-    image: twoTierImages[0].src,
-    images: twoTierImages,
-    imagePosition: twoTierImages[0].position,
-    servings: "25 a 65 porciones",
-    details:
-      "Formato de dos pisos recomendado para fiestas con mayor cantidad de invitados. Permite combinar colores, texturas, flores, toppers y detalles tematicos.",
-    flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: [
-      "Diseno de dos pisos",
-      "Estructura interna",
-      "Coordinacion de traslado",
-    ],
-    prices: ["Small: consultar", "Medium: consultar", "Large: consultar"],
-  },
-  {
-    id: 6,
-    name: "Heart Cake",
-    description:
-      "Torta en forma de corazon con borde decorado y mensaje personalizado.",
-    category: "Tortas tematicas",
-    occasions: ["PARA EL", "PARA ELLA"],
-    tags: ["Corazon", "Mensaje", "Regalo"],
-    image: heartImages[0].src,
-    images: heartImages,
-    imagePosition: heartImages[0].position,
-    servings: "20 a 30 porciones",
-    details:
-      "Una opcion dulce y expresiva para aniversarios, cumpleanos, pedidas o regalos personalizados. Se adapta con color, frase y decoracion.",
-    flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: ["Molde corazon", "Mensaje personalizado", "Borde decorado"],
-    prices: ["20 porciones: consultar", "30 porciones: consultar"],
-  },
-  {
-    id: 16,
-    name: "Valentine Berries Cake",
-    description:
-      "Torta corazon con buttercream, berries y topper personalizado.",
-    category: "Tortas tematicas",
-    occasions: ["PARA EL", "PARA ELLA"],
-    tags: ["Corazon", "Berries", "Regalo"],
-    image: valentineImages[0].src,
-    images: valentineImages,
-    imagePosition: valentineImages[0].position,
-    servings: "20 a 30 porciones",
-    details:
-      "Diseno en forma de corazon con borde de buttercream, frutos rojos y topper para fechas especiales. Ideal para San Valentin, aniversarios o regalos personalizados.",
-    flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: ["Molde corazon", "Berries decorativos", "Topper personalizado"],
-    prices: ["20 porciones: consultar", "30 porciones: consultar"],
-  },
-  {
-    id: 17,
-    name: "Apple Cake",
-    description:
-      "Decoracion tematica con manzana modelada, lazo y acabado elegante.",
-    category: "Tortas tematicas",
-    occasions: ["PARA EL", "PARA ELLA", "GRADUACION", "NIÑOS Y NIÑAS"],
-    tags: ["Tematica", "Modelado", "Buttercream"],
-    image: appleImages[0].src,
-    images: appleImages,
-    imagePosition: appleImages[0].position,
-    servings: "15 a 30 porciones",
-    details:
-      "Torta tematica con pieza modelada, lazo decorativo y paleta de color coordinada. Se adapta para cumpleanos, celebraciones infantiles o pedidos con referencia visual.",
-    flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: [
-      "Figura modelada",
-      "Color personalizado",
-      "Diseno coordinado por referencia",
-    ],
-    prices: [
-      "15 porciones: S/ 120",
-      "20 porciones: S/ 170",
-      "30 porciones: S/ 210",
-    ],
-  },
-  {
-    id: 18,
-    name: "Floral Mama Cake",
-    description:
-      "Torta floral con rosetas de buttercream y topper para mama.",
-    category: "Tortas tematicas",
-    occasions: ["PARA ELLA", "BODAS"],
-    tags: ["Mama", "Flores", "Buttercream"],
-    image: floralMomImages[0].src,
-    images: floralMomImages,
-    imagePosition: floralMomImages[0].position,
-    servings: "15 a 30 porciones",
-    details:
-      "Diseno floral con tonos calidos, rosetas de buttercream y topper personalizado. Perfecta para Dia de la Madre, cumpleanos de mama o celebraciones familiares.",
-    flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: ["Flores en buttercream", "Topper personalizado", "Mensaje corto"],
-    prices: [
-      "15 porciones: S/ 115",
-      "20 porciones: S/ 160",
-      "30 porciones: S/ 205",
-    ],
-  },
-  {
-    id: 19,
-    name: "Christmas Teddy Cake",
-    description:
-      "Diseno navideno con oso modelado, arbol y detalles festivos.",
-    category: "Tortas tematicas",
-    occasions: ["PARA EL", "PARA ELLA", "BABY", "NIÑOS Y NIÑAS"],
-    tags: ["Navidad", "Modelado", "Eventos"],
-    image: christmasTeddyImages[0].src,
-    images: christmasTeddyImages,
-    imagePosition: christmasTeddyImages[0].position,
-    servings: "15 a 30 porciones",
-    details:
-      "Torta navidena con oso modelado, arbol, regalos y lazo decorativo. Recomendada para reuniones familiares, cenas de temporada y celebraciones corporativas pequenas.",
-    flavors: ["Vainilla con chispas", "Chocolate humedo", "Red velvet"],
-    fillings: ["Manjar de olla", "Fudge de olla", "Frosting de queso crema"],
-    includes: [
-      "Detalles modelados",
-      "Paleta navidena",
-      "Diseno coordinado por referencia",
-    ],
-    prices: [
-      "15 porciones: S/ 130",
-      "20 porciones: S/ 180",
-      "30 porciones: S/ 230",
-    ],
-  },
   {
     id: 7,
     name: "Torta de Chocomanjar",
@@ -868,9 +589,7 @@ const existingProducts = [
 
 const allProducts = [
   ...thematicProducts,
-  ...existingProducts.filter(
-    (product) => product.category !== "Tortas tematicas",
-  ),
+  ...existingProducts,
 ];
 
 // Los productos ocultos conservan toda su configuración para poder reactivarlos.

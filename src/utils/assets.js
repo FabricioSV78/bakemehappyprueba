@@ -21,7 +21,7 @@ const configuredR2BaseUrl = normalizeBaseUrl(
 );
 
 export const R2_ASSETS_ENABLED = Boolean(configuredR2BaseUrl);
-export const R2_ASSET_ORIGIN = R2_ASSETS_ENABLED
+const R2_ASSET_ORIGIN = R2_ASSETS_ENABLED
   ? new URL(configuredR2BaseUrl).origin
   : "";
 const imagePreloadCache = new Map();
@@ -128,7 +128,7 @@ function loadDecodedImage(source, fallbackSource) {
   });
 }
 
-export function preloadAsset(source) {
+function preloadAsset(source) {
   if (typeof Image === "undefined" || !source) return Promise.resolve(false);
 
   const remoteSource = getAssetUrl(source);

@@ -100,6 +100,10 @@ async function main() {
       url.protocol === "https:" || url.hostname === "localhost",
       "VITE_R2_PUBLIC_URL debe usar HTTPS en produccion.",
     );
+    assert(
+      url.hostname !== "assets.tudominio.com",
+      "VITE_R2_PUBLIC_URL usa el dominio de ejemplo assets.tudominio.com. Usa el dominio real de R2 o deja la variable vacia.",
+    );
   }
 
   const localSecrets = parseEnvironment(await readOptional(".dev.vars"));
