@@ -18,6 +18,7 @@ function uploadError(code, error, status) {
 
 async function handleUpload(context) {
   const { request, env } = context;
+  const startedAt = Date.now();
 
   if (!hasRequiredBindings(env)) {
     return uploadError(
@@ -126,15 +127,27 @@ async function handleUpload(context) {
   const objectKey = `${UPLOAD_PREFIX}${fileKey}`;
   const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
 
+  const r2StartedAt = Date.now();
   await env.ORDER_UPLOADS.put(objectKey, buffer, {
     httpMetadata: { contentType: detectedType.contentType },
     customMetadata: { expiresAt: String(expires) },
   });
+  const r2DurationMs = Date.now() - r2StartedAt;
 
   const signature = await signUploadLink(env.UPLOAD_LINK_SECRET, objectKey, expires);
   const temporaryUrl = new URL(`/api/uploads/${fileKey}`, requestUrl.origin);
   temporaryUrl.searchParams.set("expires", String(expires));
   temporaryUrl.searchParams.set("signature", signature);
+
+  console.info(JSON.stringify({
+    event: "temporary_upload_stored",
+    route: "/api/uploads",
+    status: 201,
+    size_bytes: photo.size,
+    content_type: detectedType.contentType,
+    r2_duration_ms: r2DurationMs,
+    duration_ms: Date.now() - startedAt,
+  }));
 
   return jsonResponse(
     {
@@ -155,7 +168,7 @@ export async function onRequest(context) {
   } catch (error) {
     console.error(JSON.stringify({
       event: "temporary_upload_failed",
-      path: new URL(context.request.url).pathname,
+      route: "/api/uploads",
       message: error instanceof Error ? error.message : String(error),
     }));
     return uploadError(

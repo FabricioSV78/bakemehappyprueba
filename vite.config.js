@@ -7,10 +7,12 @@ import {
 } from "./src/data/siteUrl.js";
 import { categories, products } from "./src/data/products.js";
 import {
+  CATALOG_PRELOAD,
   IMAGE_ASSETS,
   IMAGE_SIZES,
   IMAGE_SOURCE_WIDTHS,
   RESPONSIVE_IMAGE_WIDTHS,
+  getCatalogPreloadCount,
   getResponsiveWidthsForSource,
 } from "./src/data/imageDelivery.js";
 import { assetVersions } from "./src/data/assetVersions.generated.js";
@@ -50,7 +52,12 @@ function getInitialImagePreloadScript(assetBaseUrl) {
           ? catalogProducts
           : catalogProducts.filter((product) => product.category === category);
 
-      return [category, matchingProducts.slice(0, 2).map(getAssetRecord)];
+      return [
+        category,
+        matchingProducts
+          .slice(0, CATALOG_PRELOAD.desktopCount)
+          .map(getAssetRecord),
+      ];
     }),
   );
   const productRecords = Object.fromEntries(
@@ -119,7 +126,9 @@ function getInitialImagePreloadScript(assetBaseUrl) {
     }
     if (pathname === "/tienda") {
       const category = new URLSearchParams(location.search).get("categoria") || "Todos";
-      (catalog[category] || catalog.Todos).forEach((record, index) => addPreload(record, ${JSON.stringify(IMAGE_SIZES.catalogCard)}, index === 0 ? "high" : "auto"));
+      const isDesktop = matchMedia(${JSON.stringify(CATALOG_PRELOAD.desktopMedia)}).matches;
+      const preloadCount = isDesktop ? ${getCatalogPreloadCount(true)} : ${getCatalogPreloadCount(false)};
+      (catalog[category] || catalog.Todos).slice(0, preloadCount).forEach((record, index) => addPreload(record, ${JSON.stringify(IMAGE_SIZES.catalogCard)}, index === 0 ? "high" : "auto"));
       return;
     }
     const productMatch = pathname.match(/^\\/producto\\/(\\d+)$/);

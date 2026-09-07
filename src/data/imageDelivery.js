@@ -4,6 +4,18 @@ export const IMAGE_ASSETS = Object.freeze({
   aboutPrimary: "/images/webp/QUIENES SOMOS/1.webp",
 });
 
+export const CATALOG_PRELOAD = Object.freeze({
+  desktopMedia: "(min-width: 1024px)",
+  desktopCount: 8,
+  mobileCount: 2,
+});
+
+export function getCatalogPreloadCount(isDesktop) {
+  return isDesktop
+    ? CATALOG_PRELOAD.desktopCount
+    : CATALOG_PRELOAD.mobileCount;
+}
+
 export const RESPONSIVE_IMAGE_WIDTHS = Object.freeze({
   product: Object.freeze([480, 960, 1200]),
   galleryPreview: Object.freeze([960, 1200]),

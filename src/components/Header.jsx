@@ -22,7 +22,6 @@ function HeaderContactLink({
       onClick={onClick}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      aria-label={`${label}: ${value}`}
       className={`group inline-flex items-center gap-2 rounded-full border border-white/65 bg-white/80 text-ink shadow-sm ring-1 ring-blush/35 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-plum/25 hover:text-plum ${
         compact ? "px-3 py-2 text-xs" : "px-3.5 py-2 text-sm"
       }`}

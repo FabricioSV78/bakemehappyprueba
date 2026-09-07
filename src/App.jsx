@@ -7,9 +7,11 @@ import WhatsAppFloat from "./components/WhatsAppFloat";
 import HomePage from "./pages/HomePage";
 import { categories, products } from "./data/products";
 import {
+  CATALOG_PRELOAD,
   IMAGE_ASSETS,
   IMAGE_SIZES,
   RESPONSIVE_IMAGE_WIDTHS,
+  getCatalogPreloadCount,
 } from "./data/imageDelivery";
 import { getSeoForLocation } from "./data/seo";
 import {
@@ -90,8 +92,9 @@ function getCatalogPreviewProducts(location) {
   const matchingProducts = requestedCategory
     ? catalogProducts.filter((product) => product.category === requestedCategory)
     : catalogProducts;
+  const isDesktop = window.matchMedia(CATALOG_PRELOAD.desktopMedia).matches;
 
-  return matchingProducts.slice(0, 2);
+  return matchingProducts.slice(0, getCatalogPreloadCount(isDesktop));
 }
 
 function PageLoadingFallback() {

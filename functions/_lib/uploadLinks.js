@@ -1,5 +1,12 @@
 const encoder = new TextEncoder();
 
+export function setSecurityHeaders(headers) {
+  headers.set("Strict-Transport-Security", "max-age=15552000");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  return headers;
+}
+
 function bytesToBase64Url(bytes) {
   let binary = "";
 
@@ -23,13 +30,14 @@ async function safeEqual(left, right) {
 }
 
 export function jsonResponse(data, status = 200) {
+  const headers = setSecurityHeaders(new Headers({
+    "Cache-Control": "no-store",
+    "X-Robots-Tag": "noindex, nofollow",
+  }));
+
   return Response.json(data, {
     status,
-    headers: {
-      "Cache-Control": "no-store",
-      "X-Content-Type-Options": "nosniff",
-      "X-Robots-Tag": "noindex, nofollow",
-    },
+    headers,
   });
 }
 

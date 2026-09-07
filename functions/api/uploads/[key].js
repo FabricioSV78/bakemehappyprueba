@@ -1,6 +1,7 @@
 import {
   isValidUploadSignature,
   jsonResponse,
+  setSecurityHeaders,
 } from "../../_lib/uploadLinks.js";
 
 const UPLOAD_PREFIX = "temp-uploads/";
@@ -8,6 +9,7 @@ const VALID_FILE_KEY = /^[0-9a-f-]{36}\.(?:jpg|png|webp)$/;
 
 async function handleDownload(context) {
   const { request, env, params } = context;
+  const startedAt = Date.now();
 
   if (!env.ORDER_UPLOADS || !env.UPLOAD_LINK_SECRET) {
     return jsonResponse({ error: "Servicio no configurado." }, 503);
@@ -43,7 +45,9 @@ async function handleDownload(context) {
     return jsonResponse({ error: "Este enlace ya venció." }, 410);
   }
 
+  const r2StartedAt = Date.now();
   const object = await env.ORDER_UPLOADS.get(objectKey);
+  const r2DurationMs = Date.now() - r2StartedAt;
   if (!object) return jsonResponse({ error: "Imagen no encontrada." }, 404);
 
   const storedExpiry = Number.parseInt(object.customMetadata?.expiresAt ?? "", 10);
@@ -57,9 +61,19 @@ async function handleDownload(context) {
   headers.set("Cache-Control", `private, max-age=${Math.min(300, expires - now)}, no-transform`);
   headers.set("Content-Disposition", "inline");
   headers.set("ETag", object.httpEtag);
-  headers.set("X-Content-Type-Options", "nosniff");
   headers.set("X-Robots-Tag", "noindex, nofollow");
+  setSecurityHeaders(headers);
   headers.set("Referrer-Policy", "no-referrer");
+
+  console.info(JSON.stringify({
+    event: "temporary_upload_downloaded",
+    route: "/api/uploads/:key",
+    status: 200,
+    size_bytes: object.size,
+    content_type: headers.get("Content-Type") || "application/octet-stream",
+    r2_duration_ms: r2DurationMs,
+    duration_ms: Date.now() - startedAt,
+  }));
 
   return new Response(object.body, { headers });
 }
@@ -74,7 +88,7 @@ export async function onRequest(context) {
   } catch (error) {
     console.error(JSON.stringify({
       event: "temporary_upload_download_failed",
-      path: new URL(context.request.url).pathname,
+      route: "/api/uploads/:key",
       message: error instanceof Error ? error.message : String(error),
     }));
     return jsonResponse(

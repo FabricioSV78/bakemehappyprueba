@@ -8,6 +8,10 @@ import {
   X,
 } from "lucide-react";
 import { categories, occasionOptions, products } from "../data/products";
+import {
+  CATALOG_PRELOAD,
+  getCatalogPreloadCount,
+} from "../data/imageDelivery";
 import { preloadCatalogProductImage } from "../utils/assets";
 import ProductCard from "./ProductCard";
 import Reveal from "./Reveal";
@@ -42,6 +46,25 @@ const OCCASION_LABELS = {
 
 const filterSectionLabelClass =
   "text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-ink/60";
+
+function useDesktopCatalogPreload() {
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window === "undefined"
+      ? false
+      : window.matchMedia(CATALOG_PRELOAD.desktopMedia).matches,
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(CATALOG_PRELOAD.desktopMedia);
+    const updateMatch = (event) => setIsDesktop(event.matches);
+
+    setIsDesktop(mediaQuery.matches);
+    mediaQuery.addEventListener("change", updateMatch);
+    return () => mediaQuery.removeEventListener("change", updateMatch);
+  }, []);
+
+  return isDesktop;
+}
 
 function FilterSection({ label, children, className = "" }) {
   return (
@@ -329,6 +352,8 @@ export default function Catalog() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(shouldOpenSizeGuideFromUrl);
+  const isDesktopPreload = useDesktopCatalogPreload();
+  const catalogPreloadCount = getCatalogPreloadCount(isDesktopPreload);
 
   const filteredProducts = useMemo(() => {
     const query = normalizeText(searchTerm.trim());
@@ -355,12 +380,15 @@ export default function Catalog() {
     Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE),
   );
   const pageStart = (currentPage - 1) * PRODUCTS_PER_PAGE;
-  const visibleProducts = filteredProducts.slice(
-    pageStart,
-    pageStart + PRODUCTS_PER_PAGE,
+  const visibleProducts = useMemo(
+    () =>
+      filteredProducts.slice(pageStart, pageStart + PRODUCTS_PER_PAGE),
+    [filteredProducts, pageStart],
   );
-  const firstCriticalProduct = visibleProducts[0];
-  const secondCriticalProduct = visibleProducts[1];
+  const criticalProducts = useMemo(
+    () => visibleProducts.slice(0, catalogPreloadCount),
+    [catalogPreloadCount, visibleProducts],
+  );
   const firstVisibleProduct = filteredProducts.length ? pageStart + 1 : 0;
   const lastVisibleProduct = Math.min(
     pageStart + visibleProducts.length,
@@ -404,13 +432,10 @@ export default function Catalog() {
   }, [totalPages]);
 
   useEffect(() => {
-    if (firstCriticalProduct) {
-      void preloadCatalogProductImage(firstCriticalProduct, "high");
-    }
-    if (secondCriticalProduct) {
-      void preloadCatalogProductImage(secondCriticalProduct);
-    }
-  }, [firstCriticalProduct, secondCriticalProduct]);
+    criticalProducts.forEach((product, index) => {
+      void preloadCatalogProductImage(product, index === 0 ? "high" : "auto");
+    });
+  }, [criticalProducts]);
 
   const clearFilters = () => {
     setActiveCategory("Todos");
@@ -616,7 +641,10 @@ export default function Catalog() {
               <div className="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 min-[420px]:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 min-[1800px]:grid-cols-4">
                 {visibleProducts.map((product, index) => (
                   <div key={product.id} className="h-full">
-                    <ProductCard product={product} priority={index < 2} />
+                    <ProductCard
+                      product={product}
+                      priority={index < catalogPreloadCount}
+                    />
                   </div>
                 ))}
               </div>

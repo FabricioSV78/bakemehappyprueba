@@ -19,6 +19,7 @@ import {
   isDeliveryTimeWithinRange,
   resolveOptionSurcharges,
 } from "../utils/productDetail";
+import { optimizeReferenceImage } from "../utils/referenceImageCompression";
 import {
   DateTimeFields,
   SelectInput as ResponsiveSelectInput,
@@ -462,7 +463,8 @@ export default function CustomOrderModal({ isOpen, onClose }) {
       let temporaryPhotoUrl = "";
 
       if (referenceFile) {
-        temporaryPhotoUrl = await uploadReferencePhoto(referenceFile);
+        const uploadFile = await optimizeReferenceImage(referenceFile);
+        temporaryPhotoUrl = await uploadReferencePhoto(uploadFile);
       }
 
       const whatsappUrl = getWhatsAppUrl(
