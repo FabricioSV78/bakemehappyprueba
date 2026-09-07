@@ -160,6 +160,28 @@ export function getLocalDateValue(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
+export const MINIMUM_DELIVERY_LEAD_DAYS = 2;
+
+export function getMinimumDeliveryDateValue(today = new Date()) {
+  const minimumDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + MINIMUM_DELIVERY_LEAD_DAYS,
+  );
+
+  return getLocalDateValue(minimumDate);
+}
+
+export function isDeliveryDateAllowed(value, today = new Date()) {
+  const parsedDate = parseLocalDate(value);
+
+  return (
+    parsedDate !== null &&
+    getLocalDateValue(parsedDate) === value &&
+    value >= getMinimumDeliveryDateValue(today)
+  );
+}
+
 export function formatDisplayDate(value) {
   const date = parseLocalDate(value);
   if (!date) return "";

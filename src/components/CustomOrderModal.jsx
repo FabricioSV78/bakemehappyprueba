@@ -14,8 +14,11 @@ import {
 import { getWhatsAppPreparingUrl, getWhatsAppUrl } from "../data/site";
 import { cakeFlavors, fillingFlavors, sizeGuide } from "../data/products";
 import {
+  formatDisplayDate,
   formatSoles,
+  getMinimumDeliveryDateValue,
   getOptionSurcharge,
+  isDeliveryDateAllowed,
   isDeliveryTimeWithinRange,
   resolveOptionSurcharges,
 } from "../utils/productDetail";
@@ -435,6 +438,13 @@ export default function CustomOrderModal({ isOpen, onClose }) {
 
     if (!form.date || !form.time) {
       setScheduleError("Selecciona la fecha y la hora de entrega.");
+      return;
+    }
+
+    if (!isDeliveryDateAllowed(form.date)) {
+      setScheduleError(
+        `Selecciona una fecha desde ${formatDisplayDate(getMinimumDeliveryDateValue())}. Los pedidos requieren al menos 2 días de anticipación.`,
+      );
       return;
     }
 

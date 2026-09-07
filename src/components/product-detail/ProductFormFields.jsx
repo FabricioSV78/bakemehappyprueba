@@ -23,6 +23,7 @@ import {
   formatDisplayTime,
   formatSoles,
   getLocalDateValue,
+  getMinimumDeliveryDateValue,
   getOptionValue,
   getSelectHelper,
   parseLocalDate,
@@ -180,14 +181,22 @@ function DatePickerField({
   popoverPlacement = "bottom",
 }) {
   const selectedDate = parseLocalDate(value);
+  const minimumDateValue = getMinimumDeliveryDateValue();
+  const minimumDate = parseLocalDate(minimumDateValue);
   const [isOpen, setIsOpen] = useState(false);
   const [viewDate, setViewDate] = useState(() => {
-    const initialDate = selectedDate ?? new Date();
+    const initialDate = selectedDate ?? minimumDate;
     return new Date(initialDate.getFullYear(), initialDate.getMonth(), 1);
   });
   const containerRef = useRef(null);
   const popoverRef = useRef(null);
   const todayValue = getLocalDateValue();
+  const minimumMonth = new Date(
+    minimumDate.getFullYear(),
+    minimumDate.getMonth(),
+    1,
+  );
+  const canViewPreviousMonth = viewDate > minimumMonth;
   const popoverPosition = useFloatingPopoverPosition({
     align: "left",
     anchorRef: containerRef,
@@ -273,8 +282,9 @@ function DatePickerField({
           <div className="flex items-center justify-between gap-3">
             <button
               type="button"
-              className="grid h-10 w-10 place-items-center rounded-full border border-blush/25 text-ink transition-colors hover:bg-cream"
+              className="grid h-10 w-10 place-items-center rounded-full border border-blush/25 text-ink transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:opacity-25 disabled:hover:bg-transparent"
               onClick={() => changeMonth(-1)}
+              disabled={!canViewPreviousMonth}
               aria-label="Mes anterior"
             >
               <ArrowLeft size={17} aria-hidden="true" />
@@ -308,7 +318,7 @@ function DatePickerField({
               const isToday = dateValue === todayValue;
               const isCurrentMonth =
                 calendarDate.getMonth() === viewDate.getMonth();
-              const isPast = dateValue < todayValue;
+              const isUnavailable = dateValue < minimumDateValue;
 
               return (
                 <button
@@ -322,7 +332,7 @@ function DatePickerField({
                         : "text-ink hover:bg-lavender-light"
                   } ${isCurrentMonth ? "" : "opacity-35"}`}
                   onClick={() => selectDate(dateValue)}
-                  disabled={isPast}
+                  disabled={isUnavailable}
                   aria-current={isToday ? "date" : undefined}
                   aria-pressed={isSelected}
                 >
@@ -332,7 +342,11 @@ function DatePickerField({
             })}
           </div>
 
-          <div className="mt-4 flex items-center justify-between border-t border-blush/20 pt-3">
+          <p className="mt-3 text-center text-xs font-medium text-ink/55">
+            Pedidos con mínimo 2 días de anticipación.
+          </p>
+
+          <div className="mt-3 flex items-center justify-between border-t border-blush/20 pt-3">
             <button
               type="button"
               className="text-xs font-semibold text-ink/55 hover:text-plum disabled:opacity-35"
@@ -344,9 +358,9 @@ function DatePickerField({
             <button
               type="button"
               className="rounded-full bg-lavender-light px-4 py-2 text-xs font-semibold text-plum"
-              onClick={() => selectDate(todayValue)}
+              onClick={() => selectDate(minimumDateValue)}
             >
-              Elegir hoy
+              Primera disponible
             </button>
           </div>
         </div>,
